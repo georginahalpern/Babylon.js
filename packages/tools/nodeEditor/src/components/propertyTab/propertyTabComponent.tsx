@@ -38,7 +38,7 @@ import type { LockObject } from "shared-ui-components/tabs/propertyGrids/lockObj
 import { TextLineComponent } from "shared-ui-components/lines/textLineComponent";
 import { FloatLineComponent } from "shared-ui-components/lines/floatLineComponent";
 import { SliderLineComponent } from "shared-ui-components/lines/sliderLineComponent";
-import { SetToDefaultGaussianSplatting } from "core/Materials/Node/nodeMaterialDefault";
+import { SetToDefaultGaussianSplatting, SetToDefaultSFE } from "core/Materials/Node/nodeMaterialDefault";
 import { alphaModeOptions } from "shared-ui-components/constToOptionsMaps";
 
 interface IPropertyTabComponentProps {
@@ -357,6 +357,9 @@ export class PropertyTabComponent extends React.Component<IPropertyTabComponentP
                 case NodeMaterialModes.PostProcess:
                     this.props.globalState.nodeMaterial!.setToDefaultPostProcess();
                     break;
+                case NodeMaterialModes.SFE:
+                    SetToDefaultSFE(this.props.globalState.nodeMaterial!);
+                    break;
                 case NodeMaterialModes.Particle:
                     this.props.globalState.nodeMaterial!.setToDefaultParticle();
                     break;
@@ -438,6 +441,7 @@ export class PropertyTabComponent extends React.Component<IPropertyTabComponentP
             { label: "Particle", value: NodeMaterialModes.Particle },
             { label: "Procedural", value: NodeMaterialModes.ProceduralTexture },
             { label: "Gaussian Splatting", value: NodeMaterialModes.GaussianSplatting },
+            { label: "Smart Filters", value: NodeMaterialModes.SFE },
         ];
 
         const engineList = [
@@ -497,6 +501,9 @@ export class PropertyTabComponent extends React.Component<IPropertyTabComponentP
                                         break;
                                     case NodeMaterialModes.PostProcess:
                                         this.props.globalState.nodeMaterial!.setToDefaultPostProcess();
+                                        break;
+                                    case NodeMaterialModes.SFE:
+                                        SetToDefaultSFE(this.props.globalState.nodeMaterial!);
                                         break;
                                     case NodeMaterialModes.Particle:
                                         this.props.globalState.nodeMaterial!.setToDefaultParticle();
@@ -566,6 +573,16 @@ export class PropertyTabComponent extends React.Component<IPropertyTabComponentP
                                 this.save();
                             }}
                         />
+                        {this.props.globalState.mode === NodeMaterialModes.SFE && (
+                            <ButtonLineComponent
+                                label="Export shaders for SFE"
+                                onClick={async () => {
+                                    this.props.globalState.nodeMaterial.build();
+                                    const fragment = await this.props.globalState.nodeMaterial!._getProcessedFragmentAsync();
+                                    StringTools.DownloadAsFile(this.props.globalState.hostDocument, fragment, "nme.block.glsl");
+                                }}
+                            />
+                        )}
                         <ButtonLineComponent
                             label="Generate code"
                             onClick={() => {
