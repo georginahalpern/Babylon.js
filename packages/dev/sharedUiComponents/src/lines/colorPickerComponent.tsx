@@ -1,7 +1,9 @@
 import * as React from "react";
-import type { Color4, Color3 } from "core/Maths/math.color";
-import { ColorPicker } from "../colorPicker/colorPicker";
+import { Color3 } from "core/Maths/math.color";
+import { Color4 } from "core/Maths/math.color";
 import type { LockObject } from "../tabs/propertyGrids/lockObject";
+import { ColorPickerPopup } from "shared-ui-components/fluentComponents/colorPicker";
+import { FluentProvider, webDarkTheme } from "@fluentui/react-components";
 
 export interface IColorPickerLineProps {
     value: Color4 | Color3;
@@ -80,38 +82,60 @@ export class ColorPickerLine extends React.Component<IColorPickerLineProps, ICol
 
     override render() {
         return (
-            <div className="color-picker">
-                {this.props.icon && <img src={this.props.icon} title={this.props.iconLabel} alt={this.props.iconLabel} className="icon" />}
-                <div className="color-rect-background" ref={this._floatHostRef} onClick={() => this.setState({ pickerEnabled: true })}>
-                    <div className="color-rect" style={{ background: this.state.hex }}></div>
-                </div>
-                {this.state.pickerEnabled && (
-                    <>
-                        <div
-                            className="color-picker-cover"
-                            onClick={(evt) => {
-                                if (evt.target !== this._floatRef.current?.ownerDocument?.querySelector(".color-picker-cover")) {
-                                    return;
-                                }
-                                this.setState({ pickerEnabled: false });
-                            }}
-                        >
-                            <div className="color-picker-float" ref={this._floatRef}>
-                                <ColorPicker
-                                    lockObject={this.props.lockObject || ({} as any)}
-                                    color={this.state.color}
-                                    linearhint={this.props.linearHint}
-                                    onColorChanged={(color: Color3 | Color4) => {
-                                        const hex: string = color.toHexString();
-                                        this.setState({ hex, color });
-                                        this.props.onColorChanged(hex);
-                                    }}
-                                />
-                            </div>
-                        </div>
-                    </>
-                )}
-            </div>
+            <FluentProvider theme={webDarkTheme}>
+                <ColorPickerPopup
+                    value={this.state.color}
+                    onColorChanged={(color: Color3 | Color4) => {
+                        const hex: string = color.toHexString();
+                        this.setState({ hex, color });
+                        this.props.onColorChanged(hex);
+                    }}
+                />
+            </FluentProvider>
+
+            // <div className="color-picker">
+            //     {this.props.icon && <img src={this.props.icon} title={this.props.iconLabel} alt={this.props.iconLabel} className="icon" />}
+            //     <div className="color-rect-background" ref={this._floatHostRef} onClick={() => this.setState({ pickerEnabled: true })}>
+            //         <div className="color-rect" style={{ background: this.state.hex }}></div>
+            //     </div>
+            //     {this.state.pickerEnabled && (
+            //         <>
+            //             <div
+            //                 className="color-picker-cover"
+            //                 onClick={(evt) => {
+            //                     if (evt.target !== this._floatRef.current?.ownerDocument?.querySelector(".color-picker-cover")) {
+            //                         return;
+            //                     }
+            //                     this.setState({ pickerEnabled: false });
+            //                 }}
+            //             >
+            //                 <div className="color-picker-float" ref={this._floatRef}>
+            //                     {/* <ColorPicker
+            //                         lockObject={this.props.lockObject || ({} as any)}
+            //                         color={this.state.color}
+            //                         linearhint={this.props.linearHint}
+            //                         onColorChanged={(color: Color3 | Color4) => {
+            //                             const hex: string = color.toHexString();
+            //                             this.setState({ hex, color });
+            //                             this.props.onColorChanged(hex);
+            //                         }}
+            //                     /> */}
+            //                     {
+            //                         <ColorPicker
+            //                             color={rgbToHsv(this.state.color)}
+            //                             onColorChange={(event, data) => {
+            //                                 const color = hsvToRgb(data.color);
+            //                                 const hex: string = color.toHexString();
+            //                                 this.setState({ hex, color });
+            //                                 this.props.onColorChanged(hex);
+            //                             }}
+            //                         />
+            //                     }
+            //                 </div>
+            //             </div>
+            //         </>
+            //     )}
+            // </div>
         );
     }
 }

@@ -43,7 +43,7 @@ module.exports = (env) => {
                 loader: "ts-loader",
                 issuer: [path.resolve(basePathForSources, "loaders", outputDirectoryForAliases)],
                 options: {
-                    transpileOnly: false,
+                    transpileOnly: true,
                     configFile: path.resolve(basePathForSources, "loaders", "./tsconfig.build.json"),
                 },
             },
@@ -51,7 +51,7 @@ module.exports = (env) => {
                 loader: "ts-loader",
                 issuer: [path.resolve(basePathForSources, "serializers", outputDirectoryForAliases)],
                 options: {
-                    transpileOnly: false,
+                    transpileOnly: true,
                     configFile: path.resolve(basePathForSources, "serializers", "./tsconfig.build.json"),
                 },
             },

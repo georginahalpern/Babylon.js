@@ -4,6 +4,7 @@ import type { PropertyChangedEvent } from "../propertyChangedEvent";
 import { copyCommandToClipboard, getClassNameWithNamespace } from "../copyCommandToClipboard";
 import { Tools } from "core/Misc/tools";
 import { FloatLineComponent } from "./floatLineComponent";
+import { Slider, Input } from "@fluentui/react-components";
 import type { LockObject } from "../tabs/propertyGrids/lockObject";
 import copyIcon from "../imgs/copy.svg";
 
@@ -28,11 +29,49 @@ interface ISliderLineComponentProps {
     allowOverflow?: boolean;
 }
 
+type SyncedSliderInputProps = {
+    minimum: number;
+    maximum: number;
+    step: number;
+    label: string;
+    initialValue?: number;
+    onChange: (value: number) => void;
+    target?: any;
+    propertyName?: string;
+    // lockObject={this.props.lockObject}
+    // decimalCount={0}
+};
+
+export const SyncedSliderInput: React.FC<SyncedSliderInputProps> = (props: SyncedSliderInputProps) => {
+    const [value, setValue] = React.useState(props.initialValue ?? props.target?.[props.propertyName!] ?? props.maximum);
+
+    const handleSliderChange = (_: any, data: { value: number }) => {
+        setValue(data.value);
+        props.onChange(data.value); // Notify parent
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = Number(e.target.value);
+        if (!isNaN(newValue)) {
+            setValue(newValue);
+            props.onChange(newValue); // Notify parent
+        }
+    };
+
+    return (
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <Slider min={props.minimum} max={props.maximum} step={props.step} value={value} onChange={handleSliderChange} />
+            <Input type="number" value={value.toString()} onChange={handleInputChange} />
+        </div>
+    );
+};
+
 export class SliderLineComponent extends React.Component<ISliderLineComponentProps, { value: number }> {
     private _localChange = false;
     constructor(props: ISliderLineComponentProps) {
         super(props);
 
+        // Either initializes the value as the supplied directValue or grabs p
         if (this.props.directValue !== undefined) {
             this.state = {
                 value: this.props.directValue,

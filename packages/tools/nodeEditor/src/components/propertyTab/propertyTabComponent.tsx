@@ -38,7 +38,7 @@ import { OptionsLine } from "shared-ui-components/lines/optionsLineComponent";
 import type { LockObject } from "shared-ui-components/tabs/propertyGrids/lockObject";
 import { TextLineComponent } from "shared-ui-components/lines/textLineComponent";
 import { FloatLineComponent } from "shared-ui-components/lines/floatLineComponent";
-import { SliderLineComponent } from "shared-ui-components/lines/sliderLineComponent";
+import { SliderLineComponent, SyncedSliderInput } from "shared-ui-components/lines/sliderLineComponent";
 import { SetToDefaultGaussianSplatting, SetToDefaultSFE } from "core/Materials/Node/nodeMaterialDefault";
 interface IPropertyTabComponentProps {
     globalState: GlobalState;
@@ -551,7 +551,7 @@ export class PropertyTabComponent extends React.Component<IPropertyTabComponentP
                                 DataStorage.WriteBoolean("EmbedTextures", value);
                             }}
                         />
-                        <SliderLineComponent
+                        {/* <SliderLineComponent
                             lockObject={this.props.lockObject}
                             label="Grid size"
                             minimum={0}
@@ -559,6 +559,21 @@ export class PropertyTabComponent extends React.Component<IPropertyTabComponentP
                             step={5}
                             decimalCount={0}
                             directValue={gridSize}
+                            onChange={(value) => {
+                                DataStorage.WriteNumber("GridSize", value);
+                                this.props.globalState.stateManager.onGridSizeChanged.notifyObservers();
+                                this.forceUpdate();
+                            }}
+                        />
+                         */}
+                        <SyncedSliderInput
+                            //lockObject={this.props.lockObject}
+                            label="Grid size"
+                            minimum={0}
+                            maximum={100}
+                            step={5}
+                            //decimalCount={0}
+                            initialValue={gridSize}
                             onChange={(value) => {
                                 DataStorage.WriteNumber("GridSize", value);
                                 this.props.globalState.stateManager.onGridSizeChanged.notifyObservers();

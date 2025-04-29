@@ -281,8 +281,9 @@ export class FloatLineComponent extends React.Component<IFloatLineComponentProps
                         </div>
                     </div>
                 )}
+
                 {this.props.useEuler && (
-                    <SliderLineComponent
+                    <SliderLineComponent // why use euler?
                         lockObject={this.props.lockObject}
                         label={this.props.label}
                         minimum={0}
