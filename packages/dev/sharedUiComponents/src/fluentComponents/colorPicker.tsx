@@ -188,10 +188,6 @@ export const ColorPickerPopup = (props: IFluentColorPickerProps) => {
 
     const styles = useStyles();
     const [color, setColor] = React.useState(props.value);
-    // const [hex, setHex] = React.useState(color.toHexString());
-    // const [rgb, setRgb] = React.useState(tinycolor(color).toRgb());
-    // const [alpha, setAlpha] = React.useState(color instanceof Color4 ? color.a : 1);
-    // const [namedColor, setNamedColor] = React.useState("");
 
     const [popoverOpen, setPopoverOpen] = React.useState(false);
 
@@ -260,6 +256,15 @@ export const ColorPickerPopup = (props: IFluentColorPickerProps) => {
                 </PopoverTrigger>
 
                 <PopoverSurface>
+                    {props.linearHint && (
+                        <div>
+                            Note: This color picker is attached to a material whose color is stored in linear space (ex: PBR Material), and Babylon converts the color to gamma
+                            space before rendering on screen because the human eye is best at processing colors in gamma space. We thus also want to display the color picker in
+                            gamma space so that the color chosen here will match the color seen in your material. If you want to copy/paste the HEX into your code, you can either
+                            use Color3.FromHexString(LINEAR_HEX) or Color3.FromHexString(GAMMA_HEX).toLinearSpace() Both will send the linear value to the PBR material, and the
+                            conversion to gamma will occur within Babylon engine.
+                        </div>
+                    )}
                     <ColorPicker color={rgbaToHsv(color)} onColorChange={handleChange}>
                         <ColorArea inputX={{ "aria-label": "Saturation", ...colorAriaAttributes }} inputY={{ "aria-label": "Brightness", ...colorAriaAttributes }} />
 
@@ -275,10 +280,25 @@ export const ColorPickerPopup = (props: IFluentColorPickerProps) => {
                     <div className={styles.inputFields}>
                         <InputHexField
                             id={hexId}
+                            label={"Gamma Hex"}
                             color={color}
                             onChange={(e) => {
                                 const value = e.target.value;
                                 HEX_COLOR_REGEX.test(value) && setColor(Color3.FromHexString(value));
+                                // setHex((oldValue) => (HEX_COLOR_REGEX.test(value) ? value : oldValue));
+                            }}
+                        />
+
+                        <InputHexField
+                            id={hexId}
+                            label={"Linear Hex"}
+                            disabled={!props.linearHint}
+                            isLinear={true}
+                            color={color}
+                            onChange={(e) => {
+                                // If linearHint (aka PBR material, ensure the other values are displayed in gamma even if linear hex changes)
+                                const value = e.target.value;
+                                HEX_COLOR_REGEX.test(value) && setColor(Color3.FromHexString(value).toGammaSpace());
                                 // setHex((oldValue) => (HEX_COLOR_REGEX.test(value) ? value : oldValue));
                             }}
                         />
@@ -299,14 +319,23 @@ export const ColorPickerPopup = (props: IFluentColorPickerProps) => {
     );
 };
 
-const InputHexField = ({ label = "Hex", id, color, onChange }: { label?: string; id: string; color: Color3 | Color4; onChange: InputProps["onChange"] }) => {
+interface InputHexProps {
+    label?: string;
+    id: string;
+    color: Color3 | Color4;
+    onChange: InputProps["onChange"];
+    isLinear?: boolean;
+    disabled?: boolean;
+}
+const InputHexField = ({ label = "Hex", id, color, onChange, isLinear = false, disabled = false }: InputHexProps) => {
     const styles = useStyles();
     return (
         <div className={styles.colorFieldWrapper}>
             <Label htmlFor={id}>{label}</Label>
             <Input
+                disabled={disabled}
                 className={styles.input}
-                value={color.toHexString()}
+                value={isLinear ? color.toLinearSpace().toHexString() : color.toHexString()}
                 id={id}
                 onChange={onChange}
                 //onBlur={handleOnBlur}

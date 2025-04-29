@@ -84,6 +84,7 @@ export class ColorPickerLine extends React.Component<IColorPickerLineProps, ICol
         return (
             <FluentProvider theme={webDarkTheme}>
                 <ColorPickerPopup
+                    linearHint={this.props.linearHint}
                     value={this.state.color}
                     onColorChanged={(color: Color3 | Color4) => {
                         const hex: string = color.toHexString();
