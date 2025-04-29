@@ -126,7 +126,18 @@ const useStyles = makeStyles({
         width: "80px",
     },
     spinButton: {
-        minWidth: "60px",
+        // minWidth: "60px",
+    },
+    container: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "16px",
+    },
+    row: {
+        display: "flex",
+        flexDirection: "row",
+        gap: "12px",
+        alignItems: "center",
     },
 });
 
@@ -277,42 +288,52 @@ export const ColorPickerPopup = (props: IFluentColorPickerProps) => {
                             //aria-valuetext={`${color.a * 100}%`}
                         />
                     </ColorPicker>
-                    <div className={styles.inputFields}>
-                        <InputHexField
-                            id={hexId}
-                            label={"Gamma Hex"}
-                            color={color}
-                            onChange={(e) => {
-                                const value = e.target.value;
-                                HEX_COLOR_REGEX.test(value) && setColor(Color3.FromHexString(value));
-                                // setHex((oldValue) => (HEX_COLOR_REGEX.test(value) ? value : oldValue));
-                            }}
-                        />
+                    <div className={styles.container}>
+                        {/* <div className={styles.inputFields}> */}
+                        {/* Top Row: Preview, Gamma Hex, Linear Hex */}
+                        <div className={styles.row}>
+                            <div className={styles.previewColor} style={{ backgroundColor: color.toHexString() }} />
+                            <InputHexField
+                                label={"Gamma Hex"}
+                                id={hexId}
+                                color={color}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    HEX_COLOR_REGEX.test(value) && setColor(Color3.FromHexString(value));
+                                    // setHex((oldValue) => (HEX_COLOR_REGEX.test(value) ? value : oldValue));
+                                }}
+                            />
 
-                        <InputHexField
-                            id={hexId}
-                            label={"Linear Hex"}
-                            disabled={!props.linearHint}
-                            isLinear={true}
-                            color={color}
-                            onChange={(e) => {
-                                // If linearHint (aka PBR material, ensure the other values are displayed in gamma even if linear hex changes)
-                                const value = e.target.value;
-                                HEX_COLOR_REGEX.test(value) && setColor(Color3.FromHexString(value).toGammaSpace());
-                                // setHex((oldValue) => (HEX_COLOR_REGEX.test(value) ? value : oldValue));
-                            }}
-                        />
+                            <InputHexField
+                                label={"Linear Hex"}
+                                id={hexId}
+                                disabled={!props.linearHint}
+                                isLinear={true}
+                                color={color}
+                                onChange={(e) => {
+                                    // If linearHint (aka PBR material, ensure the other values are displayed in gamma even if linear hex changes)
+                                    const value = e.target.value;
+                                    HEX_COLOR_REGEX.test(value) && setColor(Color3.FromHexString(value).toGammaSpace());
+                                    // setHex((oldValue) => (HEX_COLOR_REGEX.test(value) ? value : oldValue));
+                                }}
+                            />
+                        </div>
 
-                        <InputRgbField label="Red" color={color} rgbKey="r" onChange={onRgbChange} />
-                        <InputRgbField label="Green" color={color} rgbKey="g" onChange={onRgbChange} />
-                        <InputRgbField label="Blue" color={color} rgbKey="b" onChange={onRgbChange} />
-                        <InputAlphaField id={alphaId} color={color} onChange={onAlphaChange} />
+                        {/* Middle Row: Red, Green, Blue, Alpha */}
+                        <div className={styles.row}>
+                            <InputRgbField label="Red" color={color} rgbKey="r" onChange={onRgbChange} />
+                            <InputRgbField label="Green" color={color} rgbKey="g" onChange={onRgbChange} />
+                            <InputRgbField label="Blue" color={color} rgbKey="b" onChange={onRgbChange} />
+                            <InputAlphaField id={alphaId} color={color} onChange={onAlphaChange} />
+                        </div>
 
-                        <InputHsvField label="Hue" color={color} hsvKey="h" max={360} onChange={onHsvChange} />
-                        <InputHsvField label="Saturation" color={color} hsvKey="s" max={100} scale={100} onChange={onHsvChange} />
-                        <InputHsvField label="Value" color={color} hsvKey="v" max={100} scale={100} onChange={onHsvChange} />
+                        {/* Bottom Row: Hue, Saturation, Value */}
+                        <div className={styles.row}>
+                            <InputHsvField label="Hue" color={color} hsvKey="h" max={360} onChange={onHsvChange} />
+                            <InputHsvField label="Saturation" color={color} hsvKey="s" max={100} scale={100} onChange={onHsvChange} />
+                            <InputHsvField label="Value" color={color} hsvKey="v" max={100} scale={100} onChange={onHsvChange} />
+                        </div>
                     </div>
-                    <div className={styles.previewColor} style={{ backgroundColor: color.toHexString() }} />
                 </PopoverSurface>
             </Popover>
         </div>
