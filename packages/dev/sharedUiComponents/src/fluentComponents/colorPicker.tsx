@@ -135,6 +135,7 @@ const NUMBER_REGEX = /^\d+$/;
 // const DEFAULT_COLOR_HSV = { h: 109, s: 1, v: 0.9, a: 1 };
 
 type RgbKey = "r" | "g" | "b";
+type HsvKey = "h" | "s" | "v";
 
 // export const FluentColorPickerPopup = (props: IFluentColorPickerProps) => {
 //     const styles = useStyles();
@@ -216,6 +217,19 @@ export const ColorPickerPopup = (props: IFluentColorPickerProps) => {
         }
     };
 
+    const onHsvChange: InputHsvFieldProps["onChange"] = (_, data) => {
+        if (data.value) {
+            // Convert current color to HSV, update the new hsv value, then update state
+            const hsv = rgbaToHsv(color);
+            hsv[data.hsvKey] = data.value;
+            let newColor: Color3 | Color4 = Color3.FromHSV(hsv.h, hsv.s, hsv.v);
+            if (color instanceof Color4) {
+                newColor = Color4.FromColor3(newColor, color.a ?? 1);
+            }
+            setColor(newColor);
+        }
+    };
+
     const onAlphaChange = React.useCallback(
         (_ev: SpinButtonChangeEvent, data: SpinButtonOnChangeData) => {
             const value = data.value ?? parseFloat(data.displayValue ?? "");
@@ -273,6 +287,10 @@ export const ColorPickerPopup = (props: IFluentColorPickerProps) => {
                         <InputRgbField label="Green" color={color} rgbKey="g" onChange={onRgbChange} />
                         <InputRgbField label="Blue" color={color} rgbKey="b" onChange={onRgbChange} />
                         <InputAlphaField id={alphaId} color={color} onChange={onAlphaChange} />
+
+                        <InputHsvField label="Hue" color={color} hsvKey="h" max={360} onChange={onHsvChange} />
+                        <InputHsvField label="Saturation" color={color} hsvKey="s" max={100} scale={100} onChange={onHsvChange} />
+                        <InputHsvField label="Value" color={color} hsvKey="v" max={100} scale={100} onChange={onHsvChange} />
                     </div>
                     <div className={styles.previewColor} style={{ backgroundColor: color.toHexString() }} />
                 </PopoverSurface>
@@ -327,6 +345,82 @@ const InputRgbField = ({ color, onChange, label, rgbKey }: InputRgbFieldProps) =
         <div className={styles.colorFieldWrapper}>
             <Label htmlFor={id}>{label}</Label>
             <SpinButton className={styles.spinButton} min={0} max={255} value={color[rgbKey] * 255.0} step={1} id={id} onChange={handleChange} name={rgbKey} />
+        </div>
+    );
+};
+
+// interface InputFieldProps {
+//     val: number;
+//     label: string;
+//     key: string;
+//     scale?: number;
+//     max?: number;
+//     onChange?: (event: SpinButtonChangeEvent, data: SpinButtonOnChangeData & { key: string }) => void;
+// }
+// const InputField = ({ val, onChange, label, key,scale=1 }: InputFieldProps) => {
+//     const id = useId(`${label.toLowerCase()}-input`);
+//     const styles = useStyles();
+
+//     const handleChange = React.useCallback(
+//         (event: SpinButtonChangeEvent, data: SpinButtonOnChangeData) => {
+//             const val = data.value ?? parseFloat(data.displayValue ?? "");
+
+//             if (val === null || Number.isNaN(val) || !NUMBER_REGEX.test(val.toString())) {
+//                 return;
+//             }
+
+//             if (onChange) {
+//                 onChange(event, { ...data, value: val / scale, key });
+//             }
+//         },
+//         [key, onChange, color]
+//     );
+
+//     return (
+//         <div className={styles.colorFieldWrapper}>
+//             <Label htmlFor={id}>{label}</Label>
+//             <SpinButton className={styles.spinButton} min={0} max={255} value={color[key] * scale} step={1} id={id} onChange={handleChange} name={key} />
+//         </div>
+//     );
+// };
+
+interface InputHsvFieldProps {
+    color: Color3 | Color4;
+    label: string;
+    hsvKey: HsvKey;
+    max: number;
+    scale?: number;
+    onChange?: (event: SpinButtonChangeEvent, data: SpinButtonOnChangeData & { hsvKey: HsvKey }) => void;
+}
+
+/**
+ * In the HSV (Hue, Saturation, Value) color model, Hue (H) ranges from 0 to 360 degrees, representing the color's position on the color wheel.
+ * Saturation (S) ranges from 0 to 100%, indicating the intensity or purity of the color, with 0 being shades of gray and 100 being a fully saturated color.
+ * Value (V) ranges from 0 to 100%, representing the brightness of the color, with 0 being black and 100 being the brightest.
+ */
+export const InputHsvField = ({ color, onChange, label, hsvKey, max, scale = 1 }: InputHsvFieldProps) => {
+    const id = useId(`${label.toLowerCase()}-input`);
+    const styles = useStyles();
+
+    const handleChange = React.useCallback(
+        (event: SpinButtonChangeEvent, data: SpinButtonOnChangeData) => {
+            const val = data.value ?? parseFloat(data.displayValue ?? "");
+
+            if (val === null || Number.isNaN(val) || !NUMBER_REGEX.test(val.toString())) {
+                return;
+            }
+
+            if (onChange) {
+                onChange(event, { ...data, value: val / scale, hsvKey });
+            }
+        },
+        [hsvKey, onChange, color]
+    );
+
+    return (
+        <div className={styles.colorFieldWrapper}>
+            <Label htmlFor={id}>{label}</Label>
+            <SpinButton className={styles.spinButton} min={0} max={max} value={rgbaToHsv(color)[hsvKey] * scale} step={1} id={id} onChange={handleChange} name={hsvKey} />
         </div>
     );
 };
