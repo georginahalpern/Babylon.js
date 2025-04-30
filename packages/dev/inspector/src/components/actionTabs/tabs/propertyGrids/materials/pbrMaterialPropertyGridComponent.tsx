@@ -265,13 +265,15 @@ export class PBRMaterialPropertyGridComponent extends React.Component<IPBRMateri
 
         return (
             <>
-                <CommonMaterialPropertyGridComponent
+                {/* <CommonMaterialPropertyGridComponent
                     globalState={this.props.globalState}
                     lockObject={this.props.lockObject}
                     material={material}
                     onPropertyChangedObservable={this.props.onPropertyChangedObservable}
-                />
-                {this.renderTextures(this._onDebugSelectionChangeObservable)}
+                /> */}
+                {
+                    //this.renderTextures(this._onDebugSelectionChangeObservable)
+                }
                 <LineContainerComponent title="LIGHTING & COLORS" selection={this.props.globalState}>
                     <Color3LineComponent
                         lockObject={this.props.lockObject}
@@ -332,7 +334,7 @@ export class PBRMaterialPropertyGridComponent extends React.Component<IPBRMateri
                         onPropertyChangedObservable={this.props.onPropertyChangedObservable}
                     />
                 </LineContainerComponent>
-                <LineContainerComponent title="METALLIC WORKFLOW" selection={this.props.globalState}>
+                {/* <LineContainerComponent title="METALLIC WORKFLOW" selection={this.props.globalState}>
                     <SliderLineComponent
                         lockObject={this.props.lockObject}
                         label="Metallic"
@@ -1085,7 +1087,7 @@ export class PBRMaterialPropertyGridComponent extends React.Component<IPBRMateri
                             onPropertyChangedObservable={this.props.onPropertyChangedObservable}
                         />
                     )}
-                    {material.clearCoat.tintTexture && false /* level is not used for the clear coat tint texture */ && (
+                    {material.clearCoat.tintTexture && false && (
                         <SliderLineComponent
                             lockObject={this.props.lockObject}
                             label="Clear coat tint"
@@ -1304,7 +1306,7 @@ export class PBRMaterialPropertyGridComponent extends React.Component<IPBRMateri
                         step={0.01}
                         onPropertyChangedObservable={this.props.onPropertyChangedObservable}
                     />
-                </LineContainerComponent>
+                </LineContainerComponent> */}
             </>
         );
     }

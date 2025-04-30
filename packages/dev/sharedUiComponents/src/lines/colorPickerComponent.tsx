@@ -3,7 +3,6 @@ import { Color3 } from "core/Maths/math.color";
 import { Color4 } from "core/Maths/math.color";
 import type { LockObject } from "../tabs/propertyGrids/lockObject";
 import { ColorPickerPopup } from "shared-ui-components/fluentComponents/colorPicker";
-import { FluentProvider, webDarkTheme } from "@fluentui/react-components";
 
 export interface IColorPickerLineProps {
     value: Color4 | Color3;
@@ -82,17 +81,15 @@ export class ColorPickerLine extends React.Component<IColorPickerLineProps, ICol
 
     override render() {
         return (
-            <FluentProvider theme={webDarkTheme}>
-                <ColorPickerPopup
-                    linearHint={this.props.linearHint}
-                    value={this.state.color}
-                    onColorChanged={(color: Color3 | Color4) => {
-                        const hex: string = color.toHexString();
-                        this.setState({ hex, color });
-                        this.props.onColorChanged(hex);
-                    }}
-                />
-            </FluentProvider>
+            <ColorPickerPopup
+                linearHint={this.props.linearHint}
+                value={this.state.color}
+                onColorChanged={(color: Color3 | Color4) => {
+                    const hex: string = color.toHexString();
+                    this.setState({ hex, color });
+                    this.props.onColorChanged(hex);
+                }}
+            />
 
             // <div className="color-picker">
             //     {this.props.icon && <img src={this.props.icon} title={this.props.iconLabel} alt={this.props.iconLabel} className="icon" />}
