@@ -1,25 +1,26 @@
 import type { MenuButtonProps, MenuCheckedValueChangeData, MenuCheckedValueChangeEvent } from "@fluentui/react-components";
-import type { ServiceDefinition } from "../modularity/serviceDefinition";
 import type { TernaryDarkMode } from "usehooks-ts";
+import type { ServiceDefinition } from "../modularity/serviceDefinition";
+import type { IShellService } from "../services/shellService";
 
-import { useCallback } from "react";
 import { makeStyles, Menu, MenuItemRadio, MenuList, MenuPopover, MenuTrigger, SplitButton, Tooltip } from "@fluentui/react-components";
-import { WeatherSunnyRegular, WeatherMoonRegular } from "@fluentui/react-icons";
-import { ShellService } from "../services/shellService";
+import { WeatherMoonRegular, WeatherSunnyRegular } from "@fluentui/react-icons";
+import { useCallback } from "react";
 import { useTernaryDarkMode } from "usehooks-ts";
 
+import { ShellServiceIdentity } from "../services/shellService";
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const useStyles = makeStyles({
-    themeButton: {
-        //...shorthands.margin('6px'),
-    },
+    themeButton: {},
     themeMenu: {
         minWidth: 0,
     },
 });
 
-export const themeSelectorServiceDefinition: ServiceDefinition<[], [ShellService]> = {
+export const ThemeSelectorServiceDefinition: ServiceDefinition<[], [IShellService]> = {
     friendlyName: "ThemeSelector",
-    consumes: [ShellService],
+    consumes: [ShellServiceIdentity],
     factory: (shellService) => {
         const registration = shellService.addToTopBar({
             key: "ThemeSelector",

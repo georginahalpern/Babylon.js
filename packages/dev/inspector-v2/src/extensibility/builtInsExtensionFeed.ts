@@ -1,20 +1,24 @@
-import type { ExtensionMetadata, ExtensionMetadataQuery, ExtensionFeed, ExtensionModule } from "./extensionFeed";
+import type { IExtensionFeed, ExtensionMetadata, IExtensionMetadataQuery, ExtensionModule } from "./extensionFeed";
 
-const exploderExtensionMetadata = {
+// This file contains "built in" extensions. They are optional and installed/uninstalled by the user, but they are
+// well-known at build time and the extension is "downloaded" by simply doing a dynamic import. This is different
+// from future extension types that are built and published apart from the inspector, and are downloaded as an isolated script.
+
+const creationToolsExtensionMetadata = {
     name: "Asset Creation",
     author: "Babylon",
     description: "Adds new features to enable creating Babylon assets such as node materials, flow graphs, and more.",
-    keywords: ["exploder", "sandbox"],
+    keywords: ["creation"],
     version: "0.0.1",
     license: "MIT",
 } as const;
 
-const extensions: readonly ExtensionMetadata[] = [exploderExtensionMetadata];
+const extensions: readonly ExtensionMetadata[] = [creationToolsExtensionMetadata];
 
-export class BuiltInsExtensionFeed implements ExtensionFeed {
+export class BuiltInsExtensionFeed implements IExtensionFeed {
     public readonly name = "Built-ins";
 
-    public async queryExtensionsAsync(filter?: string): Promise<ExtensionMetadataQuery> {
+    public async queryExtensionsAsync(filter?: string): Promise<IExtensionMetadataQuery> {
         const filteredExtensions = filter ? extensions.filter((extension) => extension.name.includes(filter)) : extensions;
         return {
             totalCount: filteredExtensions.length,
@@ -37,8 +41,8 @@ export class BuiltInsExtensionFeed implements ExtensionFeed {
     }
 
     public async getExtensionModuleAsync(name: string, version: string): Promise<ExtensionModule | undefined> {
-        if (name === exploderExtensionMetadata.name && version === exploderExtensionMetadata.version) {
-            return await import("../services/exploderService");
+        if (name === creationToolsExtensionMetadata.name && version === creationToolsExtensionMetadata.version) {
+            return await import("../services/creationToolsService");
         }
         return undefined;
     }

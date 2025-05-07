@@ -1,15 +1,15 @@
 // eslint-disable-next-line import/no-internal-modules
 import type { Observable } from "core/index";
-import type { ChangeEvent, FunctionComponent } from "react";
-import type { SwitchProps } from "@fluentui/react-components";
 
 import { useCallback, useMemo, useState } from "react";
 import { useObservableState } from "../hooks/observableHooks";
 import { Button, InfoLabel, Input, makeStyles, Slider, Switch, tokens } from "@fluentui/react-components";
 import { Copy24Regular } from "@fluentui/react-icons";
+import type { SwitchProps } from "@fluentui/react-components";
+import type { ChangeEvent, FunctionComponent } from "react";
 
-// probably common
 const useStyles = makeStyles({
+    // TODO: probably common
     rootDiv: {
         display: "flex",
         alignItems: "center",

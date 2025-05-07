@@ -199,7 +199,7 @@ export class SliderLineComponent extends React.Component<ISliderLineComponentPro
                     minimum={this.prepareDataToRead(this.props.minimum)}
                     maximum={this.prepareDataToRead(this.props.maximum)}
                     accessor={() => this.prepareDataToRead(this.state.value)}
-                    mutator={(val) => this.onChange(val)}
+                    mutator={(val: number) => this.onChange(val)}
                 />
             </div>
         );
