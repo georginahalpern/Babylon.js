@@ -3,9 +3,13 @@ import type { Observable } from "core/Misc/observable";
 import type { PropertyChangedEvent } from "../propertyChangedEvent";
 import { copyCommandToClipboard, getClassNameWithNamespace } from "../copyCommandToClipboard";
 import { Tools } from "core/Misc/tools";
-import { FloatLineComponent } from "./floatLineComponent";
+// import { FloatLineComponent } from "./floatLineComponent";
 import type { LockObject } from "../tabs/propertyGrids/lockObject";
-import copyIcon from "../imgs/copy.svg";
+// import copyIcon from "../imgs/copy.svg";
+import { SliderProperty } from "shared-ui-components/fluent/booleanProperty";
+import { Input } from "@fluentui/react-input";
+import { Slider } from "@fluentui/react-slider";
+import { InfoLabel } from "@fluentui/react-infolabel";
 
 interface ISliderLineComponentProps {
     label: string;
@@ -143,7 +147,11 @@ export class SliderLineComponent extends React.Component<ISliderLineComponentPro
     override render() {
         return (
             <div className="sliderLine">
-                {this.props.icon && <img src={this.props.icon} title={this.props.iconLabel} alt={this.props.iconLabel} className="icon" />}
+                <InfoLabel info={this.props.label} label={this.props.label} />
+
+                <Input type="number" step={this.props.step} value={this.prepareDataToRead(this.state.value).toString()} onChange={this.onChange} />
+                <Slider min={this.props.minimum} max={this.props.maximum} step={this.props.step} value={this.prepareDataToRead(this.state.value)} onChange={this.onChange} />
+                {/* {this.props.icon && <img src={this.props.icon} title={this.props.iconLabel} alt={this.props.iconLabel} className="icon" />}
                 {(!this.props.icon || this.props.label != "") && (
                     <div className={this.props.margin ? "label withMargins" : "label"} title={this.props.label}>
                         {this.props.label}
@@ -184,7 +192,15 @@ export class SliderLineComponent extends React.Component<ISliderLineComponentPro
                 </div>
                 <div className="copy hoverIcon" onClick={() => this.onCopyClick()} title="Copy to clipboard">
                     <img src={copyIcon} alt="Copy" />
-                </div>
+                </div> */}
+                <SliderProperty
+                    label={this.props.label}
+                    step={this.props.step}
+                    minimum={this.prepareDataToRead(this.props.minimum)}
+                    maximum={this.prepareDataToRead(this.props.maximum)}
+                    accessor={() => this.prepareDataToRead(this.state.value)}
+                    mutator={(val) => this.onChange(val)}
+                />
             </div>
         );
     }

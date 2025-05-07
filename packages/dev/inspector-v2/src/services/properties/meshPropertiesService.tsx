@@ -2,7 +2,7 @@ import type { ServiceDefinition } from "../../modularity/serviceDefinition";
 
 import { Accordion, AccordionHeader, AccordionItem, AccordionPanel, makeStyles, Text, tokens } from "@fluentui/react-components";
 import { AbstractMesh } from "core/Meshes/abstractMesh";
-import { BooleanProperty } from "../../components/booleanProperty";
+import { BooleanProperty, SliderProperty } from "../../components/booleanProperty";
 import { PropertiesService } from "./propertiesService";
 
 const useStyles = makeStyles({
@@ -50,6 +50,16 @@ export const MeshPropertiesServiceDefinition: ServiceDefinition<[], [PropertiesS
                                             accessor={() => mesh.isEnabled(false)}
                                             mutator={(value) => mesh.setEnabled(value)}
                                             observable={mesh.onEnabledStateChangedObservable}
+                                        />
+                                        <SliderProperty
+                                            label="Visibility"
+                                            description="Controls the visibility of the mesh in the scene"
+                                            accessor={() => mesh.visibility}
+                                            mutator={(value) => (mesh.visibility = value)}
+                                            // observable={mesh.visibility}
+                                            minimum={0}
+                                            maximum={1}
+                                            step={0.01}
                                         />
                                     </div>
                                 </AccordionPanel>

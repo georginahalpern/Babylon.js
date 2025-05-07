@@ -1,11 +1,11 @@
 // eslint-disable-next-line import/no-internal-modules
 import type { Observable } from "core/index";
 import type { ChangeEvent, FunctionComponent } from "react";
-import type { SwitchProps } from "@fluentui/react-components";
+// import type { SwitchProps } from "@fluentui/react-components";
 
-import { useCallback, useMemo, useState } from "react";
-import { useObservableState } from "../hooks/observableHooks";
-import { Button, InfoLabel, Input, makeStyles, Slider, Switch, tokens } from "@fluentui/react-components";
+import { useCallback, useState } from "react";
+// import { useObservableState } from "../hooks/observableHooks";
+import { Button, InfoLabel, Input, makeStyles, Slider, tokens } from "@fluentui/react-components";
 import { Copy24Regular } from "@fluentui/react-icons";
 
 // probably common
@@ -39,26 +39,26 @@ export type BooleanPropertyProps = {
     observable?: Observable<any>;
 };
 
-export const BooleanProperty: FunctionComponent<BasePropertyProps<boolean>> = ({ label, description, accessor, mutator, observable }) => {
-    const classes = useStyles();
-    const indicatorProps = useMemo<SwitchProps["indicator"]>(() => ({ className: classes.indicator }), [classes.indicator]);
+// export const BooleanProperty: FunctionComponent<BasePropertyProps<boolean>> = ({ label, description, accessor, mutator, observable }) => {
+//     const classes = useStyles();
+//     const indicatorProps = useMemo<SwitchProps["indicator"]>(() => ({ className: classes.indicator }), [classes.indicator]);
 
-    const value = useObservableState(accessor, observable);
+//     const value = useObservableState(accessor, observable);
 
-    const onChange = useCallback(
-        (event: ChangeEvent<HTMLInputElement>) => {
-            mutator?.(event.target.checked);
-        },
-        [mutator]
-    );
+//     const onChange = useCallback(
+//         (event: ChangeEvent<HTMLInputElement>) => {
+//             mutator?.(event.target.checked);
+//         },
+//         [mutator]
+//     );
 
-    return (
-        <div className={classes.rootDiv}>
-            <InfoLabel info={description}>{label}</InfoLabel>
-            <Switch className={classes.switch} indicator={indicatorProps} checked={value} onChange={onChange} />
-        </div>
-    );
-};
+//     return (
+//         <div className={classes.rootDiv}>
+//             <InfoLabel info={description}>{label}</InfoLabel>
+//             <Switch className={classes.switch} indicator={indicatorProps} checked={value} onChange={onChange} />
+//         </div>
+//     );
+// };
 
 export type SliderPropertyProps = BasePropertyProps<number> & {
     minimum: number;
@@ -78,7 +78,7 @@ export const SliderProperty: FunctionComponent<SliderPropertyProps> = ({ label, 
     const classes = useStyles();
 
     // const value = useObservableState(() => accessor().toString(), observable);
-    const [value, setValue] = useState(useObservableState(() => accessor(), observable) ?? maximum);
+    const [value, setValue] = useState(() => accessor() ?? maximum);
 
     const onChange = useCallback(
         (event: ChangeEvent<HTMLInputElement>, data: { value: string | number }) => {
