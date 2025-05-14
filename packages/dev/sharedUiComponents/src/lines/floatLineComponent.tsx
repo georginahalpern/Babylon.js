@@ -8,6 +8,8 @@ import { conflictingValuesPlaceholder } from "./targetsProxy";
 import { InputArrowsComponent } from "./inputArrowsComponent";
 import { copyCommandToClipboard, getClassNameWithNamespace } from "../copyCommandToClipboard";
 import copyIcon from "../imgs/copy.svg";
+// import { WrappedInput } from "shared-ui-components/fluent/wrappedGeneric";
+import WrappedCustomInput from "shared-ui-components/fluent/wrappedCustomInput";
 
 interface IFloatLineComponentProps {
     label: string;
@@ -48,7 +50,7 @@ export class FloatLineComponent extends React.Component<IFloatLineComponentProps
     }
 
     override componentWillUnmount() {
-        this.unlock();
+        //this.unlock();
     }
 
     getValueString(value: any, props: IFloatLineComponentProps): string {
@@ -172,7 +174,7 @@ export class FloatLineComponent extends React.Component<IFloatLineComponentProps
         // While we do lock when getting focus, it's possible that as the user changes this value,
         // that the UI hosting us has reacted by hiding another line component, and that line component
         // will release the lock we took. Since the user is typing now, we ensure we have the lock.
-        this.lock();
+        //   this.lock();
 
         const step = parseFloat(this.props.step || this.props.isInteger ? "1" : "0.01");
         const handleArrowKey = (sign: number) => {
@@ -242,7 +244,7 @@ export class FloatLineComponent extends React.Component<IFloatLineComponentProps
                             </div>
                         )}
                         <div className={className}>
-                            <input
+                            {/* <input
                                 type={"number"}
                                 step={this.props.step || this.props.isInteger ? "1" : "0.01"}
                                 className="numeric-input"
@@ -256,6 +258,22 @@ export class FloatLineComponent extends React.Component<IFloatLineComponentProps
                                 }}
                                 placeholder={placeholder}
                                 onFocus={() => this.lock()}
+                                onChange={(evt) => this.updateValue(evt.target.value)}
+                                disabled={this.props.disabled}
+                            /> */}
+                            <WrappedCustomInput
+                                type={"number"}
+                                step={this.props.step || this.props.isInteger ? "1" : "0.01"}
+                                className="numeric-input"
+                                onKeyDown={(evt) => this.onKeyDown(evt)}
+                                value={value}
+                                onBlur={() => {
+                                    // this.unlock();
+                                    if (this.props.onEnter) {
+                                        this.props.onEnter(this._store);
+                                    }
+                                }}
+                                placeholder={placeholder}
                                 onChange={(evt) => this.updateValue(evt.target.value)}
                                 disabled={this.props.disabled}
                             />

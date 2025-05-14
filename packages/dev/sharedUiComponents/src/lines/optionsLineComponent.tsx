@@ -3,7 +3,9 @@ import type { Observable } from "core/Misc/observable";
 import type { PropertyChangedEvent } from "../propertyChangedEvent";
 import { copyCommandToClipboard, getClassNameWithNamespace } from "../copyCommandToClipboard";
 import type { IInspectableOptions } from "core/Misc/iInspectable";
-import copyIcon from "../imgs/copy.svg";
+// import copyIcon from "../imgs/copy.svg";
+import { Stack } from "shared-ui-components/fluent/lineItem";
+import { Dropdown, Label, Option } from "@fluentui/react-components";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const Null_Value = Number.MAX_SAFE_INTEGER;
@@ -117,13 +119,21 @@ export class OptionsLine extends React.Component<IOptionsLineProps, { value: num
     }
 
     override render() {
+        //        const dropdownId = useId("dropdown-default");
+
+        // const styles = useStyles();
         return (
-            <div className={"listLine" + (this.props.className ? " " + this.props.className : "")}>
-                {this.props.icon && <img src={this.props.icon} title={this.props.iconLabel} alt={this.props.iconLabel} color="black" className="icon" />}
-                <div className="label" title={this.props.label}>
-                    {this.props.label}
-                </div>
-                <div className="options">
+            <Stack direction="row">
+                <Label htmlFor="dropdown-default">{this.props.label}</Label>
+                <Dropdown id="dropdown-default" onChange={(evt) => this.updateValue(evt.currentTarget.value)} value={this.state.value.toString() ?? ""}>
+                    {this.props.options.map((option, i) => (
+                        <Option key={option.label + i} value={option.value.toString()} disabled={false}>
+                            {option.label}
+                        </Option>
+                    ))}
+                </Dropdown>
+
+                {/* <div className="options">
                     <select onChange={(evt) => this.updateValue(evt.target.value)} value={this.state.value ?? ""}>
                         {this.props.options.map((option, i) => {
                             return (
@@ -133,11 +143,11 @@ export class OptionsLine extends React.Component<IOptionsLineProps, { value: num
                             );
                         })}
                     </select>
-                </div>
-                <div className="copy hoverIcon" onClick={() => this.onCopyClick()} title="Copy to clipboard">
+                </div> */}
+                {/* <div className="copy hoverIcon" onClick={() => this.onCopyClick()} title="Copy to clipboard">
                     <img src={copyIcon} alt="Copy" />
-                </div>
-            </div>
+                </div> */}
+            </Stack>
         );
     }
 }

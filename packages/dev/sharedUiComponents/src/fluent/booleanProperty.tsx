@@ -5,8 +5,10 @@ import type { ChangeEvent, FunctionComponent } from "react";
 
 import { useCallback, useState } from "react";
 // import { useObservableState } from "../hooks/observableHooks";
-import { Button, InfoLabel, Input, makeStyles, Slider, tokens } from "@fluentui/react-components";
+import { Button, InfoLabel, makeStyles, Slider, tokens } from "@fluentui/react-components";
 import { Copy24Regular } from "@fluentui/react-icons";
+// import { WrappedInput } from "./wrappedGeneric";
+import WrappedCustomInput from "./wrappedCustomInput";
 
 // probably common
 const useStyles = makeStyles({
@@ -98,7 +100,7 @@ export const SliderProperty: FunctionComponent<SliderPropertyProps> = ({ label, 
             <CopyWrapper
                 renderInput={() => (
                     <>
-                        <Input className={classes.input} type="number" step={step} value={value.toString()} onChange={onChange} />
+                        <WrappedCustomInput className={classes.input} type="number" step={step} value={value.toString()} onChange={onChange} />
                         <Slider className={classes.slider} min={minimum} max={maximum} step={step} value={value} onChange={onChange} />
                     </>
                 )}

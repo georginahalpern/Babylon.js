@@ -4,7 +4,7 @@ import { Scene } from "../scene";
 import { EngineStore } from "../Engines/engineStore";
 import type { IInspectable } from "../Misc/iInspectable";
 import type { Camera } from "../Cameras/camera";
-import { AbstractEngine } from "core/Engines/abstractEngine";
+// import { AbstractEngine } from "core/Engines/abstractEngine";
 
 // declare INSPECTOR namespace for compilation issue
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -231,7 +231,8 @@ export class DebugLayer {
      * By default it uses the babylonjs CDN.
      * @ignoreNaming
      */
-    public static InspectorURL = `${Tools._DefaultCdnUrl}/v${AbstractEngine.Version}/inspector/babylon.inspector.bundle.js`;
+    public static InspectorURL = "http://localhost:1342/packages/dev/inspector-v2/dist/index.js?t=1746648874093";
+    //`${Tools._DefaultCdnUrl}/v${AbstractEngine.Version}/inspector/babylon.inspector.bundle.js`;
 
     /**
      * The default configuration of the inspector

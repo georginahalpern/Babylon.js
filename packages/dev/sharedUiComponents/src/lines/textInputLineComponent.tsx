@@ -4,6 +4,10 @@ import type { PropertyChangedEvent } from "../propertyChangedEvent";
 import type { LockObject } from "../tabs/propertyGrids/lockObject";
 import { conflictingValuesPlaceholder } from "./targetsProxy";
 import { InputArrowsComponent } from "./inputArrowsComponent";
+// import { Input } from "@fluentui/react-components";
+// import WrappedCustomInput from "shared-ui-components/fluent/wrappedCustomInput";
+// import { WrappedInput, WrappedTextarea } from "shared-ui-components/fluent/wrappedGeneric";
+import WrappedCustomInput from "shared-ui-components/fluent/wrappedCustomInput";
 
 export interface ITextInputLineComponentProps {
     label?: string;
@@ -179,6 +183,7 @@ export class TextInputLineComponent extends React.Component<ITextInputLineCompon
     }
 
     onKeyDown(event: React.KeyboardEvent) {
+        //event.stopPropagation();
         if (!this.props.disabled && this.props.arrows) {
             if (event.key === "ArrowUp") {
                 this.incrementValue(1);
@@ -230,12 +235,35 @@ export class TextInputLineComponent extends React.Component<ITextInputLineCompon
                             disabled={this.props.disabled}
                         />
                     </>
+                    // <WrappedTextarea
+                    //     className={this.props.disabled ? "disabled" : ""}
+                    //     value={this.state.value}
+                    //     onFocus={() => {
+                    //         // if (this.props.lockObject) {
+                    //         //     this.props.lockObject.lock = true;
+                    //         // }
+                    //     }}
+                    //     onChange={(evt) => this.updateValue(evt.target.value)}
+                    //     onKeyDown={(evt) => {
+                    //         if (evt.keyCode !== 13) {
+                    //             return;
+                    //         }
+                    //         this.updateValue(this.state.value);
+                    //     }}
+                    //     onBlur={(evt) => {
+                    //         this.updateValue(evt.target.value, evt.target.value);
+                    //         // if (this.props.lockObject) {
+                    //         //     this.props.lockObject.lock = false;
+                    //         // }
+                    //     }}
+                    //     disabled={this.props.disabled}
+                    // />
                 )}
                 {!this.props.multilines && (
                     <div
                         className={`value${this.props.noUnderline === true ? " noUnderline" : ""}${this.props.arrows ? " hasArrows" : ""}${this.state.dragging ? " dragging" : ""}`}
                     >
-                        <input
+                        {/* <input
                             className={this.props.disabled ? "disabled" : ""}
                             value={value}
                             onBlur={(evt) => {
@@ -255,7 +283,29 @@ export class TextInputLineComponent extends React.Component<ITextInputLineCompon
                             type={this.props.numeric ? "number" : "text"}
                             step={step}
                             disabled={this.props.disabled}
+                        /> */}
+                        <WrappedCustomInput
+                            className={this.props.disabled ? "disabled" : ""}
+                            value={value}
+                            placeholder={placeholder}
+                            step={step}
+                            onBlur={(evt) => {
+                                // if (this.props.lockObject) {
+                                //     this.props.lockObject.lock = false;
+                                // }
+                                this.updateValue((this.props.value !== undefined ? this.props.value : this.props.target[this.props.propertyName!]) || "", evt.target.value);
+                            }}
+                            onFocus={() => {
+                                // if (this.props.lockObject) {
+                                //     this.props.lockObject.lock = true;
+                                // }
+                            }}
+                            onChange={(evt) => this.updateValue(evt.target.value)}
+                            onKeyDown={(evt) => this.onKeyDown(evt)}
+                            type={this.props.numeric ? "number" : "text"}
+                            disabled={this.props.disabled}
                         />
+
                         {this.props.arrows && (
                             <InputArrowsComponent incrementValue={(amount) => this.incrementValue(amount)} setDragging={(dragging) => this.setState({ dragging })} />
                         )}

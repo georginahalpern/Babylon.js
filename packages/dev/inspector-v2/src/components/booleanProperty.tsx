@@ -74,6 +74,26 @@ export type BasePropertyProps<T> = {
     observable?: Observable<T>;
 };
 
+export const TextProperty: FunctionComponent<BasePropertyProps<string>> = ({ label, description, accessor, mutator, observable }) => {
+    const classes = useStyles();
+
+    const value = useObservableState(accessor, observable);
+
+    const onChange = useCallback(
+        (event: ChangeEvent<HTMLInputElement>) => {
+            mutator?.(event.target.value);
+        },
+        [mutator]
+    );
+
+    return (
+        <div className={classes.rootDiv}>
+            <InfoLabel info={description}>{label}</InfoLabel>
+            {mutator ? <Input className={classes.input} type="text" value={value} onChange={onChange} /> : <span>{value}</span>}
+        </div>
+    );
+};
+
 export const SliderProperty: FunctionComponent<SliderPropertyProps> = ({ label, description, accessor, mutator, observable, minimum, maximum, step }) => {
     const classes = useStyles();
 
