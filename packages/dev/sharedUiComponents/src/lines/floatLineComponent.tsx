@@ -7,7 +7,7 @@ import { Tools } from "core/Misc/tools";
 import { conflictingValuesPlaceholder } from "./targetsProxy";
 import { InputArrowsComponent } from "./inputArrowsComponent";
 import { copyCommandToClipboard, getClassNameWithNamespace } from "../copyCommandToClipboard";
-import copyIcon from "../imgs/copy.svg";
+// import copyIcon from "../imgs/copy.svg";
 // import { WrappedInput } from "shared-ui-components/fluent/wrappedGeneric";
 import { WrappedCustomInput } from "shared-ui-components/fluent/wrappedCustomInput";
 
@@ -294,9 +294,9 @@ export class FloatLineComponent extends React.Component<IFloatLineComponentProps
                             )}
                         </div>
                         {this.props.unit}
-                        <div className="copy hoverIcon" onClick={() => this.onCopyClick()} title="Copy to clipboard">
+                        {/* <div className="copy hoverIcon" onClick={() => this.onCopyClick()} title="Copy to clipboard">
                             <img src={copyIcon} alt="Copy" />
-                        </div>
+                        </div> */}
                     </div>
                 )}
                 {this.props.useEuler && (

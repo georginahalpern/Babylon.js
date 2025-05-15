@@ -3,26 +3,26 @@ import { tokens } from "./tokens";
 
 export const useGlobalStyles = makeStyles({
     app: {
-        backgroundColor: "white",
+        //  backgroundColor: "white",
     },
     container: {
         padding: "24px",
         display: "flex",
         flexDirection: "column",
         borderRadius: "16px",
-        backgroundColor: "coral",
+        // backgroundColor: "coral",
     },
     logo: {
         width: "32px", // update all of these things to be tokens
         height: "32px",
     },
     toolPanel: {
-        backgroundColor: "turquoise",
+        //backgroundColor: "turquoise",
         overflowY: "auto",
         height: "75%",
     },
     toolHeader: {
-        backgroundColor: "teal",
+        // backgroundColor: "teal",
         fontSize: "20px",
         fontWeight: "bold",
         textAlign: "center",
@@ -34,23 +34,26 @@ export const useGlobalStyles = makeStyles({
         display: "flex",
         alignItems: "center",
         flexDirection: "column",
-        backgroundColor: "aquamarine",
+        gap: "5px", // gap between children
+        // backgroundColor: "aquamarine",
     },
     accordionItem: {
         width: "-webkit-fill-available",
         padding: "2px",
         borderRadius: "8px",
-        backgroundColor: "indigo",
+        borderBlockColor: "white",
+        gap: "2px",
+        //backgroundColor: "indigo",
     },
     accordionHeader: {
         width: "-webkit-fill-available",
         fontSize: "20px",
         fontWeight: "20px",
-        backgroundColor: "hotpink",
+        //backgroundColor: "hotpink",
     },
     accordionPanel: {
         padding: "1px",
-        backgroundColor: "pink",
+        //backgroundColor: "pink",
         borderRadius: "8px",
     },
     propertyLine: {
@@ -61,7 +64,7 @@ export const useGlobalStyles = makeStyles({
         textAlign: "right",
         gap: tokens.gap,
         alignItems: "center",
-        backgroundColor: "purple",
+        //backgroundColor: "purple",
         padding: "5px",
         borderRadius: "7px",
         margin: "2px",
@@ -73,26 +76,24 @@ export const useGlobalStyles = makeStyles({
     optionsLine: {
         // why do i ned this
     },
-    indicator: {
-        marginRight: 0,
-    },
     buttonLine: {
-        backgroundColor: "olive",
+        //  backgroundColor: "olive",
     },
     label: {
         width: "33%",
         textAlign: "left",
-        backgroundColor: "limegreen",
+        // backgroundColor: "limegreen",
     },
     rightContent: {
         width: "67%",
-        backgroundColor: "red",
+        //backgroundColor: "red",
     },
     input: {
-        color: "black",
-        backgroundColor: "white",
         height: "auto",
         marginRight: "5px",
-        width: "calc(100% - 5px)",
+        width: "100%",
+    },
+    floatLineInput: {
+        width: "33%",
     },
 });
