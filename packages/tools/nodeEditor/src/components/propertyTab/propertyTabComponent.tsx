@@ -1,7 +1,7 @@
 import * as React from "react";
 import type { GlobalState } from "../../globalState";
 import type { Nullable } from "core/types";
-import {  LineContainerComponentStyled } from "shared-ui-components/lines/lineContainerComponent";
+import { LineContainerComponentStyled } from "shared-ui-components/lines/lineContainerComponent";
 import { StringTools } from "shared-ui-components/stringTools";
 import { FileButtonLine } from "shared-ui-components/lines/fileButtonLineComponent";
 import { Tools } from "core/Misc/tools";
@@ -40,7 +40,7 @@ import { FloatLineComponent } from "shared-ui-components/lines/floatLineComponen
 import { SliderLineComponent } from "shared-ui-components/lines/sliderLineComponent";
 import { SetToDefaultGaussianSplatting, SetToDefaultSFE } from "core/Materials/Node/nodeMaterialDefault";
 import { AlphaModeOptions } from "shared-ui-components/constToOptionsMaps";
-import { AccordionStyled } from "shared-ui-components/fluent/styledWrappers";
+import { AccordionStyled, StyledToolPanel } from "shared-ui-components/fluent/styledWrappers";
 
 interface IPropertyTabComponentProps {
     globalState: GlobalState;
@@ -450,210 +450,194 @@ export class PropertyTabComponent extends React.Component<IPropertyTabComponentP
             { label: "WebGPU", value: 1 },
         ];
 
-        // const props = [
-        //     {"GENERAL": {
-        //         Option: {
-
-        //         }
-        //     }},
-        //     {"UI":{
-
-        //     }}
-        // ]
         return (
-            <div id="propertyTab">
-                <div id="header">
-                    <img id="logo" src="https://www.babylonjs.com/Assets/logo-babylonjs-social-twitter.png" />
-                    <div id="title">NODE MATERIAL EDITOR</div>
-                </div>
-                <div>
-                    <AccordionStyled>
-                        <LineContainerComponentStyled title="GENERAL" value="1">
-                            <OptionsLine
-                                ref={this._modeSelect}
-                                label="Mode"
-                                target={this}
-                                extractValue={() => this.props.globalState.mode}
-                                options={modeList}
-                                onSelect={(value) => this.changeMode(value)}
-                                propertyName={""}
-                            />
-                            <OptionsLine
-                                label="Engine"
-                                target={this}
-                                extractValue={() => this.props.globalState.engine}
-                                options={engineList}
-                                onSelect={(value) => {
-                                    this.props.globalState.engine = value as number;
-                                    this.forceUpdate();
-                                }}
-                                propertyName={""}
-                            />
-                            <TextLineComponent label="Version" value={Engine.Version} />
-                            <TextLineComponent
-                                label="Help"
-                                value="doc.babylonjs.com"
-                                underline={true}
-                                onLink={() => this.props.globalState.hostDocument.defaultView!.open("https://doc.babylonjs.com/how_to/node_material", "_blank")}
-                            />
-                            <TextInputLineComponent
-                                label="Comment"
-                                multilines={true}
-                                lockObject={this.props.globalState.lockObject}
-                                value={this.props.globalState.nodeMaterial.comment}
-                                target={this.props.globalState.nodeMaterial}
-                                propertyName="comment"
-                            />
-                            <ButtonLineComponent
-                                label="Reset to default"
-                                onClick={() => {
-                                    switch (this.props.globalState.mode) {
-                                        case NodeMaterialModes.Material:
-                                            this.props.globalState.nodeMaterial.setToDefault();
-                                            break;
-                                        case NodeMaterialModes.PostProcess:
-                                            this.props.globalState.nodeMaterial.setToDefaultPostProcess();
-                                            break;
-                                        case NodeMaterialModes.SFE:
-                                            SetToDefaultSFE(this.props.globalState.nodeMaterial!);
-                                            break;
-                                        case NodeMaterialModes.Particle:
-                                            this.props.globalState.nodeMaterial.setToDefaultParticle();
-                                            break;
-                                        case NodeMaterialModes.ProceduralTexture:
-                                            this.props.globalState.nodeMaterial.setToDefaultProceduralTexture();
-                                            break;
-                                        case NodeMaterialModes.GaussianSplatting:
-                                            SetToDefaultGaussianSplatting(this.props.globalState.nodeMaterial);
-                                            break;
-                                    }
-                                    this.props.globalState.onResetRequiredObservable.notifyObservers(true);
-                                    this.props.globalState.onClearUndoStack.notifyObservers();
-                                }}
-                            />
-                        </LineContainerComponentStyled>
-                        <LineContainerComponentStyled title="UI" value="2">
-                            <ButtonLineComponent
-                                label="Zoom to fit"
-                                onClick={() => {
-                                    this.props.globalState.onZoomToFitRequiredObservable.notifyObservers();
-                                }}
-                            />
-                            <ButtonLineComponent
-                                label="Reorganize"
-                                onClick={() => {
-                                    this.props.globalState.onReOrganizedRequiredObservable.notifyObservers();
-                                }}
-                            />
-                        </LineContainerComponentStyled>
-                        <LineContainerComponentStyled title="OPTIONS" value="3">
-                            <CheckBoxLineComponent
-                                label="Embed textures when saving"
-                                isSelected={() => DataStorage.ReadBoolean("EmbedTextures", true)}
-                                onSelect={(value: boolean) => {
-                                    DataStorage.WriteBoolean("EmbedTextures", value);
-                                }}
-                            />
-                            <SliderLineComponent
-                                lockObject={this.props.lockObject}
-                                label="Grid size"
-                                minimum={0}
-                                maximum={100}
-                                step={5}
-                                decimalCount={0}
-                                directValue={gridSize}
-                                onChange={(value) => {
-                                    DataStorage.WriteNumber("GridSize", value);
-                                    this.props.globalState.stateManager.onGridSizeChanged.notifyObservers();
-                                    this.forceUpdate();
-                                }}
-                            />
-                            <CheckBoxLineComponent
-                                label="Show grid"
-                                isSelected={() => DataStorage.ReadBoolean("ShowGrid", true)}
-                                onSelect={(value: boolean) => {
-                                    DataStorage.WriteBoolean("ShowGrid", value);
-                                    this.props.globalState.stateManager.onGridSizeChanged.notifyObservers();
-                                }}
-                            />
-                        </LineContainerComponentStyled>
-                        <LineContainerComponentStyled title="FILE" value="4">
-                            <FileButtonLine label="Load" onClick={(file) => this.load(file)} accept=".json" />
-                            <ButtonLineComponent
-                                label="Save"
-                                onClick={() => {
-                                    this.save();
-                                }}
-                            />
-                            {this.props.globalState.mode === NodeMaterialModes.SFE && (
-                                <ButtonLineComponent
-                                    label="Export shaders for SFE"
-                                    onClick={async () => {
-                                        this.props.globalState.nodeMaterial.build();
-                                        const fragment = await this.props.globalState.nodeMaterial!._getProcessedFragmentAsync();
-                                        StringTools.DownloadAsFile(this.props.globalState.hostDocument, fragment, "nme.block.glsl");
-                                    }}
-                                />
-                            )}
-                            <ButtonLineComponent
-                                label="Generate code"
-                                onClick={() => {
-                                    StringTools.DownloadAsFile(this.props.globalState.hostDocument, this.props.globalState.nodeMaterial.generateCode(), "code.txt");
-                                }}
-                            />
-                            <ButtonLineComponent
-                                label="Export shaders"
-                                onClick={() => {
-                                    this.props.globalState.nodeMaterial.build();
-                                    StringTools.DownloadAsFile(this.props.globalState.hostDocument, this.props.globalState.nodeMaterial.compiledShaders, "shaders.txt");
-                                }}
-                            />
-                            {this.props.globalState.customSave && (
-                                <ButtonLineComponent
-                                    label={this.props.globalState.customSave.label}
-                                    isDisabled={this.state.uploadInProgress}
-                                    onClick={() => {
-                                        this.customSave();
-                                    }}
-                                />
-                            )}
-                            <FileButtonLine label="Load Frame" onClick={(file) => this.loadFrame(file)} accept=".json" />
-                        </LineContainerComponentStyled>
-                        {!this.props.globalState.customSave && (
-                            <LineContainerComponentStyled title="SNIPPET" value="5">
-                                {this.props.globalState.nodeMaterial.snippetId && <TextLineComponent label="Snippet ID" value={this.props.globalState.nodeMaterial.snippetId} />}
-                                <ButtonLineComponent label="Load from snippet server" onClick={() => this.loadFromSnippet()} />
-                                <ButtonLineComponent
-                                    label="Save to snippet server"
-                                    onClick={() => {
-                                        this.saveToSnippetServer();
-                                    }}
-                                />
-                            </LineContainerComponentStyled>
-                        )}
-                        <LineContainerComponentStyled title="TRANSPARENCY"value="6">
-                            <CheckBoxLineComponent
-                                label="Force alpha blending"
-                                target={this.props.globalState.nodeMaterial}
-                                propertyName="forceAlphaBlending"
-                                onValueChanged={() => this.props.globalState.stateManager.onUpdateRequiredObservable.notifyObservers(null)}
-                            />
-                            <OptionsLine
-                                label="Alpha mode"
-                                options={AlphaModeOptions}
-                                target={this.props.globalState.nodeMaterial}
-                                propertyName="alphaMode"
-                                onSelect={() => this.props.globalState.stateManager.onUpdateRequiredObservable.notifyObservers(null)}
-                            />
-                        </LineContainerComponentStyled>
-                        <InputsPropertyTabComponent
+            <StyledToolPanel title="NODE MATERIAL EDITOR">
+                <AccordionStyled>
+                    <LineContainerComponentStyled title="GENERAL" value="1">
+                        <OptionsLine
+                            ref={this._modeSelect}
+                            label="Mode"
+                            target={this}
+                            extractValue={() => this.props.globalState.mode}
+                            options={modeList}
+                            onSelect={(value) => this.changeMode(value)}
+                            propertyName={""}
+                        />
+                        <OptionsLine
+                            label="Engine"
+                            target={this}
+                            extractValue={() => this.props.globalState.engine}
+                            options={engineList}
+                            onSelect={(value) => {
+                                this.props.globalState.engine = value as number;
+                                this.forceUpdate();
+                            }}
+                            propertyName={""}
+                        />
+                        <TextLineComponent label="Version" value={Engine.Version} />
+                        <TextLineComponent
+                            label="Help"
+                            value="doc.babylonjs.com"
+                            underline={true}
+                            onLink={() => this.props.globalState.hostDocument.defaultView!.open("https://doc.babylonjs.com/how_to/node_material", "_blank")}
+                        />
+                        <TextInputLineComponent
+                            label="Comment"
+                            multilines={true}
+                            lockObject={this.props.globalState.lockObject}
+                            value={this.props.globalState.nodeMaterial.comment}
+                            target={this.props.globalState.nodeMaterial}
+                            propertyName="comment"
+                        />
+                        <ButtonLineComponent
+                            label="Reset to default"
+                            onClick={() => {
+                                switch (this.props.globalState.mode) {
+                                    case NodeMaterialModes.Material:
+                                        this.props.globalState.nodeMaterial.setToDefault();
+                                        break;
+                                    case NodeMaterialModes.PostProcess:
+                                        this.props.globalState.nodeMaterial.setToDefaultPostProcess();
+                                        break;
+                                    case NodeMaterialModes.SFE:
+                                        SetToDefaultSFE(this.props.globalState.nodeMaterial!);
+                                        break;
+                                    case NodeMaterialModes.Particle:
+                                        this.props.globalState.nodeMaterial.setToDefaultParticle();
+                                        break;
+                                    case NodeMaterialModes.ProceduralTexture:
+                                        this.props.globalState.nodeMaterial.setToDefaultProceduralTexture();
+                                        break;
+                                    case NodeMaterialModes.GaussianSplatting:
+                                        SetToDefaultGaussianSplatting(this.props.globalState.nodeMaterial);
+                                        break;
+                                }
+                                this.props.globalState.onResetRequiredObservable.notifyObservers(true);
+                                this.props.globalState.onClearUndoStack.notifyObservers();
+                            }}
+                        />
+                    </LineContainerComponentStyled>
+                    <LineContainerComponentStyled title="UI" value="2">
+                        <ButtonLineComponent
+                            label="Zoom to fit"
+                            onClick={() => {
+                                this.props.globalState.onZoomToFitRequiredObservable.notifyObservers();
+                            }}
+                        />
+                        <ButtonLineComponent
+                            label="Reorganize"
+                            onClick={() => {
+                                this.props.globalState.onReOrganizedRequiredObservable.notifyObservers();
+                            }}
+                        />
+                    </LineContainerComponentStyled>
+                    <LineContainerComponentStyled title="OPTIONS" value="3">
+                        <CheckBoxLineComponent
+                            label="Embed textures when saving"
+                            isSelected={() => DataStorage.ReadBoolean("EmbedTextures", true)}
+                            onSelect={(value: boolean) => {
+                                DataStorage.WriteBoolean("EmbedTextures", value);
+                            }}
+                        />
+                        <SliderLineComponent
                             lockObject={this.props.lockObject}
-                            globalState={this.props.globalState}
-                            inputs={this.props.globalState.nodeMaterial.getInputBlocks()}
-                        ></InputsPropertyTabComponent>
-                    </AccordionStyled>
-                </div>
-            </div>
+                            label="Grid size"
+                            minimum={0}
+                            maximum={100}
+                            step={5}
+                            decimalCount={0}
+                            directValue={gridSize}
+                            onChange={(value) => {
+                                DataStorage.WriteNumber("GridSize", value);
+                                this.props.globalState.stateManager.onGridSizeChanged.notifyObservers();
+                                this.forceUpdate();
+                            }}
+                        />
+                        <CheckBoxLineComponent
+                            label="Show grid"
+                            isSelected={() => DataStorage.ReadBoolean("ShowGrid", true)}
+                            onSelect={(value: boolean) => {
+                                DataStorage.WriteBoolean("ShowGrid", value);
+                                this.props.globalState.stateManager.onGridSizeChanged.notifyObservers();
+                            }}
+                        />
+                    </LineContainerComponentStyled>
+                    <LineContainerComponentStyled title="FILE" value="4">
+                        <FileButtonLine label="Load" onClick={(file) => this.load(file)} accept=".json" />
+                        <ButtonLineComponent
+                            label="Save"
+                            onClick={() => {
+                                this.save();
+                            }}
+                        />
+                        {this.props.globalState.mode === NodeMaterialModes.SFE && (
+                            <ButtonLineComponent
+                                label="Export shaders for SFE"
+                                onClick={async () => {
+                                    this.props.globalState.nodeMaterial.build();
+                                    const fragment = await this.props.globalState.nodeMaterial!._getProcessedFragmentAsync();
+                                    StringTools.DownloadAsFile(this.props.globalState.hostDocument, fragment, "nme.block.glsl");
+                                }}
+                            />
+                        )}
+                        <ButtonLineComponent
+                            label="Generate code"
+                            onClick={() => {
+                                StringTools.DownloadAsFile(this.props.globalState.hostDocument, this.props.globalState.nodeMaterial.generateCode(), "code.txt");
+                            }}
+                        />
+                        <ButtonLineComponent
+                            label="Export shaders"
+                            onClick={() => {
+                                this.props.globalState.nodeMaterial.build();
+                                StringTools.DownloadAsFile(this.props.globalState.hostDocument, this.props.globalState.nodeMaterial.compiledShaders, "shaders.txt");
+                            }}
+                        />
+                        {this.props.globalState.customSave && (
+                            <ButtonLineComponent
+                                label={this.props.globalState.customSave.label}
+                                isDisabled={this.state.uploadInProgress}
+                                onClick={() => {
+                                    this.customSave();
+                                }}
+                            />
+                        )}
+                        <FileButtonLine label="Load Frame" onClick={(file) => this.loadFrame(file)} accept=".json" />
+                    </LineContainerComponentStyled>
+                    {!this.props.globalState.customSave && (
+                        <LineContainerComponentStyled title="SNIPPET" value="5">
+                            {this.props.globalState.nodeMaterial.snippetId && <TextLineComponent label="Snippet ID" value={this.props.globalState.nodeMaterial.snippetId} />}
+                            <ButtonLineComponent label="Load from snippet server" onClick={() => this.loadFromSnippet()} />
+                            <ButtonLineComponent
+                                label="Save to snippet server"
+                                onClick={() => {
+                                    this.saveToSnippetServer();
+                                }}
+                            />
+                        </LineContainerComponentStyled>
+                    )}
+                    <LineContainerComponentStyled title="TRANSPARENCY" value="6">
+                        <CheckBoxLineComponent
+                            label="Force alpha blending"
+                            target={this.props.globalState.nodeMaterial}
+                            propertyName="forceAlphaBlending"
+                            onValueChanged={() => this.props.globalState.stateManager.onUpdateRequiredObservable.notifyObservers(null)}
+                        />
+                        <OptionsLine
+                            label="Alpha mode"
+                            options={AlphaModeOptions}
+                            target={this.props.globalState.nodeMaterial}
+                            propertyName="alphaMode"
+                            onSelect={() => this.props.globalState.stateManager.onUpdateRequiredObservable.notifyObservers(null)}
+                        />
+                    </LineContainerComponentStyled>
+                    <InputsPropertyTabComponent
+                        lockObject={this.props.lockObject}
+                        globalState={this.props.globalState}
+                        inputs={this.props.globalState.nodeMaterial.getInputBlocks()}
+                    ></InputsPropertyTabComponent>
+                </AccordionStyled>
+            </StyledToolPanel>
         );
     }
 }

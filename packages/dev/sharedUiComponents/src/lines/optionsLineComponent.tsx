@@ -3,8 +3,7 @@ import type { Observable } from "core/Misc/observable";
 import type { PropertyChangedEvent } from "../propertyChangedEvent";
 import { copyCommandToClipboard, getClassNameWithNamespace } from "../copyCommandToClipboard";
 import type { IInspectableOptions } from "core/Misc/iInspectable";
-import { Dropdown, Option } from "@fluentui/react-components";
-import { PropertyLineStyled } from "shared-ui-components/fluent/styledWrappers";
+import { DropdownStyled, PropertyLineStyled } from "shared-ui-components/fluent/styledWrappers";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const Null_Value = Number.MAX_SAFE_INTEGER;
@@ -122,22 +121,13 @@ export class OptionsLine extends React.Component<IOptionsLineProps, { value: num
         return (
             // <Stack direction="row">
             <PropertyLineStyled label={this.props.label}>
-                <Dropdown
-                    onOptionSelect={(evt, data) => {
-                        if (data.optionValue) {
-                            this.updateValue(data.optionValue);
-                        }
+                <DropdownStyled
+                    options={this.props.options}
+                    onSelect={(val: string) => {
+                        val !== undefined && this.updateValue(val);
                     }}
-                    defaultValue={this.props.options.find((o) => o.selected)?.label}
-                    // defaultValue={this.state.value.toString()}
-                    defaultSelectedOptions={[this.state.value.toString()]}
-                >
-                    {this.props.options.map((option: IInspectableOptions, i: number) => (
-                        <Option style={{ textAlign: "right" }} key={option.label + i} value={option.value.toString()} disabled={false}>
-                            {option.label}
-                        </Option>
-                    ))}
-                </Dropdown>
+                    defaultValue={this.state.value}
+                />
                 {/* <DropDown updateValue={this.updateValue} val={this.state.value.toString()} options={this.props.options} /> */}
                 {/* <div className="options">
                     <select onChange={(evt) => this.updateValue(evt.target.value)} value={this.state.value ?? ""}>

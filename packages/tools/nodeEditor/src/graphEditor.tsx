@@ -636,8 +636,8 @@ export class GraphEditorInner extends React.Component<IGraphEditorPropsInner, IG
 
     override render() {
         return (
-            <FluentProvider theme={webDarkTheme}>
-                <Portal globalState={this.props.globalState}>
+            <Portal globalState={this.props.globalState}>
+                <FluentProvider theme={webDarkTheme}>
                     <div className={this.props.styles.app}>
                         <SplitContainer
                             id="node-editor-graph-root"
@@ -699,8 +699,8 @@ export class GraphEditorInner extends React.Component<IGraphEditorPropsInner, IG
                         <div className="blocker">Node Material Editor needs a horizontal resolution of at least 900px</div>
                         <div className="wait-screen hidden">Processing...please wait</div>
                     </div>
-                </Portal>
-            </FluentProvider>
+                </FluentProvider>
+            </Portal>
         );
     }
 }

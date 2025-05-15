@@ -9,11 +9,27 @@ export const useGlobalStyles = makeStyles({
         padding: "24px",
         display: "flex",
         flexDirection: "column",
-        gap: "24px",
         borderRadius: "16px",
         backgroundColor: "coral",
     },
+    logo: {
+        width: "32px", // update all of these things to be tokens
+        height: "32px",
+    },
+    toolPanel: {
+        backgroundColor: "turquoise",
+        overflowY: "auto",
+        height: "75%",
+    },
+    toolHeader: {
+        backgroundColor: "teal",
+        fontSize: "20px",
+        fontWeight: "bold",
+        textAlign: "center",
+    },
     accordionContainer: {
+        overflowY: "auto",
+        height: "100%",
         width: "-webkit-fill-available",
         display: "flex",
         alignItems: "center",
@@ -52,6 +68,7 @@ export const useGlobalStyles = makeStyles({
     },
     dropdownOption: {
         textAlign: "right",
+        minWidth: "40px",
     },
     optionsLine: {
         // why do i ned this
@@ -65,24 +82,9 @@ export const useGlobalStyles = makeStyles({
     label: {
         width: "33%",
         textAlign: "left",
-        //justifyContent: "flex-start",
-        // flexGrow: 1,
-        // gap: "8px",
-        // flexWrap: "wrap",
-        // overflow: "hidden",
-        // whiteSpace: "nowrap",
-        // textOverflow: "ellipsis",
-        // fontWeight: 500,
-        // fontSize: "14px",
         backgroundColor: "limegreen",
     },
     rightContent: {
-        // flex: 1,
-        // display: "flex",
-        // justifyContent: "flex-end",
-        // gap: tokens.gap,
-        // flexGrow: 1,
-        // alignItems: "center",
         width: "67%",
         backgroundColor: "red",
     },
