@@ -55,6 +55,10 @@ export const useGlobalStyles = makeStyles({
         padding: "1px",
         //backgroundColor: "pink",
         borderRadius: "8px",
+        display: "flex",
+        flexDirection: "column",
+        rowGap: "10px",
+        overflow: "hidden",
     },
     propertyLine: {
         width: "-webkit-fill-available",
