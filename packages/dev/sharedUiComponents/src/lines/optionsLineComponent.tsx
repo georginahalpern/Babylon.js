@@ -3,7 +3,8 @@ import type { Observable } from "core/Misc/observable";
 import type { PropertyChangedEvent } from "../propertyChangedEvent";
 import { copyCommandToClipboard, getClassNameWithNamespace } from "../copyCommandToClipboard";
 import type { IInspectableOptions } from "core/Misc/iInspectable";
-import copyIcon from "../imgs/copy.svg";
+import { DropdownStyled, PropertyLineStyled } from "shared-ui-components/fluent/styledWrappers";
+// What is preferred import when within same package? relative import? if so standardize
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const Null_Value = Number.MAX_SAFE_INTEGER;
@@ -118,26 +119,19 @@ export class OptionsLine extends React.Component<IOptionsLineProps, { value: num
 
     override render() {
         return (
-            <div className={"listLine" + (this.props.className ? " " + this.props.className : "")}>
-                {this.props.icon && <img src={this.props.icon} title={this.props.iconLabel} alt={this.props.iconLabel} color="black" className="icon" />}
-                <div className="label" title={this.props.label}>
-                    {this.props.label}
-                </div>
-                <div className="options">
-                    <select onChange={(evt) => this.updateValue(evt.target.value)} value={this.state.value ?? ""}>
-                        {this.props.options.map((option, i) => {
-                            return (
-                                <option selected={option.selected} key={option.label + i} value={option.value} title={option.label}>
-                                    {option.label}
-                                </option>
-                            );
-                        })}
-                    </select>
-                </div>
-                <div className="copy hoverIcon" onClick={() => this.onCopyClick()} title="Copy to clipboard">
+            <PropertyLineStyled label={this.props.label} icon={this.props.icon} iconLabel={this.props.iconLabel} onCopy={() => this.onCopyClick()}>
+                <DropdownStyled
+                    options={this.props.options}
+                    onSelect={(val: string) => {
+                        val !== undefined && this.updateValue(val);
+                    }}
+                    defaultValue={this.state.value}
+                />
+                {/* <div className="copy hoverIcon" onClick={() => this.onCopyClick()} title="Copy to clipboard">
                     <img src={copyIcon} alt="Copy" />
-                </div>
-            </div>
+                    // TODO solve the scss hiding copy icon for nme
+                </div> */}
+            </PropertyLineStyled>
         );
     }
 }

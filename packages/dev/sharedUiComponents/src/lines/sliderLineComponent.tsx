@@ -3,9 +3,10 @@ import type { Observable } from "core/Misc/observable";
 import type { PropertyChangedEvent } from "../propertyChangedEvent";
 import { copyCommandToClipboard, getClassNameWithNamespace } from "../copyCommandToClipboard";
 import { Tools } from "core/Misc/tools";
-import { FloatLineComponent } from "./floatLineComponent";
 import type { LockObject } from "../tabs/propertyGrids/lockObject";
-import copyIcon from "../imgs/copy.svg";
+import { FloatLineComponent } from "./floatLineComponent";
+import { PropertyLineStyled } from "shared-ui-components/fluent/styledWrappers";
+import { Slider } from "@fluentui/react-components";
 
 interface ISliderLineComponentProps {
     label: string;
@@ -142,13 +143,7 @@ export class SliderLineComponent extends React.Component<ISliderLineComponentPro
 
     override render() {
         return (
-            <div className="sliderLine">
-                {this.props.icon && <img src={this.props.icon} title={this.props.iconLabel} alt={this.props.iconLabel} className="icon" />}
-                {(!this.props.icon || this.props.label != "") && (
-                    <div className={this.props.margin ? "label withMargins" : "label"} title={this.props.label}>
-                        {this.props.label}
-                    </div>
-                )}
+            <PropertyLineStyled label={this.props.label} onCopy={() => this.onCopyClick()} icon={this.props.icon} iconLabel={this.props.iconLabel}>
                 <FloatLineComponent
                     lockObject={this.props.lockObject}
                     isInteger={this.props.decimalCount === 0}
@@ -170,22 +165,17 @@ export class SliderLineComponent extends React.Component<ISliderLineComponentPro
                     onPropertyChangedObservable={this.props.onPropertyChangedObservable}
                     unit={this.props.unit}
                 />
-                <div className="slider">
-                    <input
-                        className={"range" + (this.props.allowOverflow && (this.state.value > this.props.maximum || this.state.value < this.props.minimum) ? " overflow" : "")}
-                        type="range"
-                        step={this.props.step}
-                        min={this.prepareDataToRead(this.props.minimum)}
-                        max={this.prepareDataToRead(this.props.maximum)}
-                        value={this.prepareDataToRead(this.state.value)}
-                        onInput={(evt) => this.onInput((evt.target as HTMLInputElement).value)}
-                        onChange={(evt) => this.onChange(evt.target.value)}
-                    />
-                </div>
-                <div className="copy hoverIcon" onClick={() => this.onCopyClick()} title="Copy to clipboard">
-                    <img src={copyIcon} alt="Copy" />
-                </div>
-            </div>
+                <Slider
+                    className={"range" + (this.props.allowOverflow && (this.state.value > this.props.maximum || this.state.value < this.props.minimum) ? " overflow" : "")}
+                    type="range"
+                    step={this.props.step}
+                    min={this.prepareDataToRead(this.props.minimum)}
+                    max={this.prepareDataToRead(this.props.maximum)}
+                    value={this.prepareDataToRead(this.state.value)}
+                    onInput={(evt) => this.onInput((evt.target as HTMLInputElement).value)}
+                    onChange={(evt) => this.onChange(evt.target.value)}
+                />
+            </PropertyLineStyled>
         );
     }
 }

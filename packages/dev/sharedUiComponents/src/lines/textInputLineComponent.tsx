@@ -4,6 +4,7 @@ import type { PropertyChangedEvent } from "../propertyChangedEvent";
 import type { LockObject } from "../tabs/propertyGrids/lockObject";
 import { conflictingValuesPlaceholder } from "./targetsProxy";
 import { InputArrowsComponent } from "./inputArrowsComponent";
+import { PropertyLineStyled, StyledInput, StyledTextarea } from "../fluent/styledWrappers";
 
 export interface ITextInputLineComponentProps {
     label?: string;
@@ -195,47 +196,40 @@ export class TextInputLineComponent extends React.Component<ITextInputLineCompon
         const value = this.state.value === conflictingValuesPlaceholder ? "" : this.state.value;
         const placeholder = this.state.value === conflictingValuesPlaceholder ? conflictingValuesPlaceholder : this.props.placeholder || "";
         const step = this.props.step || (this.props.roundValues ? 1 : 0.01);
-        const className = this.props.multilines ? "textInputArea" : this.props.unit !== undefined ? "textInputLine withUnits" : "textInputLine";
         return (
-            <div className={className}>
-                {this.props.icon && <img src={this.props.icon} title={this.props.iconLabel} alt={this.props.iconLabel} color="black" className="icon" />}
-                {this.props.label !== undefined && (
-                    <div className="label" title={this.props.label}>
-                        {this.props.label}
-                    </div>
-                )}
+            <PropertyLineStyled label={this.props.label ?? ""} icon={this.props.icon} iconLabel={this.props.iconLabel}>
                 {this.props.multilines && (
-                    <>
-                        <textarea
-                            className={this.props.disabled ? "disabled" : ""}
-                            value={this.state.value}
-                            onFocus={() => {
-                                if (this.props.lockObject) {
-                                    this.props.lockObject.lock = true;
-                                }
-                            }}
-                            onChange={(evt) => this.updateValue(evt.target.value)}
-                            onKeyDown={(evt) => {
-                                if (evt.keyCode !== 13) {
-                                    return;
-                                }
-                                this.updateValue(this.state.value);
-                            }}
-                            onBlur={(evt) => {
-                                this.updateValue(evt.target.value, evt.target.value);
-                                if (this.props.lockObject) {
-                                    this.props.lockObject.lock = false;
-                                }
-                            }}
-                            disabled={this.props.disabled}
-                        />
-                    </>
+                    <StyledTextarea
+                        className={this.props.disabled ? "disabled" : ""}
+                        value={this.state.value}
+                        onFocus={() => {
+                            if (this.props.lockObject) {
+                                this.props.lockObject.lock = true;
+                            }
+                        }}
+                        onChange={(evt) => this.updateValue(evt.target.value)}
+                        onKeyDown={(evt) => {
+                            if (evt.keyCode !== 13) {
+                                return;
+                            }
+                            this.updateValue(this.state.value);
+                        }}
+                        onBlur={(evt) => {
+                            this.updateValue(evt.target.value, evt.target.value);
+                            if (this.props.lockObject) {
+                                this.props.lockObject.lock = false;
+                            }
+                        }}
+                        disabled={this.props.disabled}
+                    />
                 )}
                 {!this.props.multilines && (
+                    // GEORGIE handle dragging-- when is that used?
+                    // remember to do the onFocus/type
                     <div
                         className={`value${this.props.noUnderline === true ? " noUnderline" : ""}${this.props.arrows ? " hasArrows" : ""}${this.state.dragging ? " dragging" : ""}`}
                     >
-                        <input
+                        <StyledInput
                             className={this.props.disabled ? "disabled" : ""}
                             value={value}
                             onBlur={(evt) => {
@@ -262,7 +256,7 @@ export class TextInputLineComponent extends React.Component<ITextInputLineCompon
                     </div>
                 )}
                 {this.props.unit}
-            </div>
+            </PropertyLineStyled>
         );
     }
 }

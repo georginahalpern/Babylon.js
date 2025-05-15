@@ -1,4 +1,6 @@
-import * as React from "react";
+import { Button } from "@fluentui/react-components";
+import { FunctionComponent } from "react";
+import { useGlobalStyles } from "../fluent/globalStyles";
 
 export interface IButtonLineComponentProps {
     label: string;
@@ -7,18 +9,19 @@ export interface IButtonLineComponentProps {
     iconLabel?: string;
     isDisabled?: boolean;
 }
+export const ButtonLineComponent: FunctionComponent<IButtonLineComponentProps> = (props: IButtonLineComponentProps) => {
+    const styles = useGlobalStyles();
 
-export class ButtonLineComponent extends React.Component<IButtonLineComponentProps> {
-    constructor(props: IButtonLineComponentProps) {
-        super(props);
-    }
-
-    override render() {
-        return (
-            <div className={"buttonLine" + (this.props.isDisabled ? " disabled" : "")}>
-                {this.props.icon && <img src={this.props.icon} title={this.props.iconLabel} alt={this.props.iconLabel} className="icon" />}
-                <button onClick={() => this.props.onClick()}>{this.props.label}</button>
-            </div>
-        );
-    }
-}
+    return (
+        <Button
+            className={styles.propertyLine}
+            appearance="primary"
+            icon={props.icon && <img src={props.icon} title={props.iconLabel} alt={props.iconLabel} className="icon" />}
+            onClick={props.onClick}
+            title={props.label}
+            disabled={props.isDisabled}
+        >
+            {props.label}
+        </Button>
+    );
+};

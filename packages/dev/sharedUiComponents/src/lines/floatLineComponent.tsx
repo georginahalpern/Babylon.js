@@ -7,7 +7,7 @@ import { Tools } from "core/Misc/tools";
 import { conflictingValuesPlaceholder } from "./targetsProxy";
 import { InputArrowsComponent } from "./inputArrowsComponent";
 import { copyCommandToClipboard, getClassNameWithNamespace } from "../copyCommandToClipboard";
-import copyIcon from "../imgs/copy.svg";
+import { StyledInput } from "../fluent/styledWrappers";
 
 interface IFloatLineComponentProps {
     label: string;
@@ -242,7 +242,7 @@ export class FloatLineComponent extends React.Component<IFloatLineComponentProps
                             </div>
                         )}
                         <div className={className}>
-                            <input
+                            <StyledInput
                                 type={"number"}
                                 step={this.props.step || this.props.isInteger ? "1" : "0.01"}
                                 className="numeric-input"
@@ -256,7 +256,7 @@ export class FloatLineComponent extends React.Component<IFloatLineComponentProps
                                 }}
                                 placeholder={placeholder}
                                 onFocus={() => this.lock()}
-                                onChange={(evt) => this.updateValue(evt.target.value)}
+                                onChange={(evt: any) => this.updateValue(evt.target.value)}
                                 disabled={this.props.disabled}
                             />
                             {this.props.arrows && (
@@ -276,9 +276,9 @@ export class FloatLineComponent extends React.Component<IFloatLineComponentProps
                             )}
                         </div>
                         {this.props.unit}
-                        <div className="copy hoverIcon" onClick={() => this.onCopyClick()} title="Copy to clipboard">
+                        {/* <div className="copy hoverIcon" onClick={() => this.onCopyClick()} title="Copy to clipboard">
                             <img src={copyIcon} alt="Copy" />
-                        </div>
+                        </div> */}
                     </div>
                 )}
                 {this.props.useEuler && (

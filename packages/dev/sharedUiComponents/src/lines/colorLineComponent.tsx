@@ -9,7 +9,8 @@ import { copyCommandToClipboard, getClassNameWithNamespace } from "../copyComman
 import { ColorPickerLine } from "./colorPickerComponent";
 import type { LockObject } from "../tabs/propertyGrids/lockObject";
 import { conflictingValuesPlaceholder } from "./targetsProxy";
-import copyIcon from "../imgs/copy.svg";
+import { PropertyLineStyled } from "shared-ui-components/fluent/styledWrappers";
+import { Button } from "@fluentui/react-components";
 
 const EmptyColor = new Color4(0, 0, 0, 0);
 
@@ -197,12 +198,8 @@ export class ColorLine extends React.Component<IColorLineProps, IColorLineCompon
         const chevron = this.state.isExpanded ? <FontAwesomeIcon icon={faMinus} /> : <FontAwesomeIcon icon={faPlus} />;
 
         return (
-            <div className="color3Line">
+            <PropertyLineStyled label={this.props.label} onCopy={() => this.onCopyClick()} icon={this.props.icon} iconLabel={this.props.iconLabel}>
                 <div className="firstLine">
-                    {this.props.icon && <img src={this.props.icon} title={this.props.iconLabel} alt={this.props.iconLabel} className="icon" />}
-                    <div className="label" title={this.props.label}>
-                        {this.props.label}
-                    </div>
                     <div className="color3">
                         <ColorPickerLine
                             lockObject={this.props.lockObject}
@@ -213,12 +210,7 @@ export class ColorLine extends React.Component<IColorLineProps, IColorLineCompon
                             }}
                         />
                     </div>
-                    <div className="expand hoverIcon" onClick={() => this.switchExpandState()} title="Expand">
-                        {chevron}
-                    </div>
-                    <div className="copy hoverIcon" onClick={() => this.onCopyClick()} title="Copy to clipboard">
-                        <img src={copyIcon} alt="Copy" />
-                    </div>
+                    <Button className="expand hoverIcon" icon={chevron} onClick={() => this.switchExpandState()} title="Expand" />
                 </div>
                 {this.state.isExpanded && (
                     <div className="secondLine">
@@ -258,7 +250,7 @@ export class ColorLine extends React.Component<IColorLineProps, IColorLineCompon
                         )}
                     </div>
                 )}
-            </div>
+            </PropertyLineStyled>
         );
     }
 }

@@ -2,6 +2,7 @@ import * as React from "react";
 import { DataStorage } from "core/Misc/dataStorage";
 import type { ISelectedLineContainer } from "./iSelectedLineContainer";
 import downArrow from "./downArrow.svg";
+import { AccordionItemStyled } from "shared-ui-components/fluent/styledWrappers";
 
 interface ILineContainerComponentProps {
     selection?: ISelectedLineContainer;
@@ -89,3 +90,6 @@ export class LineContainerComponent extends React.Component<ILineContainerCompon
         );
     }
 }
+
+// Right now i'm not storing expanded state in globalState, need to update
+export const LineContainerComponentStyled = AccordionItemStyled;
