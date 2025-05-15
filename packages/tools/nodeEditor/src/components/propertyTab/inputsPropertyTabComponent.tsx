@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { GlobalState } from "../../globalState";
-import { LineContainerComponent } from "shared-ui-components/lines/lineContainerComponent";
+import { LineContainerComponentStyled } from "shared-ui-components/lines/lineContainerComponent";
 import { CheckBoxLineComponent } from "../../sharedComponents/checkBoxLineComponent";
 import type { InputBlock } from "core/Materials/Node/Blocks/Input/inputBlock";
 import { NodeMaterialBlockConnectionPointTypes } from "core/Materials/Node/Enums/nodeMaterialBlockConnectionPointTypes";
@@ -14,6 +14,7 @@ import { Color4LineComponent } from "shared-ui-components/lines/color4LineCompon
 import type { LockObject } from "shared-ui-components/tabs/propertyGrids/lockObject";
 import { FloatLineComponent } from "shared-ui-components/lines/floatLineComponent";
 import { SliderLineComponent } from "shared-ui-components/lines/sliderLineComponent";
+import { AccordionStyled } from "shared-ui-components/fluent/styledWrappers";
 
 interface IInputsPropertyTabComponentProps {
     globalState: GlobalState;
@@ -138,14 +139,16 @@ export class InputsPropertyTabComponent extends React.Component<IInputsPropertyT
 
     override render() {
         return (
-            <LineContainerComponent title="INPUTS">
-                {this.props.inputs.map((ib) => {
-                    if (!ib.isUniform || ib.isSystemValue || !ib.name) {
-                        return null;
-                    }
-                    return this.renderInputBlock(ib);
-                })}
-            </LineContainerComponent>
+            <AccordionStyled>
+                <LineContainerComponentStyled title="INPUTS" value="1">
+                    {this.props.inputs.map((ib) => {
+                        if (!ib.isUniform || ib.isSystemValue || !ib.name) {
+                            return null;
+                        }
+                        return this.renderInputBlock(ib);
+                    })}
+                </LineContainerComponentStyled>
+            </AccordionStyled>
         );
     }
 }

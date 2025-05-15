@@ -10,7 +10,7 @@ interface AccordionProps {
 export const AccordionStyled: React.FC<AccordionProps> = (props: AccordionProps) => {
     const styles = useGlobalStyles();
     return (
-        <Accordion className={styles.accordionContainer} collapsible>
+        <Accordion className={styles.accordionContainer} collapsible multiple>
             {props.children}
         </Accordion>
     );
@@ -70,6 +70,7 @@ export const PropertyLineStyled: React.FC<{ children: React.ReactNode } & { labe
         </div>
     );
 };
+// can add a propertylinestyled w copy button too
 
 export const LineContainerComponent2 = (props: { children: React.ReactNode } & { value: string; title: string }) => {
     const styles = useGlobalStyles();
