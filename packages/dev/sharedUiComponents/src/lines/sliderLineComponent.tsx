@@ -7,7 +7,8 @@ import { Tools } from "core/Misc/tools";
 import type { LockObject } from "../tabs/propertyGrids/lockObject";
 // import copyIcon from "../imgs/copy.svg";
 import { FloatLineComponent } from "./floatLineComponent";
-import { SliderProperty } from "shared-ui-components/fluent/booleanProperty";
+import { PropertyLineStyled } from "shared-ui-components/fluent/styledWrappers";
+import { Slider } from "@fluentui/react-components";
 
 interface ISliderLineComponentProps {
     label: string;
@@ -144,13 +145,13 @@ export class SliderLineComponent extends React.Component<ISliderLineComponentPro
 
     override render() {
         return (
-            <div className="sliderLine">
-                {this.props.icon && <img src={this.props.icon} title={this.props.iconLabel} alt={this.props.iconLabel} className="icon" />}
+            <PropertyLineStyled label={this.props.label}>
+                {/* {this.props.icon && <img src={this.props.icon} title={this.props.iconLabel} alt={this.props.iconLabel} className="icon" />}
                 {(!this.props.icon || this.props.label != "") && (
                     <div className={this.props.margin ? "label withMargins" : "label"} title={this.props.label}>
                         {this.props.label}
                     </div>
-                )}
+                )} */}
                 <FloatLineComponent
                     lockObject={this.props.lockObject}
                     isInteger={this.props.decimalCount === 0}
@@ -172,6 +173,15 @@ export class SliderLineComponent extends React.Component<ISliderLineComponentPro
                     onPropertyChangedObservable={this.props.onPropertyChangedObservable}
                     unit={this.props.unit}
                 />
+                <Slider
+                    step={this.props.step}
+                    min={this.prepareDataToRead(this.props.minimum)}
+                    max={this.prepareDataToRead(this.props.maximum)}
+                    value={this.prepareDataToRead(this.state.value)}
+                    onInput={(evt) => this.onInput((evt.target as HTMLInputElement).value)}
+                    onChange={(evt) => this.onChange(evt.target.value)}
+                />
+                {/*   
                 <div className="slider">
                     <input
                         className={"range" + (this.props.allowOverflow && (this.state.value > this.props.maximum || this.state.value < this.props.minimum) ? " overflow" : "")}
@@ -183,19 +193,19 @@ export class SliderLineComponent extends React.Component<ISliderLineComponentPro
                         onInput={(evt) => this.onInput((evt.target as HTMLInputElement).value)}
                         onChange={(evt) => this.onChange(evt.target.value)}
                     />
-                </div>
+                </div> */}
                 {/* <div className="copy hoverIcon" onClick={() => this.onCopyClick()} title="Copy to clipboard">
                     <img src={copyIcon} alt="Copy" />
                 </div> */}
-                <SliderProperty
+                {/* <SliderProperty
                     label={this.props.label}
                     step={this.props.step}
                     minimum={this.prepareDataToRead(this.props.minimum)}
                     maximum={this.prepareDataToRead(this.props.maximum)}
                     accessor={() => this.prepareDataToRead(this.state.value)}
                     mutator={(val: number) => this.onChange(val)}
-                />
-            </div>
+                /> */}
+            </PropertyLineStyled>
         );
     }
 }

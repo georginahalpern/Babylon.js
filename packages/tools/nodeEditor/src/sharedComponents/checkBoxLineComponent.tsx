@@ -1,6 +1,8 @@
 import * as React from "react";
 import type { Observable } from "core/Misc/observable";
 import type { PropertyChangedEvent } from "shared-ui-components/propertyChangedEvent";
+import { PropertyLineStyled } from "shared-ui-components/fluent/styledWrappers";
+import { Switch } from "@fluentui/react-components";
 
 export interface ICheckBoxLineComponentProps {
     label: string;
@@ -81,22 +83,25 @@ export class CheckBoxLineComponent extends React.Component<ICheckBoxLineComponen
 
     override render() {
         return (
-            <div className="checkBoxLine">
-                <div className="label" title={this.props.label}>
-                    {this.props.label}
-                </div>
-                <div className="checkBox">
-                    <input
-                        type="checkbox"
-                        id={"checkbox" + this._uniqueId}
-                        className="cbx hidden"
-                        checked={this.state.isSelected}
-                        onChange={() => this.onChange()}
-                        disabled={!!this.props.disabled}
-                    />
-                    <label htmlFor={"checkbox" + this._uniqueId} className={`lbl${this.props.disabled ? " disabled" : ""}`}></label>
-                </div>
-            </div>
+            <PropertyLineStyled label={this.props.label}>
+                <Switch id={"checkbox" + this._uniqueId} checked={this.state.isSelected} onChange={(ev) => this.onChange()} disabled={!!this.props.disabled} />
+            </PropertyLineStyled>
+            // <div className="checkBoxLine">
+            //     <div className="label" title={this.props.label}>
+            //         {this.props.label}
+            //     </div>
+            //     <div className="checkBox">
+            //         <input
+            //             type="checkbox"
+            //             id={"checkbox" + this._uniqueId}
+            //             className="cbx hidden"
+            //             checked={this.state.isSelected}
+            //             onChange={() => this.onChange()}
+            //             disabled={!!this.props.disabled}
+            //         />
+            //         <label htmlFor={"checkbox" + this._uniqueId} className={`lbl${this.props.disabled ? " disabled" : ""}`}></label>
+            //     </div>
+            // </div>
         );
     }
 }

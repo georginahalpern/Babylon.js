@@ -56,6 +56,9 @@ export const useGlobalStyles = makeStyles({
     optionsLine: {
         // why do i ned this
     },
+    indicator: {
+        marginRight: 0,
+    },
     buttonLine: {
         backgroundColor: "olive",
     },
