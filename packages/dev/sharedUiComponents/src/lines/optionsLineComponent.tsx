@@ -3,9 +3,8 @@ import type { Observable } from "core/Misc/observable";
 import type { PropertyChangedEvent } from "../propertyChangedEvent";
 import { copyCommandToClipboard, getClassNameWithNamespace } from "../copyCommandToClipboard";
 import type { IInspectableOptions } from "core/Misc/iInspectable";
-// import copyIcon from "../imgs/copy.svg";
-import { Stack } from "shared-ui-components/fluent/lineItem";
-import { Dropdown, Label, Option } from "@fluentui/react-components";
+import { Dropdown, Option } from "@fluentui/react-components";
+import { PropertyLineStyled } from "shared-ui-components/fluent/styledWrappers";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const Null_Value = Number.MAX_SAFE_INTEGER;
@@ -84,6 +83,7 @@ export class OptionsLine extends React.Component<IOptionsLineProps, { value: num
     }
 
     updateValue(valueString: string) {
+        console.log("udte");
         const value = this.props.valuesAreStrings ? valueString : parseInt(valueString);
         this._localChange = true;
 
@@ -119,26 +119,32 @@ export class OptionsLine extends React.Component<IOptionsLineProps, { value: num
     }
 
     override render() {
-        //        const dropdownId = useId("dropdown-default");
-
-        // const styles = useStyles();
         return (
-            <Stack direction="row">
-                <Label htmlFor="dropdown-default">{this.props.label}</Label>
-                <Dropdown id="dropdown-default" onChange={(evt) => this.updateValue(evt.currentTarget.value)} value={this.state.value.toString() ?? ""}>
-                    {this.props.options.map((option, i) => (
-                        <Option key={option.label + i} value={option.value.toString()} disabled={false}>
+            // <Stack direction="row">
+            <PropertyLineStyled label={this.props.label}>
+                <Dropdown
+                    onOptionSelect={(evt, data) => {
+                        if (data.optionValue) {
+                            this.updateValue(data.optionValue);
+                        }
+                    }}
+                    defaultValue={this.props.options.find((o) => o.selected)?.label}
+                    // defaultValue={this.state.value.toString()}
+                    defaultSelectedOptions={[this.state.value.toString()]}
+                >
+                    {this.props.options.map((option: IInspectableOptions, i: number) => (
+                        <Option style={{ textAlign: "right" }} key={option.label + i} value={option.value.toString()} disabled={false}>
                             {option.label}
                         </Option>
                     ))}
                 </Dropdown>
-
+                {/* <DropDown updateValue={this.updateValue} val={this.state.value.toString()} options={this.props.options} /> */}
                 {/* <div className="options">
                     <select onChange={(evt) => this.updateValue(evt.target.value)} value={this.state.value ?? ""}>
                         {this.props.options.map((option, i) => {
                             return (
                                 <option selected={option.selected} key={option.label + i} value={option.value} title={option.label}>
-                                    {option.label}
+                                    {option.label}c
                                 </option>
                             );
                         })}
@@ -147,7 +153,7 @@ export class OptionsLine extends React.Component<IOptionsLineProps, { value: num
                 {/* <div className="copy hoverIcon" onClick={() => this.onCopyClick()} title="Copy to clipboard">
                     <img src={copyIcon} alt="Copy" />
                 </div> */}
-            </Stack>
+            </PropertyLineStyled>
         );
     }
 }

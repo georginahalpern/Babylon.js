@@ -1,13 +1,14 @@
-import { Input, InputOnChangeData, InputProps, makeStyles } from "@fluentui/react-components";
+import { Input, InputOnChangeData, InputProps, Textarea, TextareaProps } from "@fluentui/react-components";
 import * as React from "react";
+import { useGlobalStyles } from "./globalStyles";
 
-interface WithStopPropagationProps {
-    onChange?: (event: React.ChangeEvent<HTMLInputElement>, data: InputOnChangeData) => void;
-    onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
-}
+// interface WithStopPropagationProps {
+//     onChange?: (event: React.ChangeEvent<HTMLInputElement>, data: InputOnChangeData) => void;
+//     onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+// }
 
-const withStopPropagationOnChange = <P extends WithStopPropagationProps>(Component: React.ComponentType<P>) => {
-    return (props: P) => {
+const withStopPropagationOnChange = (Component: React.ComponentType) => {
+    return (props: any) => {
         // Wrapping the existing onChange handler
         const handleChange = (event: React.ChangeEvent<HTMLInputElement>, data: InputOnChangeData) => {
             event.stopPropagation(); // Prevent event propagation
@@ -28,22 +29,17 @@ const withStopPropagationOnChange = <P extends WithStopPropagationProps>(Compone
     };
 };
 
-const useStyles = makeStyles({
-    input: {
-        color: "black",
-        backgroundColor: "white",
-        height: "auto",
-        marginRight: "5px",
-        width: "calc(100% - 5px)",
-    },
-});
-
 const CustomInput: React.FC<InputProps> = (props: InputProps) => {
-    const styles = useStyles();
+    const styles = useGlobalStyles();
     return <Input {...props} className={styles.input} onChange={props.onChange} onKeyDown={props.onKeyDown} />;
+};
+const CustomText: React.FC<TextareaProps> = (props: TextareaProps) => {
+    const styles = useGlobalStyles();
+    return <Textarea {...props} className={styles.input} onChange={props.onChange} onKeyDown={props.onKeyDown} />;
 };
 
 // Wrap CustomInput with the HOC
 const WrappedCustomInput = withStopPropagationOnChange(CustomInput);
-
-export default WrappedCustomInput;
+const WrappedCustomText = withStopPropagationOnChange(CustomText);
+// Can do more generic later
+export { WrappedCustomInput, WrappedCustomText };

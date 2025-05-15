@@ -35,11 +35,6 @@ export function Stack({ children, direction = "column", spacing = "8px" }: Stack
                 display: "flex",
                 flexDirection: direction,
                 gap: spacing,
-                // display: "grid",
-                gridTemplateRows: "repeat(1fr)",
-                justifyItems: "start",
-                // gap: "2px",
-                maxWidth: "400px",
             }}
             className={"listLine"}
         >

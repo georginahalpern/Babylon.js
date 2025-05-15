@@ -8,7 +8,7 @@ import { useCallback, useState } from "react";
 import { Button, InfoLabel, makeStyles, Slider, tokens } from "@fluentui/react-components";
 import { Copy24Regular } from "@fluentui/react-icons";
 // import { WrappedInput } from "./wrappedGeneric";
-import WrappedCustomInput from "./wrappedCustomInput";
+import { WrappedCustomInput } from "./wrappedCustomInput";
 
 // probably common
 const useStyles = makeStyles({

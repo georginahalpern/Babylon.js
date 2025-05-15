@@ -1,7 +1,7 @@
 import * as React from "react";
 import type { GlobalState } from "../../globalState";
 import type { Nullable } from "core/types";
-import { Accordion2, LineContainerComponent, LineContainerComponent2 } from "shared-ui-components/lines/lineContainerComponent";
+import {  LineContainerComponentStyled } from "shared-ui-components/lines/lineContainerComponent";
 import { StringTools } from "shared-ui-components/stringTools";
 import { FileButtonLine } from "shared-ui-components/lines/fileButtonLineComponent";
 import { Tools } from "core/Misc/tools";
@@ -40,6 +40,7 @@ import { FloatLineComponent } from "shared-ui-components/lines/floatLineComponen
 import { SliderLineComponent } from "shared-ui-components/lines/sliderLineComponent";
 import { SetToDefaultGaussianSplatting, SetToDefaultSFE } from "core/Materials/Node/nodeMaterialDefault";
 import { AlphaModeOptions } from "shared-ui-components/constToOptionsMaps";
+import { AccordionStyled } from "shared-ui-components/fluent/styledWrappers";
 
 interface IPropertyTabComponentProps {
     globalState: GlobalState;
@@ -466,8 +467,8 @@ export class PropertyTabComponent extends React.Component<IPropertyTabComponentP
                     <div id="title">NODE MATERIAL EDITOR</div>
                 </div>
                 <div>
-                    <Accordion2 collapsible>
-                        <LineContainerComponent2 title="GENERAL" value="1">
+                    <AccordionStyled>
+                        <LineContainerComponentStyled title="GENERAL" value="1">
                             <OptionsLine
                                 ref={this._modeSelect}
                                 label="Mode"
@@ -530,8 +531,8 @@ export class PropertyTabComponent extends React.Component<IPropertyTabComponentP
                                     this.props.globalState.onClearUndoStack.notifyObservers();
                                 }}
                             />
-                        </LineContainerComponent2>
-                        <LineContainerComponent2 title="UI" value="2">
+                        </LineContainerComponentStyled>
+                        <LineContainerComponentStyled title="UI" value="2">
                             <ButtonLineComponent
                                 label="Zoom to fit"
                                 onClick={() => {
@@ -544,8 +545,8 @@ export class PropertyTabComponent extends React.Component<IPropertyTabComponentP
                                     this.props.globalState.onReOrganizedRequiredObservable.notifyObservers();
                                 }}
                             />
-                        </LineContainerComponent2>
-                        <LineContainerComponent title="OPTIONS">
+                        </LineContainerComponentStyled>
+                        <LineContainerComponentStyled title="OPTIONS" value="3">
                             <CheckBoxLineComponent
                                 label="Embed textures when saving"
                                 isSelected={() => DataStorage.ReadBoolean("EmbedTextures", true)}
@@ -575,8 +576,8 @@ export class PropertyTabComponent extends React.Component<IPropertyTabComponentP
                                     this.props.globalState.stateManager.onGridSizeChanged.notifyObservers();
                                 }}
                             />
-                        </LineContainerComponent>
-                        <LineContainerComponent title="FILE">
+                        </LineContainerComponentStyled>
+                        <LineContainerComponentStyled title="FILE" value="4">
                             <FileButtonLine label="Load" onClick={(file) => this.load(file)} accept=".json" />
                             <ButtonLineComponent
                                 label="Save"
@@ -617,9 +618,9 @@ export class PropertyTabComponent extends React.Component<IPropertyTabComponentP
                                 />
                             )}
                             <FileButtonLine label="Load Frame" onClick={(file) => this.loadFrame(file)} accept=".json" />
-                        </LineContainerComponent>
+                        </LineContainerComponentStyled>
                         {!this.props.globalState.customSave && (
-                            <LineContainerComponent title="SNIPPET">
+                            <LineContainerComponentStyled title="SNIPPET" value="5">
                                 {this.props.globalState.nodeMaterial.snippetId && <TextLineComponent label="Snippet ID" value={this.props.globalState.nodeMaterial.snippetId} />}
                                 <ButtonLineComponent label="Load from snippet server" onClick={() => this.loadFromSnippet()} />
                                 <ButtonLineComponent
@@ -628,9 +629,9 @@ export class PropertyTabComponent extends React.Component<IPropertyTabComponentP
                                         this.saveToSnippetServer();
                                     }}
                                 />
-                            </LineContainerComponent>
+                            </LineContainerComponentStyled>
                         )}
-                        <LineContainerComponent title="TRANSPARENCY">
+                        <LineContainerComponentStyled title="TRANSPARENCY"value="6">
                             <CheckBoxLineComponent
                                 label="Force alpha blending"
                                 target={this.props.globalState.nodeMaterial}
@@ -644,13 +645,13 @@ export class PropertyTabComponent extends React.Component<IPropertyTabComponentP
                                 propertyName="alphaMode"
                                 onSelect={() => this.props.globalState.stateManager.onUpdateRequiredObservable.notifyObservers(null)}
                             />
-                        </LineContainerComponent>
+                        </LineContainerComponentStyled>
                         <InputsPropertyTabComponent
                             lockObject={this.props.lockObject}
                             globalState={this.props.globalState}
                             inputs={this.props.globalState.nodeMaterial.getInputBlocks()}
                         ></InputsPropertyTabComponent>
-                    </Accordion2>
+                    </AccordionStyled>
                 </div>
             </div>
         );

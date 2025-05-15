@@ -2,6 +2,7 @@ import * as React from "react";
 import { DataStorage } from "core/Misc/dataStorage";
 import type { ISelectedLineContainer } from "./iSelectedLineContainer";
 import downArrow from "./downArrow.svg";
+import { LineContainerComponent2 } from "shared-ui-components/fluent/styledWrappers";
 
 interface ILineContainerComponentProps {
     selection?: ISelectedLineContainer;
@@ -90,44 +91,4 @@ export class LineContainerComponent extends React.Component<ILineContainerCompon
     }
 }
 
-import { Accordion, AccordionHeader, AccordionItem, AccordionPanel } from "@fluentui/react-components";
-
-export const LineContainerComponent2 = (props: ILineContainerComponentProps & { value: string }) => {
-    return (
-        <AccordionItem value={props.value}>
-            <AccordionHeader>{props.title}</AccordionHeader>
-            <AccordionPanel>{props.children}</AccordionPanel>
-        </AccordionItem>
-    );
-};
-
-export const Accordion2 = Accordion;
-
-// export const ControlledAccordion = () => {
-//     const [openItems, setOpenItems] = React.useState(["1"]);
-//     const handleToggle: AccordionToggleEventHandler<string> = (event, data) => {
-//         setOpenItems(data.openItems);
-//     };
-//     return (
-//         <Accordion openItems={openItems} onToggle={handleToggle} multiple collapsible>
-//             <AccordionItem value="1">
-//                 <AccordionHeader>Accordion Header 1</AccordionHeader>
-//                 <AccordionPanel>
-//                     <div>Accordion Panel 1</div>
-//                 </AccordionPanel>
-//             </AccordionItem>
-//             <AccordionItem value="2">
-//                 <AccordionHeader>Accordion Header 2</AccordionHeader>
-//                 <AccordionPanel>
-//                     <div>Accordion Panel 2</div>
-//                 </AccordionPanel>
-//             </AccordionItem>
-//             <AccordionItem value="3">
-//                 <AccordionHeader>Accordion Header 3</AccordionHeader>
-//                 <AccordionPanel>
-//                     <div>Accordion Panel 3</div>
-//                 </AccordionPanel>
-//             </AccordionItem>
-//         </Accordion>
-//     );
-// };
+export const LineContainerComponentStyled = LineContainerComponent2;

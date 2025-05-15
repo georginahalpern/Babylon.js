@@ -9,7 +9,7 @@ import { InputArrowsComponent } from "./inputArrowsComponent";
 import { copyCommandToClipboard, getClassNameWithNamespace } from "../copyCommandToClipboard";
 import copyIcon from "../imgs/copy.svg";
 // import { WrappedInput } from "shared-ui-components/fluent/wrappedGeneric";
-import WrappedCustomInput from "shared-ui-components/fluent/wrappedCustomInput";
+import { WrappedCustomInput } from "shared-ui-components/fluent/wrappedCustomInput";
 
 interface IFloatLineComponentProps {
     label: string;
@@ -265,7 +265,7 @@ export class FloatLineComponent extends React.Component<IFloatLineComponentProps
                                 type={"number"}
                                 step={this.props.step || this.props.isInteger ? "1" : "0.01"}
                                 className="numeric-input"
-                                onKeyDown={(evt) => this.onKeyDown(evt)}
+                                onKeyDown={(evt: any) => this.onKeyDown(evt)}
                                 value={value}
                                 onBlur={() => {
                                     // this.unlock();
@@ -274,7 +274,7 @@ export class FloatLineComponent extends React.Component<IFloatLineComponentProps
                                     }
                                 }}
                                 placeholder={placeholder}
-                                onChange={(evt) => this.updateValue(evt.target.value)}
+                                onChange={(evt: any) => this.updateValue(evt.target.value)}
                                 disabled={this.props.disabled}
                             />
                             {this.props.arrows && (

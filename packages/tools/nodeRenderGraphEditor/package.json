@@ -30,6 +30,8 @@
         "@dev/serializers": "^1.0.0",
         "@dev/gui": "^1.0.0",
         "@dev/shared-ui-components": "1.0.0",
+        "@fluentui/react-components": "^9.62.0",
+        "@fluentui/react-icons": "^2.0.271",
         "@svgr/webpack": "^7.0.0",
         "@types/dagre": "^0.7.47",
         "@types/react": "^18.0.0",

@@ -3,7 +3,7 @@ import { copyCommandToClipboard } from "../copyCommandToClipboard";
 // import { MergeClassNames } from "../styleHelper";
 import { Button, Link, Text } from "@fluentui/react-components";
 import { Copy24Regular } from "@fluentui/react-icons";
-import { Stack } from "shared-ui-components/fluent/lineItem";
+import { PropertyLineStyled } from "shared-ui-components/fluent/styledWrappers";
 interface ITextLineComponentProps {
     label?: string;
     value?: string;
@@ -59,11 +59,7 @@ export class TextLineComponent extends React.Component<ITextLineComponentProps> 
         return (
             // <div className={MergeClassNames(["textLine", ["underline", this.props.underline], this.props.additionalClass, ["icon", this.props.onCopy]])}>
             //     {this.props.icon && <img src={this.props.icon} title={this.props.iconLabel} alt={this.props.iconLabel} className="icon" />}
-            <Stack direction="row">
-                <div className="label" title={this.props.tooltip ?? this.props.label ?? ""}>
-                    {this.props.label ?? ""}
-                </div>
-
+            <PropertyLineStyled label={this.props.label ?? ""}>
                 {this.renderContent()}
                 {this.props.onCopy && (
                     <Button
@@ -94,7 +90,7 @@ export class TextLineComponent extends React.Component<ITextLineComponentProps> 
                     //     <img src={copyIcon} alt="Copy" />
                     // </div>
                 )}
-            </Stack>
+            </PropertyLineStyled>
             // </div>
         );
     }
