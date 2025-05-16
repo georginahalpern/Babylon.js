@@ -522,10 +522,12 @@ export class TransformNode extends Node {
 
     /**
      * Returns the mesh absolute position in the World.
+     * @param forceRecomputeWorldMatrix defines if the worldMatrix should be recreated, invalidating the cache
+
      * @returns a Vector3.
      */
-    public getAbsolutePosition(): Vector3 {
-        this.computeWorldMatrix();
+    public getAbsolutePosition(forceRecomputeWorldMatrix: boolean = false): Vector3 {
+        this.computeWorldMatrix(forceRecomputeWorldMatrix);
         return this._absolutePosition;
     }
 

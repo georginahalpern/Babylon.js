@@ -1933,7 +1933,7 @@ export abstract class AbstractMesh extends TransformNode implements IDisposable,
      * @returns the current mesh
      */
     public moveWithCollisions(displacement: Vector3, slideOnCollide: boolean = true): AbstractMesh {
-        const globalPosition = this.getAbsolutePosition();
+        const globalPosition = this.getAbsolutePosition(true);
 
         globalPosition.addToRef(this.ellipsoidOffset, this._internalAbstractMeshDataInfo._meshCollisionData._oldPositionForCollisions);
         const coordinator = this.getScene().collisionCoordinator;
