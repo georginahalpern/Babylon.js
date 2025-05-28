@@ -76,7 +76,7 @@ import type { Material } from "./Materials/material";
 import type { BaseTexture } from "./Materials/Textures/baseTexture";
 import type { Geometry } from "./Meshes/geometry";
 import type { TransformNode } from "./Meshes/transformNode";
-import type { AbstractMesh } from "./Meshes/abstractMesh";
+import { AbstractMesh } from "./Meshes/abstractMesh";
 import type { MultiMaterial } from "./Materials/multiMaterial";
 import type { Effect } from "./Materials/effect";
 import type { RenderTargetTexture } from "./Materials/Textures/renderTargetTexture";
@@ -98,6 +98,7 @@ import type { Sound } from "./Audio/sound";
 import type { Layer } from "./Layers/layer";
 import type { LensFlareSystem } from "./LensFlares/lensFlareSystem";
 import type { ProceduralTexture } from "./Materials/Textures/Procedurals/proceduralTexture";
+import { HavokPlugin, PhysicsAggregate, PhysicsEngineV2, PhysicsShape, PhysicsShapeType } from "./Physics";
 
 /**
  * Define an interface for all classes that will hold resources
@@ -1523,6 +1524,76 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
         }
 
         return this._collisionCoordinator;
+    }
+
+    private _physicsDataForMoveWithCollisions: { map: Map<AbstractMesh, PhysicsShape>; plugin: HavokPlugin } | undefined;
+
+    /** @internal */
+    public get physicsEnabledForMoveWithCollisions(): { map: Map<AbstractMesh, PhysicsShape>; plugin: HavokPlugin } | undefined {
+        return this._physicsDataForMoveWithCollisions;
+    }
+
+    /**
+     * When called, this function will generate physics shapes for any meshes which have checkCollisions set to true, and then use those physics shapes for collision detection whenever moveWithCollisions is called (overriding the existing moveWithCollisions logic with physics v2 logic)
+     * NOTE: this function must be called again if the scene changes a mesh's isEnabled property or its checkCollisions property
+     * @param meshes optional list of meshes that we will iterate through to find those with checkCollisions (vs iterating through the whole scene), resulting in slightly better performance)
+     */
+    public enablePhysicsForMoveWithCollisions(meshes: AbstractMesh[] = this.meshes) {
+        // Helper to populate the map with physicsShapes for any meshes which are enabled and have checkCollisions set to true
+        const createPhysicsShapeOfMeshIfApplicable = (mesh: AbstractMesh) => {
+            if (mesh.checkCollisions && mesh.isEnabled() && mesh.subMeshes) {
+                const shape = new PhysicsShape({ type: PhysicsShapeType.MESH, parameters: mesh.getFacetDataParameters() }, this);
+                shape.filterCollideMask = mesh.collisionMask;
+                this._physicsDataForMoveWithCollisions?.map.set(mesh, shape);
+            }
+        };
+
+        // Helper to dispose of all physicsShapes and plugin and clear the map
+        const cleanup = () => {
+            this._physicsDataForMoveWithCollisions?.map.forEach((shape) => shape.dispose());
+            this._physicsDataForMoveWithCollisions?.map.clear();
+            this._physicsDataForMoveWithCollisions?.plugin.dispose();
+            this._physicsDataForMoveWithCollisions = undefined; // does this also dispose of the vars inside?
+        };
+
+        // If this is the first time the function is called, create the map to hold the physicsShapes and setup the observers for adding/removing meshes and disposing of the scene
+        if (this._physicsDataForMoveWithCollisions === undefined) {
+            // Enable physics if not already enabled, or throw if the existing physics engine is not using Havok
+            let plugin: HavokPlugin | undefined;
+            if (!this.physicsEnabled) {
+                plugin = new HavokPlugin();
+                this.enablePhysics(this.gravity, plugin);
+            } else {
+                if (this._physicsEngine?.getPhysicsPluginName() !== "HavokPlugin") {
+                    // TODO georgie IPhysicsEnginePluginV2  instead
+                    throw Error("Cannot enable physics for move with collisions if already using a plugin other than Havok");
+                }
+                plugin = this._physicsEngine?.getPhysicsPlugin() as HavokPlugin;
+            }
+
+            // Ensures that 'get physiccsEnabledForMoveWithCollisions' flag returns true and will be used within moveWithCollisions method
+            this._physicsDataForMoveWithCollisions = {
+                map: new Map<AbstractMesh, PhysicsShape>(),
+                plugin,
+            };
+
+            this.onNewMeshAddedObservable.add(createPhysicsShapeOfMeshIfApplicable);
+
+            // Dispose the associated physicsShape and remove it from the map
+            this.onMeshRemovedObservable.add((mesh: AbstractMesh) => {
+                const shape = this._physicsDataForMoveWithCollisions?.map.get(mesh);
+                shape?.dispose();
+                this._physicsDataForMoveWithCollisions?.map.delete(mesh);
+            });
+
+            // Dispose all physicsShapes and clear the map itself
+            this.onDisposeObservable.add(cleanup);
+        }
+
+        // Any time this function is called, reset the map and recreate the physics bodies
+        cleanup();
+        this._physicsDataForMoveWithCollisions.map = new Map<AbstractMesh, PhysicsShape>();
+        meshes.forEach((mesh: AbstractMesh) => createPhysicsShapeOfMeshIfApplicable(mesh));
     }
 
     /**
