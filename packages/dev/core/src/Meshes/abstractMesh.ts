@@ -1932,18 +1932,14 @@ export abstract class AbstractMesh extends TransformNode implements IDisposable,
         }
 
         // Check for collisions
-        const startPosition = this.getAbsolutePosition();
-        const endPosition = this.position.add(displacement);
-
         const shapeLocalResult = new ShapeCastResult();
         const hitWorldResult = new ShapeCastResult();
-
         data.plugin.shapeCast(
             {
                 shape: associatedShape,
-                rotation: this.rotationQuaternion!, // fix
-                startPosition,
-                endPosition,
+                rotation: this.rotationQuaternion || new Quaternion(), // fix
+                startPosition: this.getAbsolutePosition(),
+                endPosition: this.position.add(displacement),
                 shouldHitTriggers: false,
             },
             shapeLocalResult,

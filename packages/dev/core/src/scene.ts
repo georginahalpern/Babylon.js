@@ -98,7 +98,7 @@ import type { Sound } from "./Audio/sound";
 import type { Layer } from "./Layers/layer";
 import type { LensFlareSystem } from "./LensFlares/lensFlareSystem";
 import type { ProceduralTexture } from "./Materials/Textures/Procedurals/proceduralTexture";
-import { HavokPlugin, PhysicsAggregate, PhysicsEngineV2, PhysicsShape, PhysicsShapeType } from "./Physics";
+import { HavokPlugin, PhysicsShape, PhysicsShapeType } from "./Physics";
 
 /**
  * Define an interface for all classes that will hold resources
