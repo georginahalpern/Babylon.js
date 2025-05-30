@@ -1,8 +1,8 @@
 import { type FunctionComponent } from "react";
 import { PropertyLine } from "shared-ui-components/fluent/propertyLine";
 import { Input } from "shared-ui-components/fluent/primitives/input";
+import { Text } from "shared-ui-components/fluent/primitives/text";
 import { copyCommandToClipboard } from "shared-ui-components/copyCommandToClipboard";
-import { Text } from "@fluentui/react-components";
 
 type CommonEntity = {
     id?: number;

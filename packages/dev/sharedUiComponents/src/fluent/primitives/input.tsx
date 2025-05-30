@@ -6,7 +6,9 @@ const useInputStyles = makeStyles({
     },
     float: {
         height: "auto",
-        width: "30px",
+        // width: "30px",
+        width: "80px", // Fixed width for number input
+        flexShrink: 0,
     },
 });
 

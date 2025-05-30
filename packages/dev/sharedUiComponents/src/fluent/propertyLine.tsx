@@ -1,7 +1,47 @@
 import { Button, InfoLabel, makeStyles, tokens } from "@fluentui/react-components";
-
-import { Copy24Regular } from "@fluentui/react-icons";
+import { Add24Filled, Copy24Regular, Subtract24Filled } from "@fluentui/react-icons";
 import * as React from "react";
+
+const usePropertyLineStyle = makeStyles({
+    container: {
+        width: "100%",
+        display: "flex",
+        flexDirection: "column", // Stack line + expanded content
+        borderBottom: "1px solid #eee",
+    },
+    line: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        padding: `${tokens.spacingVerticalM} 0px`,
+        width: "100%",
+    },
+    label: {
+        width: "33%",
+        textAlign: "left",
+        fontWeight: "bold",
+    },
+    rightContent: {
+        width: "67%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "flex-end",
+    },
+    button: {
+        width: "100px",
+    },
+    fillRestOfRightContentWidth: {
+        flex: 1,
+        display: "flex",
+        justifyContent: "flex-end",
+        alignItems: "center",
+        marginRight: "10px",
+    },
+    expandedContent: {
+        padding: "8px 12px",
+        backgroundColor: "#f9f9f9",
+    },
+});
 
 export interface IPropertyLineProps {
     children: React.ReactNode;
@@ -10,58 +50,39 @@ export interface IPropertyLineProps {
     icon?: string;
     iconLabel?: string;
     onCopy?: () => void;
+    renderExpandedContent?: () => React.ReactNode;
 }
 
-const usePropertyLineStyle = makeStyles({
-    line: {
-        width: "100%",
-        display: "flex",
-        alignItems: "center", // vertical center
-        justifyContent: "flex-start", // horizontal left
-        height: tokens.lineHeightBase400, // consistent height
-        padding: `${tokens.spacingVerticalM} 0px`, // some padding within a line
-        borderBottom: "1px solid #eee", // optional separator
-    },
-    label: {
-        // label takes up 1/3 of the width
-        width: "33%",
-        textAlign: "left",
-        fontWeight: "bold",
-    },
-    rightContent: { width: "67%", display: "flex", alignContent: "center", justifyContent: "flex-end" }, // with the remaining 2/3 of the width, flexbox
-    copyButton: { width: "100px" }, // where the copyButton takes up 100px
-    fillRestOfRightContentWidth: {
-        // and the children take up the rest of the width, with their content right-aligned
-        flex: 1,
-        display: "flex",
-        justifyContent: "flex-end", // pushes content to the right
-        alignItems: "center", // vertical center
-        marginRight: "10px", // some space on the right side of the property content
-    },
-});
-
-/**
- * Property lines have an infolabel, optional icon, optional copy button, and a right context area for any control to modify that property
- * @param props
- * @returns
- */
 export const PropertyLine: React.FC<IPropertyLineProps> = (props: IPropertyLineProps) => {
     const styles = usePropertyLineStyle();
-    return (
-        <div className={styles.line}>
-            {
-                // props.icon && <img src={props.icon} title={props.iconLabel} alt={props.iconLabel} color="black" className="icon" />
-            }
-            <InfoLabel className={styles.label} info={props.description}>
-                {props.label}
-            </InfoLabel>
-            <div className={styles.rightContent}>
-                <div className={styles.fillRestOfRightContentWidth}>{props.children}</div>
+    const [expanded, setExpanded] = React.useState(false);
 
-                {props.onCopy && (
-                    <Button className={styles.copyButton} id="copyProperty" icon={<Copy24Regular />} onClick={() => props.onCopy && props.onCopy()} title="Copy to clipboard" />
-                )}
+    return (
+        <div className={styles.container}>
+            <div className={styles.line}>
+                <InfoLabel className={styles.label} info={props.description}>
+                    {props.label}
+                </InfoLabel>
+                <div className={styles.rightContent}>
+                    <div className={styles.fillRestOfRightContentWidth}>{props.children}</div>
+
+                    {props.renderExpandedContent && (
+                        <Button
+                            appearance="subtle"
+                            icon={expanded ? <Subtract24Filled /> : <Add24Filled />}
+                            className={styles.button}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setExpanded(!expanded);
+                            }}
+                        />
+                    )}
+
+                    {props.onCopy && <Button className={styles.button} id="copyProperty" icon={<Copy24Regular />} onClick={() => props.onCopy?.()} title="Copy to clipboard" />}
+                </div>
             </div>
+
+            {expanded && props.renderExpandedContent && <div className={styles.expandedContent}>{props.renderExpandedContent()}</div>}
         </div>
     );
 };
