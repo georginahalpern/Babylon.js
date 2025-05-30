@@ -7,8 +7,10 @@ import { GeneralPropertiesSectionIdentity } from "../common/commonPropertiesServ
 import { PropertiesServiceIdentity } from "../propertiesService";
 import { MeshGeneralProperties } from "./meshGeneralProperties";
 import { MeshTransformProperties } from "./meshTransformProperties";
+import { MeshOutlineOverlayProperties } from "./meshOutlineOverlayProperties";
 
 export const TransformsPropertiesSectionIdentity = Symbol("Transforms");
+export const OutlineOverlayPropertiesSectionItentity = Symbol("OutlineAndOverlay");
 
 export const MeshPropertiesServiceDefinition: ServiceDefinition<[], [IPropertiesService]> = {
     friendlyName: "Mesh Properties",
@@ -17,6 +19,11 @@ export const MeshPropertiesServiceDefinition: ServiceDefinition<[], [IProperties
         const transformsSectionRegistration = propertiesService.addSection({
             order: 1,
             identity: TransformsPropertiesSectionIdentity,
+        });
+
+        const outlineOverlaySectionRegistration = propertiesService.addSection({
+            order: 0,
+            identity: OutlineOverlayPropertiesSectionItentity,
         });
 
         const contentRegistration = propertiesService.addSectionContent({
@@ -36,6 +43,13 @@ export const MeshPropertiesServiceDefinition: ServiceDefinition<[], [IProperties
                     order: 0,
                     component: MeshTransformProperties,
                 },
+
+                // "OUTLINES & OVERLAYS" section.
+                {
+                    section: OutlineOverlayPropertiesSectionItentity,
+                    order: 0,
+                    component: MeshOutlineOverlayProperties,
+                },
             ],
         });
 
@@ -43,6 +57,7 @@ export const MeshPropertiesServiceDefinition: ServiceDefinition<[], [IProperties
             dispose: () => {
                 contentRegistration.dispose();
                 transformsSectionRegistration.dispose();
+                outlineOverlaySectionRegistration.dispose();
             },
         };
     },

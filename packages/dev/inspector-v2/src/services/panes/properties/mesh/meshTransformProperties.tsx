@@ -5,32 +5,23 @@ import type { FunctionComponent } from "react";
 import { PropertyLine } from "shared-ui-components/fluent/propertyLine";
 import { Text } from "shared-ui-components/fluent/primitives/text";
 import { SyncedSliderInput } from "shared-ui-components/fluent/primitives/syncedSlider";
+import { VectorPropertyLine } from "shared-ui-components/fluent/vectorPropertyLine";
 
 export const MeshTransformProperties: FunctionComponent<{ entity: AbstractMesh }> = ({ entity: mesh }) => {
-    const renderXYZ = () => {
-        const camera = mesh.getScene().activeCamera;
-        const range = camera !== null ? getVisibleWorldBoundsAtZ(camera, mesh.position.x) : undefined;
-        return (
-            <>
-                <PropertyLine label="X">
-                    <SyncedSliderInput value={mesh.position.x} onChange={(val) => (mesh.position.x = val)} centerAtZeroWithRange={range?.maxY} />
-                </PropertyLine>
-                <PropertyLine label="Y">
-                    <SyncedSliderInput value={mesh.position.y} onChange={(val) => (mesh.position.y = val)} centerAtZeroWithRange={range?.maxY} />
-                </PropertyLine>
-                <PropertyLine label="Z">
-                    <SyncedSliderInput value={mesh.position.z} onChange={(val) => (mesh.position.z = val)} centerAtZeroWithRange={range?.maxY} />
-                </PropertyLine>
-            </>
-        );
-    };
     return (
         <>
-            <PropertyLine label="Position" renderExpandedContent={renderXYZ}>
-                <Text>{mesh.position.toString()}</Text>
-            </PropertyLine>
+            <VectorPropertyLine vector={mesh.position} label="Position" centerAtZeroWithRange={getPositionRange(mesh)} />
+            <VectorPropertyLine vector={mesh.rotation} label="Rotation" min={-Math.PI} max={Math.PI} />
         </>
     );
+};
+
+const getPositionRange = (mesh: AbstractMesh): number | undefined => {
+    const camera = mesh.getScene().activeCamera;
+    if (camera) {
+        return getVisibleWorldBoundsAtZ(camera, mesh.position.x).maxY;
+    }
+    return undefined;
 };
 
 /**

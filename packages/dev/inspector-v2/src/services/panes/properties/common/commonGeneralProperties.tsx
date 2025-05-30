@@ -28,7 +28,7 @@ export const CommonGeneralProperties: FunctionComponent<{ entity: CommonEntity }
             {PropertyWrapper(
                 "Name",
                 <Input
-                    defaultValue={commonEntity.name}
+                    value={commonEntity.name}
                     onChange={(event) => {
                         commonEntity.name = event.target.value; // TODO update so it rerenders
                     }}
