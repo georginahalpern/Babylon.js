@@ -46,7 +46,7 @@ import type { MorphTarget } from "../Morph/morphTarget";
 import type { Geometry } from "./geometry";
 import { nativeOverride } from "../Misc/decorators";
 import { AbstractEngine } from "core/Engines/abstractEngine";
-import { HavokPlugin, PhysicsShape } from "core/Physics";
+import { HavokPlugin, PhysicsShape, ShapeCastResult } from "core/Physics";
 
 function ApplyMorph(data: FloatArray, kind: string, morphTargetManager: MorphTargetManager): void {
     let getTargetData: Nullable<(target: MorphTarget) => Nullable<FloatArray>> = null;
@@ -1926,11 +1926,43 @@ export abstract class AbstractMesh extends TransformNode implements IDisposable,
         return this._internalAbstractMeshDataInfo._meshCollisionData._collider;
     }
 
-    /**
-     * @internal
-     */
-    public moveWithCollisionsPhysicsEnabled(data: { map: Map<AbstractMesh, PhysicsShape>; plugin: HavokPlugin }, displacement: Vector3): AbstractMesh {
-        // Replaced with physics implementation
+    private moveWithCollisionsPhysicsEnabled(data: { map: Map<AbstractMesh, PhysicsShape>; plugin: HavokPlugin }, displacement: Vector3): AbstractMesh {
+        const associatedShape = data.map.get(this);
+        if (!associatedShape) {
+            // If there is no associated shape, that means this mesh is not setup to checkCollisions or is not enabled, thus we can move freely
+            this.position.addInPlace(displacement);
+            return this;
+        }
+
+        // Check for collisions
+        const shapeLocalResult = new ShapeCastResult();
+        const hitWorldResult = new ShapeCastResult();
+        data.plugin.shapeCast(
+            {
+                shape: associatedShape,
+                rotation: this.rotationQuaternion || new Quaternion(), // fix
+                startPosition: this.getAbsolutePosition(),
+                endPosition: this.position.add(displacement),
+                shouldHitTriggers: false,
+            },
+            shapeLocalResult,
+            hitWorldResult
+        );
+
+        // If collision is detected, only move mesh by the allowed fraction of the displacement
+        if (hitWorldResult.hasHit) {
+            const buffer = 0.01; // small buffer to avoid surface overlap
+            const castLength = displacement.length();
+
+            // Ask cedric about hitworld vs shapelocal
+            const safeFraction = Math.max(0, hitWorldResult.hitFraction - buffer / castLength); // adjust hitFraction by buffer
+            const safeMove = displacement.scale(safeFraction);
+
+            this.position.addInPlace(safeMove);
+        } else {
+            this.position.addInPlace(displacement);
+        }
+
         return this;
     }
 
