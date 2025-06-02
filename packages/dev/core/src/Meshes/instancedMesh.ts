@@ -80,7 +80,13 @@ export class InstancedMesh extends AbstractMesh {
 
         this.setPivotMatrix(source.getPivotMatrix());
 
-        this.refreshBoundingInfo(true, true);
+        if (!source.skeleton && !source.morphTargetManager && source.hasBoundingInfo) {
+            // without skeleton or morphTargetManager, use bounding info of source mesh directly
+            const boundingInfo = source.getBoundingInfo();
+            this.buildBoundingInfo(boundingInfo.minimum, boundingInfo.maximum);
+        } else {
+            this.refreshBoundingInfo(true, true);
+        }
         this._syncSubMeshes();
     }
 
@@ -438,7 +444,12 @@ export class InstancedMesh extends AbstractMesh {
     }
 
     public override getWorldMatrix(): Matrix {
-        if (this._currentLOD && this._currentLOD.billboardMode !== TransformNode.BILLBOARDMODE_NONE && this._currentLOD._masterMesh !== this) {
+        if (
+            this._currentLOD &&
+            this._currentLOD !== this._sourceMesh &&
+            this._currentLOD.billboardMode !== TransformNode.BILLBOARDMODE_NONE &&
+            this._currentLOD._masterMesh !== this
+        ) {
             if (!this._billboardWorldMatrix) {
                 this._billboardWorldMatrix = new Matrix();
             }
@@ -484,7 +495,7 @@ export class InstancedMesh extends AbstractMesh {
      * @internal
      */
     public override _preActivateForIntermediateRendering(renderId: number): Mesh {
-        return <Mesh>this.sourceMesh._preActivateForIntermediateRendering(renderId);
+        return this.sourceMesh._preActivateForIntermediateRendering(renderId);
     }
 
     /** @internal */
@@ -646,6 +657,7 @@ export class InstancedMesh extends AbstractMesh {
 }
 
 declare module "./mesh" {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     export interface Mesh {
         /**
          * Register a custom buffer that will be instanced
@@ -677,6 +689,7 @@ declare module "./mesh" {
 }
 
 declare module "./abstractMesh" {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     export interface AbstractMesh {
         /**
          * Object used to store instanced buffers defined by user
@@ -744,7 +757,7 @@ Mesh.prototype._processInstancedBuffers = function (visibleInstances: Nullable<I
             this._userInstancedBuffersStorage.data[kind] = new Float32Array(size);
             this._userInstancedBuffersStorage.sizes[kind] = size;
             if (this._userInstancedBuffersStorage.vertexBuffers[kind]) {
-                this._userInstancedBuffersStorage.vertexBuffers[kind]!.dispose();
+                this._userInstancedBuffersStorage.vertexBuffers[kind].dispose();
                 this._userInstancedBuffersStorage.vertexBuffers[kind] = null;
             }
         }
@@ -768,7 +781,7 @@ Mesh.prototype._processInstancedBuffers = function (visibleInstances: Nullable<I
         }
 
         for (let instanceIndex = 0; instanceIndex < instanceCount; instanceIndex++) {
-            const instance = visibleInstances![instanceIndex]!;
+            const instance = visibleInstances![instanceIndex];
 
             const value = instance.instancedBuffers[kind];
 
@@ -796,7 +809,7 @@ Mesh.prototype._processInstancedBuffers = function (visibleInstances: Nullable<I
             );
             this._invalidateInstanceVertexArrayObject();
         } else {
-            this._userInstancedBuffersStorage.vertexBuffers[kind]!.updateDirectly(data, 0);
+            this._userInstancedBuffersStorage.vertexBuffers[kind].updateDirectly(data, 0);
         }
     }
 };
@@ -825,7 +838,7 @@ Mesh.prototype._disposeInstanceSpecificData = function () {
 
     for (const kind in this.instancedBuffers) {
         if (this._userInstancedBuffersStorage.vertexBuffers[kind]) {
-            this._userInstancedBuffersStorage.vertexBuffers[kind]!.dispose();
+            this._userInstancedBuffersStorage.vertexBuffers[kind].dispose();
         }
     }
 

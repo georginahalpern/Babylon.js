@@ -397,8 +397,8 @@ export class Animatable {
      * Wait asynchronously for the animation to end
      * @returns a promise which will be fulfilled when the animation ends
      */
-    public waitAsync(): Promise<Animatable> {
-        return new Promise((resolve) => {
+    public async waitAsync(): Promise<Animatable> {
+        return await new Promise((resolve) => {
             this.onAnimationEndObservable.add(
                 () => {
                     resolve(this);
@@ -432,7 +432,7 @@ export class Animatable {
         }
 
         if (this._manualJumpDelay !== null) {
-            this._localDelayOffset += this._manualJumpDelay;
+            this._localDelayOffset += this.speedRatio < 0 ? -this._manualJumpDelay : this._manualJumpDelay;
             this._manualJumpDelay = null;
             this._frameToSyncFromJump = null;
         }
@@ -668,7 +668,7 @@ function ProcessLateAnimationBindingsForQuaternions(
         Quaternion.SlerpToRef(cumulativeQuaternion, TmpVectors.Quaternion[0], runtimeAnimation.weight, cumulativeQuaternion);
     }
 
-    return cumulativeQuaternion!;
+    return cumulativeQuaternion;
 }
 
 /** @internal */

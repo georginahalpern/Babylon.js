@@ -8,6 +8,7 @@ import { _ObserveArray } from "../Misc/arrayTools";
 /**
  * Defines the options of the object renderer
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface ObjectRendererOptions {
     /** The number of passes the renderer will support (1 by default) */
     numPasses?: number;
@@ -67,7 +68,7 @@ export class ObjectRenderer {
         this._renderList = value;
     }
 
-    private _renderListHasChanged = (_functionName: String, previousLength: number) => {
+    private _renderListHasChanged = (_functionName: string, previousLength: number) => {
         const newLength = this._renderList ? this._renderList.length : 0;
         if ((previousLength === 0 && newLength > 0) || newLength === 0) {
             for (const mesh of this._scene.meshes) {
@@ -740,7 +741,7 @@ export class ObjectRenderer {
         const renderListLength = this.renderList ? this.renderList.length : this._scene.getActiveMeshes().length;
         for (let i = 0; i < renderListLength; i++) {
             const mesh = renderList[i];
-            if (mesh.getMaterialForRenderPass(this.renderPassId) !== undefined) {
+            if (mesh && mesh.getMaterialForRenderPass(this.renderPassId) !== undefined) {
                 mesh.setMaterialForRenderPass(this.renderPassId, undefined);
             }
         }

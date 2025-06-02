@@ -87,6 +87,7 @@ interface IManifoldMesh {
     vertProperties: Float32Array;
     triVerts: Uint32Array;
     runIndex: Uint32Array;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     runOriginalID: Uint32Array;
     numRun: number;
 }
@@ -308,6 +309,7 @@ export class CSG2 implements IDisposable {
             }
         }
 
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         const manifoldMesh = new ManifoldMesh({ numProp: numProp, vertProperties, triVerts, runIndex, runOriginalID });
         manifoldMesh.merge();
 
@@ -465,7 +467,7 @@ export function IsCSG2Ready() {
  */
 export async function InitializeCSG2Async(options?: Partial<ICSG2Options>) {
     const localOptions = {
-        manifoldUrl: "https://unpkg.com/manifold-3d@3.0.1",
+        manifoldUrl: "https://unpkg.com/manifold-3d@3.1.0",
         ...options,
     };
 
