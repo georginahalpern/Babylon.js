@@ -1,16 +1,18 @@
 import type { Nullable } from "../types";
 import { Logger } from "../Misc/logger";
 import { Observable } from "../Misc/observable";
-import type { Vector3 } from "../Maths/math.vector";
-import type { AbstractMesh } from "../Meshes/abstractMesh";
+import { Quaternion, type Vector3 } from "../Maths/math.vector";
+import { AbstractMesh } from "../Meshes/abstractMesh";
 import type { ISceneComponent } from "../sceneComponent";
 import { SceneComponentConstants } from "../sceneComponent";
 import { Scene } from "../scene";
 import type { IPhysicsEngine } from "./IPhysicsEngine";
 import type { IPhysicsEnginePlugin as IPhysicsEnginePluginV1 } from "./v1/IPhysicsEnginePlugin";
-import type { IPhysicsEnginePluginV2 } from "./v2/IPhysicsEnginePlugin";
+import { PhysicsShapeType, type IPhysicsEnginePluginV2 } from "./v2/IPhysicsEnginePlugin";
 import { PhysicsEngine as PhysicsEngineV1 } from "./v1/physicsEngine";
 import { PhysicsEngine as PhysicsEngineV2 } from "./v2/physicsEngine";
+import { HavokPlugin, PhysicsShape } from "./v2";
+import { ShapeCastResult } from "./shapeCastResult";
 
 declare module "../scene" {
     // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -158,6 +160,106 @@ Scene.prototype._advancePhysicsEngineStep = function (step: number) {
             this.onAfterPhysicsObservable.notifyObservers(this);
         }
     }
+};
+
+/**
+ * @internal
+ */
+AbstractMesh.prototype.moveWithCollisionsPhysicsEnabled = function (data: { map: Map<AbstractMesh, PhysicsShape>; plugin: HavokPlugin }, displacement: Vector3): AbstractMesh {
+    const associatedShape = data.map.get(this);
+    if (!associatedShape) {
+        // If there is no associated shape, that means this mesh is not setup to checkCollisions or is not enabled, thus we can move freely
+        this.position.addInPlace(displacement);
+        return this;
+    }
+
+    // Check for collisions
+    const shapeLocalResult = new ShapeCastResult();
+    const hitWorldResult = new ShapeCastResult();
+    data.plugin.shapeCast(
+        {
+            shape: associatedShape,
+            rotation: this.rotationQuaternion || new Quaternion(), // fix
+            startPosition: this.getAbsolutePosition(),
+            endPosition: this.position.add(displacement),
+            shouldHitTriggers: false,
+        },
+        shapeLocalResult,
+        hitWorldResult
+    );
+
+    // If collision is detected, only move mesh by the allowed fraction of the displacement
+    if (hitWorldResult.hasHit) {
+        const buffer = 0.01; // small buffer to avoid surface overlap
+        const castLength = displacement.length();
+
+        // Ask cedric about hitworld vs shapelocal
+        const safeFraction = Math.max(0, hitWorldResult.hitFraction - buffer / castLength); // adjust hitFraction by buffer
+        const safeMove = displacement.scale(safeFraction);
+
+        this.position.addInPlace(safeMove);
+    } else {
+        this.position.addInPlace(displacement);
+    }
+
+    return this;
+};
+
+Scene.prototype.enablePhysicsForMoveWithCollisions = function (meshes: AbstractMesh[]) {
+    // Helper to dispose of all physicsShapes and plugin and clear the map
+    const cleanup = () => {
+        this.physicsDataForMoveWithCollisions?.map.forEach((shape) => shape.dispose());
+        this.physicsDataForMoveWithCollisions?.map.clear();
+        this.physicsDataForMoveWithCollisions?.plugin.dispose();
+        this.physicsDataForMoveWithCollisions = undefined; // does this also dispose of the vars inside?
+    };
+
+    const createPhysicsShapeOfMeshIfApplicable = (mesh: AbstractMesh) => {
+        if (mesh.checkCollisions && mesh.isEnabled() && mesh.subMeshes) {
+            const shape = new PhysicsShape({ type: PhysicsShapeType.MESH, parameters: mesh.getFacetDataParameters() }, this);
+            shape.filterCollideMask = mesh.collisionMask;
+            this.physicsDataForMoveWithCollisions?.map.set(mesh, shape);
+        }
+    };
+
+    // If this is the first time the function is called, create the map to hold the physicsShapes and setup the observers for adding/removing meshes and disposing of the scene
+    if (this.physicsDataForMoveWithCollisions === undefined) {
+        // Enable physics if not already enabled, or throw if the existing physics engine is not using Havok
+        let plugin: HavokPlugin | undefined;
+        if (!this._physicsEngine?.getPhysicsPlugin()) {
+            plugin = new HavokPlugin();
+            this.enablePhysics(this.gravity, plugin);
+        } else {
+            if (this._physicsEngine?.getPhysicsPluginName() !== "HavokPlugin") {
+                //     // TODO georgie IPhysicsEnginePluginV2  instead
+                throw Error("Cannot enable physics for move with collisions if already using a plugin other than Havok");
+            }
+            plugin = this._physicsEngine?.getPhysicsPlugin() as HavokPlugin;
+        }
+
+        // Ensures that 'get physiccsEnabledForMoveWithCollisions' flag returns true and will be used within moveWithCollisions method
+        this.physicsDataForMoveWithCollisions = {
+            map: new Map<AbstractMesh, PhysicsShape>(),
+            plugin,
+        };
+
+        this.onNewMeshAddedObservable.add(createPhysicsShapeOfMeshIfApplicable);
+
+        // Dispose the associated physicsShape and remove it from the map
+        this.onMeshRemovedObservable.add((mesh: AbstractMesh) => {
+            const shape = this.physicsDataForMoveWithCollisions?.map.get(mesh);
+            shape?.dispose();
+            this.physicsDataForMoveWithCollisions?.map.delete(mesh);
+        });
+
+        // Dispose all physicsShapes and clear the map itself
+        this.onDisposeObservable.add(cleanup);
+    }
+
+    // Any time this function is called, reset the map and recreate the physics bodies
+    cleanup();
+    this.physicsDataForMoveWithCollisions.map = new Map<AbstractMesh, PhysicsShape>();
+    meshes.forEach((mesh: AbstractMesh) => createPhysicsShapeOfMeshIfApplicable(mesh));
 };
 
 /**
