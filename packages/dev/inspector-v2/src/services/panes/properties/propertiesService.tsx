@@ -106,7 +106,6 @@ const useStyles = makeStyles({
     panelDiv: {
         display: "flex",
         flexDirection: "column",
-        // rowGap: tokens.spacingVerticalM,
         overflow: "hidden",
     },
 });
