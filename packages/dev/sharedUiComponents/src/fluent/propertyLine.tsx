@@ -1,6 +1,7 @@
-import { Button, InfoLabel, makeStyles, tokens } from "@fluentui/react-components";
+import { Body1Strong, Button, InfoLabel, makeStyles, tokens } from "@fluentui/react-components";
 import { Add24Filled, Copy24Regular, Subtract24Filled } from "@fluentui/react-icons";
-import * as React from "react";
+import { ComponentType, FunctionComponent, useState } from "react";
+import { copyCommandToClipboard } from "shared-ui-components/copyCommandToClipboard";
 
 const usePropertyLineStyle = makeStyles({
     container: {
@@ -13,13 +14,12 @@ const usePropertyLineStyle = makeStyles({
         display: "flex",
         alignItems: "center",
         justifyContent: "flex-start",
-        padding: `${tokens.spacingVerticalM} 0px`,
+        padding: `${tokens.spacingVerticalXS} 0px`,
         width: "100%",
     },
     label: {
         width: "33%",
         textAlign: "left",
-        fontWeight: "bold",
     },
     rightContent: {
         width: "67%",
@@ -28,6 +28,7 @@ const usePropertyLineStyle = makeStyles({
         justifyContent: "flex-end",
     },
     button: {
+        marginLeft: "10px",
         width: "100px",
     },
     fillRestOfRightContentWidth: {
@@ -35,7 +36,6 @@ const usePropertyLineStyle = makeStyles({
         display: "flex",
         justifyContent: "flex-end",
         alignItems: "center",
-        marginRight: "10px",
     },
     expandedContent: {
         padding: "8px 12px",
@@ -45,23 +45,21 @@ const usePropertyLineStyle = makeStyles({
 
 export interface IPropertyLineProps {
     children: React.ReactNode;
-    label: string;
-    description?: string;
-    icon?: string;
-    iconLabel?: string;
-    onCopy?: () => void;
-    renderExpandedContent?: () => React.ReactNode;
+    label: string; // The name of the property to display in the propetryline
+    description?: string; // if passed, the property line label will have a tooltip with this description
+    onCopy?: () => string; // Optional function returning a string to copy to clipboard
+    renderExpandedContent?: ComponentType; // If supplied, the propertyline will render an 'expand' icon which when clicked renders this component within the property line
 }
 
-export const PropertyLine: React.FC<IPropertyLineProps> = (props: IPropertyLineProps) => {
+export const PropertyLine: FunctionComponent<IPropertyLineProps> = (props: IPropertyLineProps) => {
     const styles = usePropertyLineStyle();
-    const [expanded, setExpanded] = React.useState(false);
+    const [expanded, setExpanded] = useState(false);
 
     return (
         <div className={styles.container}>
             <div className={styles.line}>
                 <InfoLabel className={styles.label} info={props.description}>
-                    {props.label}
+                    <Body1Strong>{props.label}</Body1Strong>
                 </InfoLabel>
                 <div className={styles.rightContent}>
                     <div className={styles.fillRestOfRightContentWidth}>{props.children}</div>
@@ -78,11 +76,23 @@ export const PropertyLine: React.FC<IPropertyLineProps> = (props: IPropertyLineP
                         />
                     )}
 
-                    {props.onCopy && <Button className={styles.button} id="copyProperty" icon={<Copy24Regular />} onClick={() => props.onCopy?.()} title="Copy to clipboard" />}
+                    {props.onCopy && (
+                        <Button
+                            className={styles.button}
+                            id="copyProperty"
+                            icon={<Copy24Regular />}
+                            onClick={() => copyCommandToClipboard(props.onCopy?.() || "")}
+                            title="Copy to clipboard"
+                        />
+                    )}
                 </div>
             </div>
 
-            {expanded && props.renderExpandedContent && <div className={styles.expandedContent}>{props.renderExpandedContent()}</div>}
+            {expanded && props.renderExpandedContent && (
+                <div className={styles.expandedContent}>
+                    <props.renderExpandedContent />
+                </div>
+            )}
         </div>
     );
 };

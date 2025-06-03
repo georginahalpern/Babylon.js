@@ -1,4 +1,5 @@
-import { Input as FluentInput, InputProps, makeStyles } from "@fluentui/react-components";
+import { Input as FluentInput, InputProps as FluentInputProps, makeStyles } from "@fluentui/react-components";
+import { FunctionComponent, useEffect, useState } from "react";
 
 const useInputStyles = makeStyles({
     text: {
@@ -6,7 +7,6 @@ const useInputStyles = makeStyles({
     },
     float: {
         height: "auto",
-        // width: "30px",
         width: "80px", // Fixed width for number input
         flexShrink: 0,
     },
@@ -17,13 +17,20 @@ const useInputStyles = makeStyles({
  * @param props
  * @returns
  */
-export const Input: React.FC<InputProps> = (props: InputProps) => {
+export const Input: FunctionComponent<FluentInputProps> = (props: FluentInputProps) => {
     const styles = useInputStyles();
+    const [value, setValue] = useState(props.value || "");
+
+    useEffect(() => {
+        setValue(props.value || ""); // Update local state when props.value changes
+    }, [props.value]);
+
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>, data: any) => {
         event.stopPropagation(); // Prevent event propagation
         if (props.onChange) {
             props.onChange(event, data); // Call the original onChange handler passed as prop
         }
+        setValue(event.target.value); // Update local state with the new value
     };
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -33,5 +40,5 @@ export const Input: React.FC<InputProps> = (props: InputProps) => {
         }
     };
 
-    return <FluentInput {...props} className={props.type === "number" ? styles.float : styles.text} onChange={handleChange} onKeyDown={handleKeyDown} />;
+    return <FluentInput {...props} value={value} className={props.type === "number" ? styles.float : styles.text} onChange={handleChange} onKeyDown={handleKeyDown} />;
 };

@@ -2,12 +2,6 @@ import { InputProps, makeStyles, Slider, SliderProps } from "@fluentui/react-com
 import { Input } from "./input";
 import { FunctionComponent, useEffect, useState } from "react";
 
-type SyncedSliderInputProps = Omit<InputProps & SliderProps, "onChange" | "value"> & {
-    onChange: (value: number) => void; // Callback to notify parent of value change, override both of the slider/input handlers
-    value: number; // Controlled value for the slider and input
-    centerAtZeroWithRange?: number; // Optional prop to center the slider at zero with the specified range
-};
-
 const useSyncedSliderStyles = makeStyles({
     syncedSlider: {
         display: "flex",
@@ -25,7 +19,18 @@ const useSyncedSliderStyles = makeStyles({
     },
 });
 
-export const SyncedSliderInput: FunctionComponent<SyncedSliderInputProps> = (props: SyncedSliderInputProps) => {
+export type SyncedSliderProps = Omit<InputProps & SliderProps, "onChange" | "value"> & {
+    onChange: (value: number) => void; // Callback to notify parent of value change, override both of the slider/input handlers
+    value: number; // Controlled value for the slider and input
+    centerAtZeroWithRange?: number; // Optional prop to center the slider at zero with the specified range
+};
+
+/**
+ * Component which synchronizes a slider and an input field, allowing the user to change a value using either control
+ * @param props
+ * @returns
+ */
+export const SyncedSliderInput: FunctionComponent<SyncedSliderProps> = (props: SyncedSliderProps) => {
     const styles = useSyncedSliderStyles();
     const [value, setValue] = useState<number>(props.value);
     const [range, setRange] = useState({

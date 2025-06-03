@@ -5,7 +5,7 @@ import type { IService, ServiceDefinition } from "../../../modularity/serviceDef
 import type { ISelectionService } from "../../selectionService";
 import type { IShellService } from "../../shellService";
 
-import { Accordion, AccordionHeader, AccordionItem, AccordionPanel, Body1Strong, makeStyles, Subtitle1, tokens } from "@fluentui/react-components";
+import { Accordion, AccordionHeader, AccordionItem, AccordionPanel, Body1Strong, makeStyles, Subtitle1 } from "@fluentui/react-components";
 import { DocumentTextRegular } from "@fluentui/react-icons";
 import { useMemo, useState, type ComponentType } from "react";
 

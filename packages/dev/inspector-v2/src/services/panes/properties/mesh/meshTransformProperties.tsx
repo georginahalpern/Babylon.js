@@ -2,9 +2,6 @@
 import { Camera, Matrix, Vector3, type AbstractMesh } from "core/index";
 
 import type { FunctionComponent } from "react";
-import { PropertyLine } from "shared-ui-components/fluent/propertyLine";
-import { Text } from "shared-ui-components/fluent/primitives/text";
-import { SyncedSliderInput } from "shared-ui-components/fluent/primitives/syncedSlider";
 import { VectorPropertyLine } from "shared-ui-components/fluent/vectorPropertyLine";
 
 export const MeshTransformProperties: FunctionComponent<{ entity: AbstractMesh }> = ({ entity: mesh }) => {
