@@ -1,6 +1,6 @@
 import { InputProps, makeStyles, Slider, SliderProps } from "@fluentui/react-components";
 import { Input } from "./input";
-import { FunctionComponent, useEffect, useState } from "react";
+import { FunctionComponent, useState } from "react";
 
 const useSyncedSliderStyles = makeStyles({
     syncedSlider: {
@@ -22,7 +22,6 @@ const useSyncedSliderStyles = makeStyles({
 export type SyncedSliderProps = Omit<InputProps & SliderProps, "onChange" | "value"> & {
     onChange: (value: number) => void; // Callback to notify parent of value change, override both of the slider/input handlers
     value: number; // Controlled value for the slider and input
-    centerAtZeroWithRange?: number; // Optional prop to center the slider at zero with the specified range
 };
 
 /**
@@ -33,10 +32,6 @@ export type SyncedSliderProps = Omit<InputProps & SliderProps, "onChange" | "val
 export const SyncedSliderInput: FunctionComponent<SyncedSliderProps> = (props: SyncedSliderProps) => {
     const styles = useSyncedSliderStyles();
     const [value, setValue] = useState<number>(props.value);
-    const [range, setRange] = useState({
-        min: props.centerAtZeroWithRange !== undefined ? -props.centerAtZeroWithRange : props.min,
-        max: props.centerAtZeroWithRange !== undefined ? props.centerAtZeroWithRange : props.max,
-    });
     const handleSliderChange = (_: any, data: { value: number }) => {
         setValue(data.value);
         props.onChange(data.value); // Notify parent
@@ -50,21 +45,9 @@ export const SyncedSliderInput: FunctionComponent<SyncedSliderProps> = (props: S
         }
     };
 
-    // Expand range symmetrically around 0 only if value exceeds it (assuming centerAtZero is true)
-    props.centerAtZeroWithRange !== undefined &&
-        useEffect(() => {
-            if (props.centerAtZeroWithRange === undefined || range.min === undefined || range.max === undefined) {
-                return;
-            }
-            if (value < range.min || value > range.max) {
-                const newBound = Math.ceil(Math.abs(value) / 10) * 10 + props.centerAtZeroWithRange;
-                setRange({ min: -newBound, max: newBound });
-            }
-        }, [value, props.centerAtZeroWithRange, range.min, range.max]);
-
     return (
         <div className={styles.syncedSlider}>
-            <Slider {...props} min={range.min} max={range.max} className={styles.slider} value={value} onChange={handleSliderChange} />
+            <Slider {...props} className={styles.slider} value={value} onChange={handleSliderChange} />
             <Input {...props} type="number" value={value.toString()} onChange={handleInputChange} />
         </div>
     );
