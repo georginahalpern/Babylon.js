@@ -1,5 +1,5 @@
 import { IPropertyLineProps, PropertyLine } from "./propertyLine";
-import { SyncedSliderInput, SyncedSliderProps } from "./primitives/syncedSlider";
+import { SyncedSliderInput, SyncedSliderProps } from "../primitives/syncedSlider";
 
 type KeyOf<O> = string & keyof O;
 export type SyncedSliderLineProps<O, K extends KeyOf<O>> = Omit<IPropertyLineProps, "children"> &

@@ -6,8 +6,8 @@ import { Tools } from "core/Misc/tools";
 import { FloatLineComponent } from "./floatLineComponent";
 import type { LockObject } from "../tabs/propertyGrids/lockObject";
 import copyIcon from "../imgs/copy.svg";
-import { ToolContext } from "shared-ui-components/fluent/fluentToolWrapper";
-import { SyncedSliderLine } from "shared-ui-components/fluent/syncedSliderLine";
+import { ToolContext } from "shared-ui-components/fluent/hoc/fluentToolWrapper";
+import { SyncedSliderLine } from "shared-ui-components/fluent/hoc/syncedSliderLine";
 
 interface ISliderLineComponentProps {
     label: string;

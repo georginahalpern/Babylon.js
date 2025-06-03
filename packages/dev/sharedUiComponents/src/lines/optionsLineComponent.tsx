@@ -4,9 +4,9 @@ import type { PropertyChangedEvent } from "../propertyChangedEvent";
 import { copyCommandToClipboard, getClassNameWithNamespace } from "../copyCommandToClipboard";
 import type { IInspectableOptions } from "core/Misc/iInspectable";
 import copyIcon from "../imgs/copy.svg";
-import { PropertyLine } from "shared-ui-components/fluent/propertyLine";
+import { PropertyLine } from "shared-ui-components/fluent/hoc/propertyLine";
 import { Dropdown } from "shared-ui-components/fluent/primitives/dropdown";
-import { ToolContext } from "shared-ui-components/fluent/fluentToolWrapper";
+import { ToolContext } from "shared-ui-components/fluent/hoc/fluentToolWrapper";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const Null_Value = Number.MAX_SAFE_INTEGER;

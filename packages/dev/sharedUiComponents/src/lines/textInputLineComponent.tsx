@@ -4,10 +4,10 @@ import type { PropertyChangedEvent } from "../propertyChangedEvent";
 import type { LockObject } from "../tabs/propertyGrids/lockObject";
 import { conflictingValuesPlaceholder } from "./targetsProxy";
 import { InputArrowsComponent } from "./inputArrowsComponent";
-import { PropertyLine } from "shared-ui-components/fluent/propertyLine";
+import { PropertyLine } from "shared-ui-components/fluent/hoc/propertyLine";
 import { Textarea } from "shared-ui-components/fluent/primitives/textarea";
 import { Input } from "shared-ui-components/fluent/primitives/input";
-import { ToolContext } from "shared-ui-components/fluent/fluentToolWrapper";
+import { ToolContext } from "shared-ui-components/fluent/hoc/fluentToolWrapper";
 
 export interface ITextInputLineComponentProps {
     label?: string;

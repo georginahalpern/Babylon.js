@@ -116,7 +116,7 @@ import { SkyMaterialPropertyGridComponent } from "./propertyGrids/materials/skyM
 import { Tags } from "core/Misc/tags";
 import { LineContainerComponent } from "shared-ui-components/lines/lineContainerComponent";
 import type { RectAreaLight } from "core/Lights/rectAreaLight";
-import { FluentToolWrapper } from "shared-ui-components/fluent/fluentToolWrapper";
+import { FluentToolWrapper } from "shared-ui-components/fluent/hoc/fluentToolWrapper";
 
 export class PropertyGridTabComponent extends PaneComponent {
     private _timerIntervalId: number;

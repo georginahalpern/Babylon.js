@@ -1,11 +1,11 @@
 // eslint-disable-next-line import/no-internal-modules
 import { Color3, Color4 } from "core/index";
 
-import { IPropertyLineProps, PropertyLine } from "shared-ui-components/fluent/propertyLine";
+import { IPropertyLineProps, PropertyLine } from "shared-ui-components/fluent/hoc/propertyLine";
 import { SyncedSliderLine } from "./syncedSliderLine";
 import { FunctionComponent } from "react";
 
-type IColorPropertyLineProps = IPropertyLineProps & {
+type IColorPropertyLineProps = Omit<IPropertyLineProps, "children"> & {
     color: Color3 | Color4;
 };
 

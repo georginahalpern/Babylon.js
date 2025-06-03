@@ -29,7 +29,7 @@ import type { IEditorData } from "shared-ui-components/nodeGraphSystem/interface
 import type { INodeData } from "shared-ui-components/nodeGraphSystem/interfaces/nodeData";
 import type { GlobalState } from "./globalState";
 import { HistoryStack } from "shared-ui-components/historyStack";
-import { FluentToolWrapper } from "shared-ui-components/fluent/fluentToolWrapper";
+import { FluentToolWrapper } from "shared-ui-components/fluent/hoc/fluentToolWrapper";
 
 interface IGraphEditorProps {
     globalState: GlobalState;
