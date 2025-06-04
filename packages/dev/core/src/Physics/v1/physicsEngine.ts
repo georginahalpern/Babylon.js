@@ -6,6 +6,7 @@ import type { PhysicsImpostor, IPhysicsEnabledObject } from "./physicsImpostor";
 import type { PhysicsJoint } from "./physicsJoint";
 import type { PhysicsRaycastResult } from "../physicsRaycastResult";
 import { _WarnImport } from "../../Misc/devTools";
+import type { AbstractMesh } from "core/Meshes";
 
 /**
  * Class used to control physics engine
@@ -271,5 +272,14 @@ export class PhysicsEngine implements IPhysicsEngine {
      */
     public raycastToRef(from: Vector3, to: Vector3, result: PhysicsRaycastResult) {
         return this._physicsPlugin.raycastToRef(from, to, result);
+    }
+
+    // TODO georgie fix
+    public enablePhysicsForMoveWithCollisions(meshes: AbstractMesh[]): boolean {
+        return false;
+    }
+
+    public moveWithCollisions(mesh: AbstractMesh, displacement: Vector3): boolean {
+        return false;
     }
 }

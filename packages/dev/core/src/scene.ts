@@ -98,7 +98,7 @@ import type { Sound } from "./Audio/sound";
 import type { Layer } from "./Layers/layer";
 import type { LensFlareSystem } from "./LensFlares/lensFlareSystem";
 import type { ProceduralTexture } from "./Materials/Textures/Procedurals/proceduralTexture";
-import { HavokPlugin, PhysicsShape } from "./Physics";
+import { HavokPlugin } from "./Physics";
 
 /**
  * Define an interface for all classes that will hold resources
@@ -1472,6 +1472,10 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
      */
     public physicsEnabled = true;
 
+    public enablePhysicsForMoveWithCollisions(hk: HavokPlugin, meshes?: AbstractMesh[]): boolean {
+        return false; // overridden
+    }
+
     // Particles
     /**
      * Gets or sets a boolean indicating if particles are enabled on this scene
@@ -1525,16 +1529,6 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
 
         return this._collisionCoordinator;
     }
-
-    /** @internal */
-    public physicsDataForMoveWithCollisions: { map: Map<AbstractMesh, PhysicsShape>; plugin: HavokPlugin } | undefined;
-
-    /**
-     * When called, this function will generate physics shapes for any meshes which have checkCollisions set to true, and then use those physics shapes for collision detection whenever moveWithCollisions is called (overriding the existing moveWithCollisions logic with physics v2 logic)
-     * NOTE: this function must be called again if the scene changes a mesh's isEnabled property or its checkCollisions property
-     * @param meshes optional list of meshes that we will iterate through to find those with checkCollisions (vs iterating through the whole scene), resulting in slightly better performance)
-     */
-    public enablePhysicsForMoveWithCollisions(meshes: AbstractMesh[] = this.meshes) {}
 
     /**
      * Defines the gravity applied to this scene (used only for collisions)

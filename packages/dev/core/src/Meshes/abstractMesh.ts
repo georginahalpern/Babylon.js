@@ -46,7 +46,6 @@ import type { MorphTarget } from "../Morph/morphTarget";
 import type { Geometry } from "./geometry";
 import { nativeOverride } from "../Misc/decorators";
 import { AbstractEngine } from "core/Engines/abstractEngine";
-import { HavokPlugin, PhysicsShape } from "core/Physics";
 
 function ApplyMorph(data: FloatArray, kind: string, morphTargetManager: MorphTargetManager): void {
     let getTargetData: Nullable<(target: MorphTarget) => Nullable<FloatArray>> = null;
@@ -1927,14 +1926,6 @@ export abstract class AbstractMesh extends TransformNode implements IDisposable,
     }
 
     /**
-     * @internal
-     */
-    public moveWithCollisionsPhysicsEnabled(data: { map: Map<AbstractMesh, PhysicsShape>; plugin: HavokPlugin }, displacement: Vector3): AbstractMesh {
-        // Replaced with physics implementation
-        return this;
-    }
-
-    /**
      * Move the mesh using collision engine
      * @see https://doc.babylonjs.com/features/featuresDeepDive/cameras/camera_collisions
      * @param displacement defines the requested displacement vector
@@ -1942,10 +1933,10 @@ export abstract class AbstractMesh extends TransformNode implements IDisposable,
      * @returns the current mesh
      */
     public moveWithCollisions(displacement: Vector3, slideOnCollide: boolean = true): AbstractMesh {
-        if (this._scene.physicsDataForMoveWithCollisions) {
-            return this.moveWithCollisionsPhysicsEnabled(this._scene.physicsDataForMoveWithCollisions, displacement);
+        // Try to move with collisions, will return false if feature was not enabled or if it was enabled incorrectly on the engine
+        if (this._scene.getPhysicsEngine()?.moveWithCollisions(this, displacement)) {
+            return this;
         }
-
         const globalPosition = this.getAbsolutePosition();
 
         globalPosition.addToRef(this.ellipsoidOffset, this._internalAbstractMeshDataInfo._meshCollisionData._oldPositionForCollisions);

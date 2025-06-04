@@ -1,3 +1,4 @@
+import { AbstractMesh } from "core/Meshes";
 import type { Vector3 } from "../Maths/math.vector";
 import type { PhysicsRaycastResult, IRaycastQuery } from "./physicsRaycastResult";
 import type { IPhysicsEnginePlugin as IPhysicsEnginePluginV1 } from "./v1/IPhysicsEnginePlugin";
@@ -65,6 +66,20 @@ export interface IPhysicsEngine {
      * @returns current plugin
      */
     getPhysicsPlugin(): IPhysicsEnginePluginV1 | IPhysicsEnginePluginV2 | null;
+
+    /**
+     * Creates physicsShapes for the meshes provided
+     * @param meshes
+     */
+    enablePhysicsForMoveWithCollisions(meshes: AbstractMesh[]): void;
+
+    /**
+     * Function that can be called to replace moveWithCollisions on a mesh
+     * @param mesh
+     * @param displacement
+     * @returns true if successfully moved the mesh using physics, false if the feature is not enabled or not supported by the physics engine
+     */
+    moveWithCollisions(mesh: AbstractMesh, displacement: Vector3): boolean;
 
     /**
      * Does a raycast in the physics world

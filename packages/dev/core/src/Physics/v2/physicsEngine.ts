@@ -1,11 +1,15 @@
 import type { Nullable } from "../../types";
-import { Vector3 } from "../../Maths/math.vector";
+import { Quaternion, Vector3 } from "../../Maths/math.vector";
 import type { IPhysicsEngine } from "../IPhysicsEngine";
-import type { IPhysicsEnginePluginV2 } from "./IPhysicsEnginePlugin";
+import { PhysicsShapeType, type IPhysicsEnginePluginV2 } from "./IPhysicsEnginePlugin";
 import type { IRaycastQuery } from "../physicsRaycastResult";
 import { PhysicsRaycastResult } from "../physicsRaycastResult";
 import { _WarnImport } from "../../Misc/devTools";
 import type { PhysicsBody } from "./physicsBody";
+import { HavokPlugin } from "./Plugins";
+import { AbstractMesh } from "core/Meshes";
+import { PhysicsShape } from "./physicsShape";
+import { ShapeCastResult } from "../shapeCastResult";
 
 /**
  * Class used to control physics engine
@@ -210,5 +214,93 @@ export class PhysicsEngine implements IPhysicsEngine {
         const result = new PhysicsRaycastResult();
         this._physicsPlugin.raycast(from, to, result, query);
         return result;
+    }
+
+    public physicsDataForMoveWithCollisions: Map<AbstractMesh, PhysicsShape> | undefined;
+
+    private createPhysicsShapeOfMeshIfApplicable(mesh: AbstractMesh): void {
+        if (mesh.checkCollisions && mesh.isEnabled() && mesh.subMeshes) {
+            const shape = new PhysicsShape({ type: PhysicsShapeType.MESH, parameters: mesh.getFacetDataParameters() }, mesh.getScene());
+            shape.filterCollideMask = mesh.collisionMask;
+            this.physicsDataForMoveWithCollisions?.set(mesh, shape);
+        }
+    }
+
+    public moveWithCollisions(mesh: AbstractMesh, displacement: Vector3): boolean {
+        if (!this.physicsDataForMoveWithCollisions || this.getPhysicsPluginName() !== "HavokPlugin") {
+            // Throw
+            return false;
+        }
+        const plugin = this.getPhysicsPlugin() as HavokPlugin;
+        const associatedShape = this.physicsDataForMoveWithCollisions.get(mesh);
+        if (!associatedShape) {
+            // If there is no associated shape, that means this mesh is not setup to checkCollisions or is not enabled, thus we can move freely
+            mesh.position.addInPlace(displacement);
+            return true; // successfully moved the mesh
+        }
+
+        // Check for collisions
+        const shapeLocalResult = new ShapeCastResult();
+        const hitWorldResult = new ShapeCastResult();
+        plugin.shapeCast(
+            {
+                shape: associatedShape,
+                rotation: mesh.rotationQuaternion || new Quaternion(), // fix
+                startPosition: mesh.getAbsolutePosition(),
+                endPosition: mesh.position.add(displacement),
+                shouldHitTriggers: false,
+            },
+            shapeLocalResult,
+            hitWorldResult
+        );
+
+        // If collision is detected, only move mesh by the allowed fraction of the displacement
+        if (hitWorldResult.hasHit) {
+            const buffer = 0.01; // small buffer to avoid surface overlap
+            const castLength = displacement.length();
+
+            // Ask cedric about hitworld vs shapelocal
+            const safeFraction = Math.max(0, hitWorldResult.hitFraction - buffer / castLength); // adjust hitFraction by buffer
+            const safeMove = displacement.scale(safeFraction);
+
+            mesh.position.addInPlace(safeMove);
+        } else {
+            mesh.position.addInPlace(displacement);
+        }
+
+        return true; // successfully moved the mesh
+    }
+
+    public enablePhysicsForMoveWithCollisions(meshes: AbstractMesh[]): boolean {
+        // Helper to dispose of all physicsShapes and plugin and clear the map
+        const cleanup = () => {
+            this.physicsDataForMoveWithCollisions?.forEach((shape) => shape.dispose());
+            this.physicsDataForMoveWithCollisions?.clear();
+            this.physicsDataForMoveWithCollisions = undefined; // does this also dispose of the vars inside?
+        };
+
+        // If this is the first time the function is called, create the map to hold the physicsShapes and setup the observers for adding/removing meshes and disposing of the scene
+        if (this.physicsDataForMoveWithCollisions === undefined) {
+            // Ensures that 'get physiccsEnabledForMoveWithCollisions' flag returns true and will be used within moveWithCollisions method
+            this.physicsDataForMoveWithCollisions = new Map<AbstractMesh, PhysicsShape>();
+
+            // scene.onNewMeshAddedObservable.add(this.createPhysicsShapeOfMeshIfApplicable);
+
+            // // Dispose the associated physicsShape and remove it from the map
+            // scene.onMeshRemovedObservable.add((mesh: AbstractMesh) => {
+            //     const shape = this.physicsDataForMoveWithCollisions?.get(mesh);
+            //     shape?.dispose();
+            //     this.physicsDataForMoveWithCollisions?.delete(mesh);
+            // });
+
+            // // Dispose all physicsShapes and clear the map itself
+            // scene.onDisposeObservable.add(cleanup);
+        }
+
+        // Any time this function is called, reset the map and recreate the physics bodies
+        cleanup();
+        this.physicsDataForMoveWithCollisions = new Map<AbstractMesh, PhysicsShape>();
+        meshes.forEach((mesh: AbstractMesh) => this.createPhysicsShapeOfMeshIfApplicable(mesh));
+        return true; // successfully enabled physics for move with collisions
     }
 }
