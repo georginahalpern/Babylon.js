@@ -1458,6 +1458,7 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
         if (value) {
             this._currentCustomRenderFunction = this.customRenderFunction;
             this.customRenderFunction = this._renderWithFrameGraph;
+            this.activeCamera = null;
         }
     }
 
@@ -4885,6 +4886,8 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
             }
         }
 
+        this.onBeforeRenderObservable.notifyObservers(this);
+
         // We must keep these steps because the procedural texture component relies on them.
         // TODO: move the procedural texture component to the frame graph.
         for (const step of this._beforeClearStage) {
@@ -5035,8 +5038,6 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
             }
         }
 
-        // Before render
-        this.onBeforeRenderObservable.notifyObservers(this);
         // Custom render function?
         if (this.customRenderFunction) {
             this._renderId++;
@@ -5044,6 +5045,9 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
 
             this.customRenderFunction(updateCameras, ignoreAnimations);
         } else {
+            // Before render
+            this.onBeforeRenderObservable.notifyObservers(this);
+
             // Customs render targets
             this.onBeforeRenderTargetsRenderObservable.notifyObservers(this);
 
