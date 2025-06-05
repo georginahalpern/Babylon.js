@@ -2,7 +2,7 @@ import type { Nullable } from "../types";
 import { Logger } from "../Misc/logger";
 import { Observable } from "../Misc/observable";
 import { type Vector3 } from "../Maths/math.vector";
-import { AbstractMesh } from "../Meshes/abstractMesh";
+import type { AbstractMesh } from "../Meshes/abstractMesh";
 import type { ISceneComponent } from "../sceneComponent";
 import { SceneComponentConstants } from "../sceneComponent";
 import { Scene } from "../scene";
@@ -11,7 +11,7 @@ import type { IPhysicsEnginePlugin as IPhysicsEnginePluginV1 } from "./v1/IPhysi
 import { type IPhysicsEnginePluginV2 } from "./v2/IPhysicsEnginePlugin";
 import { PhysicsEngine as PhysicsEngineV1 } from "./v1/physicsEngine";
 import { PhysicsEngine as PhysicsEngineV2 } from "./v2/physicsEngine";
-import { HavokPlugin } from "./v2";
+import type { HavokPlugin } from "./v2";
 
 declare module "../scene" {
     // eslint-disable-next-line @typescript-eslint/naming-convention
