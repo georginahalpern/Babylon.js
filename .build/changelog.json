@@ -1,7 +1,401 @@
 {
-    "fromTag": "8.13.1",
+    "fromTag": "8.14.0",
     "changelog": {
         "8.14.0": [],
+        "8.14.1": [
+            {
+                "pr": "16831",
+                "title": "Fixing a few issues with NPE",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/index.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/particleGradientBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/particleRandomBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/randomRangeBlock.ts",
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.ts",
+                    "packages/tools/nodeParticleEditor/src/blockTools.ts",
+                    "packages/tools/nodeParticleEditor/src/components/nodeList/nodeListComponent.tsx"
+                ],
+                "tags": [
+                    "npe"
+                ]
+            },
+            {
+                "pr": "16829",
+                "title": "GPUParticleSystem serialization and IBL Shadows",
+                "description": "- Add `worldOffset` and `preventAutoStart` into serialization for GPUParticleSystem\r\n- Realized that iblShadowsTexture was serialized but was useless as it's re-created each time ibl post-process is created",
+                "author": {
+                    "name": "julien-moreau",
+                    "url": "https://github.com/julien-moreau"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/gpuParticleSystem.ts",
+                    "packages/dev/core/src/Rendering/IBLShadows/iblShadowsPluginMaterial.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16828",
+                "title": "Fix build break",
+                "description": "I'm not sure how this got through its own PR build since it is now breaking other PR builds, but doing a quick fix.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/boneProperties.tsx"
+                ],
+                "tags": [
+                    "bug",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16827",
+                "title": "Fix Gizmo material leak",
+                "description": "https://forum.babylonjs.com/t/linesmesh-no-longer-disposes-shadermaterial-by-default-causes-memory-leak-in-boundingboxgizmo/59194",
+                "author": {
+                    "name": "sebavan",
+                    "url": "https://github.com/sebavan"
+                },
+                "files": [
+                    "packages/dev/core/src/Meshes/linesMesh.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16809",
+                "title": "Inspector v2: Add skeleton support",
+                "description": "This change adds nodes to scene explorer for skeletons/bones as well as properties to the properties pane.\r\n\r\n![image](https://github.com/user-attachments/assets/bdb6b633-f6cd-404c-9ba6-3e8e66803c25)\r\n",
+                "author": {
+                    "name": "bghgary",
+                    "url": "https://github.com/bghgary"
+                },
+                "files": [
+                    "packages/dev/core/src/Debug/skeletonViewer.ts",
+                    "packages/dev/inspector-v2/src/components/properties/boneProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/skeletonProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/transformProperties.tsx",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/bonePropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/skeletonPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/transformNodePropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/skeletonExplorerService.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "16823",
+                "title": "ESLint: Allow react hook function naming and allow type only imports from index.",
+                "description": "1. Type only imports from index files. We already do this a lot, but always have to suppress the eslint rule. This change allows type only imports from index, but not runtime imports from index (since those would cause unwanted side effects).\r\n2. Functions that start with `use` are allowed, even though they are not PascalCase. This is for react hooks. We already have a similar rule that allows react hooks defined as lambdas, this just extends it to regular functions as well.\r\n\r\nAnd update a load of files to remove now unnecessary eslint supressions.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    ".eslintrc.js",
+                    "packages/dev/addons/src/index.ts",
+                    "packages/dev/addons/src/msdfText/index.ts",
+                    "packages/dev/core/src/AudioV2/abstractAudio/index.ts",
+                    "packages/dev/core/src/AudioV2/index.ts",
+                    "packages/dev/core/src/Behaviors/index.ts",
+                    "packages/dev/core/src/Cameras/index.ts",
+                    "packages/dev/core/src/Culling/index.ts",
+                    "packages/dev/core/src/Engines/Processors/Expressions/index.ts",
+                    "packages/dev/core/src/Engines/Processors/index.ts",
+                    "packages/dev/core/src/Engines/index.ts",
+                    "packages/dev/core/src/FlowGraph/Blocks/Data/index.ts",
+                    "packages/dev/core/src/FlowGraph/Blocks/Execution/index.ts",
+                    "packages/dev/core/src/FlowGraph/Blocks/index.ts",
+                    "packages/dev/core/src/FlowGraph/index.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Layers/glowLayerBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Layers/highlightLayerBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/PostProcesses/anaglyphPostProcessBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/PostProcesses/basePostProcessBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/PostProcesses/blackAndWhitePostProcessBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/PostProcesses/bloomPostProcessBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/PostProcesses/blurPostProcessBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/PostProcesses/chromaticAberrationPostProcessBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/PostProcesses/circleOfConfusionPostProcessBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/PostProcesses/depthOfFieldPostProcessBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/PostProcesses/extractHighlightsPostProcessBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/PostProcesses/fxaaPostProcessBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/PostProcesses/grainPostProcessBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/PostProcesses/imageProcessingPostProcessBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/PostProcesses/motionBlurPostProcessBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/PostProcesses/passPostProcessBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/PostProcesses/ssrPostProcessBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Rendering/baseObjectRendererBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Rendering/baseShadowGeneratorBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Rendering/csmShadowGeneratorBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Rendering/geometryRendererBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Rendering/objectRendererBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Rendering/shadowGeneratorBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Rendering/taaObjectRendererBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Rendering/utilityLayerRendererBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Teleport/teleportInBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Teleport/teleportOutBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Textures/clearBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Textures/copyTextureBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Textures/generateMipmapsBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/cullObjectsBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/elbowBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/executeBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/inputBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/outputBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/resourceContainerBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Types/nodeRenderGraphTypes.ts",
+                    "packages/dev/core/src/FrameGraph/Node/nodeRenderGraph.ts",
+                    "packages/dev/core/src/FrameGraph/Node/nodeRenderGraphBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/nodeRenderGraphBlockConnectionPoint.ts",
+                    "packages/dev/core/src/FrameGraph/Node/nodeRenderGraphBuildState.ts",
+                    "packages/dev/core/src/FrameGraph/Node/nodeRenderGraphConnectionPointCustomObject.ts",
+                    "packages/dev/core/src/FrameGraph/Passes/cullPass.ts",
+                    "packages/dev/core/src/FrameGraph/Passes/pass.ts",
+                    "packages/dev/core/src/FrameGraph/Passes/renderPass.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Layers/baseLayerTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Layers/glowLayerTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Layers/highlightLayerTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Misc/cullObjectsTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Misc/executeTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/anaglyphTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/bloomMergeTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/bloomTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/blurTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/chromaticAberrationTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/circleOfConfusionTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/depthOfFieldBlurTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/depthOfFieldMergeTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/depthOfFieldTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/extractHighlightsTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/fxaaTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/imageProcessingTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/motionBlurTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/postProcessTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/ssrBlurTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/ssrRenderingPipelineTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/ssrTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/csmShadowGeneratorTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/geometryRendererTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/objectRendererTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/shadowGeneratorTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/taaObjectRendererTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/utilityLayerRendererTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Texture/clearTextureTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Texture/copyToBackbufferColorTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Texture/copyToTextureTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Texture/generateMipMapsTask.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraph.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphContext.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphObjectList.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphRenderContext.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphRenderTarget.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphTask.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphTextureManager.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphTypes.ts"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16824",
+                "title": "Inspector v2: Allow target to be null or undefined in useProperty (and related functions)",
+                "description": "Previously we were not allowing for the case where the target object is null or undefined. This happens in cases like the rotationQuaternion property, which can be undefined. If it is, then the follow up hooks for intercepting the x/y/z properties of the quaternion fail at runtime, because the target was undefined. React hooks cannot be conditional, so they must handle the null/undefined case.\r\n\r\nThis also required tightening up the typing, such that if target is known at compile time to not be null, then the resulting property will not be null (unless the property itself is allowed to be null). If target might be null at compile time, then the resulting property value is always possibly null. This makes usage easy (like with BoundProperty, where the value might be expected to not be null or undefined).",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/transformNodeTransformProperties.tsx",
+                    "packages/dev/inspector-v2/src/hooks/compoundPropertyHooks.ts",
+                    "packages/dev/inspector-v2/src/hooks/instrumentationHooks.ts"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "16820",
+                "title": "glTF Exporter: Update GLB writing",
+                "description": "Trying to avoid using the Blob constructor with multiple parts, since that isn't implemented in the Blob polyfill for Native.\r\nWhile doing so, also updated to use DataWriter to neatly build our buffer.\r\n",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/serializers/src/glTF/2.0/glTFExporter.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16821",
+                "title": "Updating NPE to right version",
+                "description": "All packages are in 8.14, so updating NPE to also be in 8.13 to match.",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/public/@babylonjs/node-particle-editor/package.json"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16799",
+                "title": "Inspector V2: Initial port of the statistics pane",
+                "description": "This first pass does not include the perf viewer. In a later change, we will either bring it back as it was in the earlier iteration of this PR, or if it is not too much trouble we will Fluent-ize it.",
+                "author": {
+                    "name": "AmoebaChant",
+                    "url": "https://github.com/AmoebaChant"
+                },
+                "files": [
+                    "packages/dev/core/src/LibDeclarations/browser.d.ts",
+                    "packages/dev/core/src/Misc/pressureObserverWrapper.ts",
+                    "packages/dev/inspector-v2/src/components/stats/countStats.tsx",
+                    "packages/dev/inspector-v2/src/components/stats/frameStepStats.tsx",
+                    "packages/dev/inspector-v2/src/components/stats/performanceStats.tsx",
+                    "packages/dev/inspector-v2/src/components/stats/statsPane.tsx",
+                    "packages/dev/inspector-v2/src/components/stats/systemStats.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/statsService.tsx",
+                    "packages/dev/inspector-v2/webpack.config.js",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/accordion.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "16816",
+                "title": "Fix volume fade ramps",
+                "description": "The logarithmic and exponential fade ramps are swapped, so fading out with a logarithmic shape actually results in an exponential fade out, and vice-versa.\r\n\r\nThis change fixes the issue by stepping through the curve backwards for fade outs.\r\n\r\nTested with playground https://playground.babylonjs.com/#HDPCXJ#1.",
+                "author": {
+                    "name": "docEdub",
+                    "url": "https://github.com/docEdub"
+                },
+                "files": [
+                    "packages/dev/core/src/AudioV2/audioUtils.ts",
+                    "packages/tools/tests/test/audioV2/shared/abstractAudioNode.volume.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "audio"
+                ]
+            },
+            {
+                "pr": "16815",
+                "title": "Increase BoundProperty type safety, update dropdown to be compatible with new BoundProperty",
+                "description": "- Now usage of BoundProperty ensures that the underlying component accepts a value of type target[propertyKey] and will cause compile error if the passed in params are not valid\r\n![image](https://github.com/user-attachments/assets/381090fe-49fd-4fea-bf65-600879722aae)\r\n![image](https://github.com/user-attachments/assets/3a0cf235-85be-4a49-8874-85210285d50c)\r\n- Since the type of transparencyMode is nullable<number> (not number|undefined), needed dropdown to accept null (i am keeping the undefined support as well) -- now caller must explicitly choose which type the dropdown handles\r\n- Turns out NaN is not a valid value in fluent's dropdown, so reverted back to MAX_SAFE_INTEGER as the placeholder",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/boundProperty.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/shadowGeneratorSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/materialTransparencyProperties.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/colorPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/dropdownPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/dropdown.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/optionsLineComponent.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16819",
+                "title": "Scale slider min/max to avoid tick marks",
+                "description": "The Fluent slider uses a step size of 1 by default, but if the `step` prop is set to anything other than `undefined`, it adds tick marks. This is especially bad when you have something like min=0 max=1 step=0.01, as it will render 100 tick marks, which basically makes the slider look like garbage. This change just scales the min/max such that step can always be undefined (the default value of 1) and never draw tick marks.\r\n\r\nIt also rounds the Input box numeric value to the closes step for consistency.\r\n\r\n![image](https://github.com/user-attachments/assets/520cc113-624d-413c-a3c0-45f4fa2abcce)\r\n",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/colorPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/syncedSlider.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16818",
+                "title": "Add QuaternionPropertyLine; route checkboxLineComponent to switch",
+                "description": "- Add support for quaternionpropertylines\r\n- Route old checkboxLineComponent to the new fluent switch (i know the name is confusing -- it was actually representing a switch not a checkbox :D) ",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/transformNodeTransformProperties.tsx",
+                    "packages/dev/inspector-v2/src/hooks/compoundPropertyHooks.ts",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/vectorPropertyLine.tsx",
+                    "packages/tools/nodeEditor/src/sharedComponents/checkBoxLineComponent.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "new feature",
+                    "tools"
+                ]
+            },
+            {
+                "pr": "16790",
+                "title": "Inspector v2: Added basic Setup for Lights",
+                "description": "Replicated existing logic for displaying light and shadow information from scene nodes into inspector v2. ",
+                "author": {
+                    "name": "SergioRZMasson",
+                    "url": "https://github.com/SergioRZMasson"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/lights/areaLightSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/directionalLightSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/hemisphericLightSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/pointLightSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/shadowGeneratorSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/shadowsSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/spotLightSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/transformNodeTransformProperties.tsx",
+                    "packages/dev/inspector-v2/src/hooks/compoundPropertyHooks.ts",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lights/areaLightPropertiesServices.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lights/directionalLightPropertiesServices.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lights/hemisphericLightPropertiesServices.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lights/pointLightPropertiesServices.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lights/shadowLightPropertiesServices.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lights/spotLightPropertiesServices.ts",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/colorPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/input.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "16813",
+                "title": "Inspector v2: Allow AccordionPane to have default content and use it in DebugService and SettingsService",
+                "description": "This change makes it so that `AccordionPane` can have default sections with default content, which is merged with the \"add on\" sections and content. The default sections can optionally specify an identity which allows them to be extended (e.g. more content added to the default sections). This is trying to make it really easy to define all the default UI, but still have it be extensible. Later I will probably change section identities to just be strings rather than symbols and remove the `identity` prop (the `title` will be the identity), but I don't want to make a breaking change right now since there are a bunch of active PRs using it as is.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/accordionPane.tsx",
+                    "packages/dev/inspector-v2/src/components/debug/debugPane.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/debugService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/propertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/settingsService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/statsService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/toolsService.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/accordion.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            }
+        ],
         "8.13.1": [
             {
                 "pr": "16814",
