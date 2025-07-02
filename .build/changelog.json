@@ -1,7 +1,129 @@
 {
-    "fromTag": "8.14.0",
+    "fromTag": "8.14.1",
     "changelog": {
-        "8.14.0": [],
+        "8.14.2": [
+            {
+                "pr": "16838",
+                "title": "Node Editors: Add `name` input field",
+                "description": "![image](https://github.com/user-attachments/assets/8996bd3b-1d7e-4b0c-8b0a-68429f924d07)",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/tools/nodeEditor/src/components/propertyTab/propertyTabComponent.tsx",
+                    "packages/tools/nodeGeometryEditor/src/components/propertyTab/propertyTabComponent.tsx",
+                    "packages/tools/nodeParticleEditor/src/components/propertyTab/propertyTabComponent.tsx",
+                    "packages/tools/nodeRenderGraphEditor/src/components/propertyTab/propertyTabComponent.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16837",
+                "title": "shadow are now applied for meshes with parent",
+                "description": null,
+                "author": {
+                    "name": "alexandremottet",
+                    "url": "https://github.com/alexandremottet"
+                },
+                "files": [
+                    "packages/tools/viewer/src/viewer.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16834",
+                "title": "remove unnecessary code",
+                "description": "For the complete story: https://forum.babylonjs.com/t/bug-in-code-of-vector3/59259/13?u=deltakosh",
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Culling/ray.core.ts",
+                    "packages/dev/core/src/Maths/math.vector.ts"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16836",
+                "title": "Body MotionType stored on plugin side",
+                "description": null,
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "packages/dev/core/src/Physics/v2/physicsBody.ts"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16825",
+                "title": "Inspector v2: Sprites for scene and properties",
+                "description": "Adding sprite manager support in scene explorer plus sprite properties.\r\n\r\n![image](https://github.com/user-attachments/assets/fd88c36f-e924-4b92-9ce1-5ef58e535684)\r\n",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    ".vscode/launch.json",
+                    "packages/dev/core/src/Sprites/spriteManager.ts",
+                    "packages/dev/core/src/Sprites/spriteSceneComponent.ts",
+                    "packages/dev/inspector-v2/src/components/properties/boundProperty.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/shadowGeneratorSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/spriteAnimationProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/spriteGeneralProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/spriteOtherProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/spriteTransformProperties.tsx",
+                    "packages/dev/inspector-v2/src/hooks/compoundPropertyHooks.ts",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/spritePropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/spriteManagerExplorerService.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/syncedSliderLine.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "16833",
+                "title": "Htmlmesh rh bb",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/addons/src/htmlMesh/htmlMeshRenderer.ts"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16832",
+                "title": "Fix rh issue with billboard",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Meshes/transformNode.ts",
+                    "packages/tools/tests/test/visualization/ReferenceImages/rh-billboard.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/rh-billboard2.png",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": [
+                    "geometry"
+                ]
+            }
+        ],
         "8.14.1": [
             {
                 "pr": "16831",
@@ -396,6 +518,7 @@
                 ]
             }
         ],
+        "8.14.0": [],
         "8.13.1": [
             {
                 "pr": "16814",
