@@ -1,6 +1,42 @@
 {
-    "fromTag": "8.14.1",
+    "fromTag": "8.14.2",
     "changelog": {
+        "8.15.0": [
+            {
+                "pr": "16841",
+                "title": "Inspector v2: Handle scene explorer mutations + some bug fixes",
+                "description": "- If an entity name changes, the associated scene explorer tree item now updates.\r\n- If an entity parent changes, the change is now reflected immediately in scene explorer.\r\n- Entities can now be renamed in the properties pane (e.g. it uses a TextInputPropertyLine rather than a TextPropertyLine).\r\n- useObservableState now updates correctly if the lambda `accessor` changes. This is needed for cases where the lambda actually changes because for example a captured value changes. This fixes various things, including the double mount/unmount that was happening for most cases where we have an \"extensible\" list of child components, such as sections in the property pane.\r\n- Because changing the accessor lambda now causes useObservableState to re-evaluate, usages of useObservableState now need to memo-ize the lambda if it is not idempotent (e.g. if each time it returns a different value, such as a new array or object instance).\r\n- Reduced the number of usages of useObservable by switching various use cases over to either useProperty or BoundProperty.\r\n- Increased the width of the color picker to make sure the rgba input fields don't get clipped (since they have a min width).\r\n- Fixed an issue in Playground where it would toggle the inspector twice when hitting the Play button if the playground code for createScene returned a promise. This happened to work for the old inspector, but not for the new inspector (it \"correctly\" toggles back off).",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/commonGeneralProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/shadowGeneratorSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/meshAdvancedProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/meshGeneralProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/meshOutlineOverlayProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/nodeGeneralProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/spriteTransformProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/transformProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/scene/sceneExplorer.tsx",
+                    "packages/dev/inspector-v2/src/components/stats/countStats.tsx",
+                    "packages/dev/inspector-v2/src/hooks/compoundPropertyHooks.ts",
+                    "packages/dev/inspector-v2/src/hooks/observableHooks.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/propertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/materialExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/nodeExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/skeletonExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/spriteManagerExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/texturesExplorerService.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/colorPicker.tsx",
+                    "packages/tools/playground/src/components/rendererComponent.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            }
+        ],
         "8.14.2": [
             {
                 "pr": "16838",
