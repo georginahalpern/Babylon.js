@@ -1,5 +1,5 @@
 {
-    "fromTag": "8.14.2",
+    "fromTag": "8.15.0",
     "changelog": {
         "8.15.0": [
             {
@@ -34,6 +34,85 @@
                 ],
                 "tags": [
                     "inspector"
+                ]
+            }
+        ],
+        "8.15.1": [
+            {
+                "pr": "16822",
+                "title": "GS Flip ply",
+                "description": null,
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "packages/dev/core/src/Meshes/GaussianSplatting/gaussianSplattingMesh.ts",
+                    "packages/dev/loaders/src/SPLAT/splatFileLoader.ts"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16835",
+                "title": "Implement velocity offset for TAA",
+                "description": "Played around with implementing this while trying to learn how the effects/pipelines work. Might play with it more tomorrow. Current issue is that the velocity buffer is including the offsets from the Halton sequence which ends up making it more blurry and jittery.",
+                "author": {
+                    "name": "matanui159",
+                    "url": "https://github.com/matanui159"
+                },
+                "files": [
+                    "packages/dev/core/src/PostProcesses/RenderPipeline/Pipelines/taaMaterialManager.ts",
+                    "packages/dev/core/src/PostProcesses/RenderPipeline/Pipelines/taaRenderingPipeline.ts",
+                    "packages/dev/core/src/PostProcesses/thinTAAPostProcess.ts",
+                    "packages/dev/core/src/Shaders/taa.fragment.fx",
+                    "packages/dev/core/src/ShadersWGSL/taa.fragment.fx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16846",
+                "title": "Fix static sound disconnect edge case",
+                "description": "In rare cases when lots of static sounds are playing, it's possible for static sound instances to have their `_onEnded` handler called by the underlying AudioBufferSourceNode *after* the sound has been disposed. This causes the static sound instance `_disconnect` call to occur twice, which throws an error on the 2nd call since it is already disconnected.\r\n\r\nThis change adds an `_isConnected` flag to static sound instances which skips the 2nd call to `_disconnect` if it is already disconnected.",
+                "author": {
+                    "name": "docEdub",
+                    "url": "https://github.com/docEdub"
+                },
+                "files": [
+                    "packages/dev/core/src/AudioV2/webAudio/webAudioStaticSound.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "audio"
+                ]
+            },
+            {
+                "pr": "16843",
+                "title": "Add a way to force run paused animatables",
+                "description": null,
+                "author": {
+                    "name": "sebavan",
+                    "url": "https://github.com/sebavan"
+                },
+                "files": [
+                    "packages/dev/core/src/Animations/animatable.core.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16845",
+                "title": "gizmo mem leak",
+                "description": "https://forum.babylonjs.com/t/linesmesh-no-longer-disposes-shadermaterial-by-default-causes-memory-leak-in-boundingboxgizmo/59194/4\r\n",
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "packages/dev/core/src/Gizmos/boundingBoxGizmo.ts"
+                ],
+                "tags": [
+                    "gizmos"
                 ]
             }
         ],
