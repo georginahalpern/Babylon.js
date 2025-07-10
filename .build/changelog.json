@@ -1,42 +1,6 @@
 {
-    "fromTag": "8.15.0",
+    "fromTag": "8.15.1",
     "changelog": {
-        "8.15.0": [
-            {
-                "pr": "16841",
-                "title": "Inspector v2: Handle scene explorer mutations + some bug fixes",
-                "description": "- If an entity name changes, the associated scene explorer tree item now updates.\r\n- If an entity parent changes, the change is now reflected immediately in scene explorer.\r\n- Entities can now be renamed in the properties pane (e.g. it uses a TextInputPropertyLine rather than a TextPropertyLine).\r\n- useObservableState now updates correctly if the lambda `accessor` changes. This is needed for cases where the lambda actually changes because for example a captured value changes. This fixes various things, including the double mount/unmount that was happening for most cases where we have an \"extensible\" list of child components, such as sections in the property pane.\r\n- Because changing the accessor lambda now causes useObservableState to re-evaluate, usages of useObservableState now need to memo-ize the lambda if it is not idempotent (e.g. if each time it returns a different value, such as a new array or object instance).\r\n- Reduced the number of usages of useObservable by switching various use cases over to either useProperty or BoundProperty.\r\n- Increased the width of the color picker to make sure the rgba input fields don't get clipped (since they have a min width).\r\n- Fixed an issue in Playground where it would toggle the inspector twice when hitting the Play button if the playground code for createScene returned a promise. This happened to work for the old inspector, but not for the new inspector (it \"correctly\" toggles back off).",
-                "author": {
-                    "name": "ryantrem",
-                    "url": "https://github.com/ryantrem"
-                },
-                "files": [
-                    "packages/dev/inspector-v2/src/components/properties/commonGeneralProperties.tsx",
-                    "packages/dev/inspector-v2/src/components/properties/lights/shadowGeneratorSetupProperties.tsx",
-                    "packages/dev/inspector-v2/src/components/properties/meshAdvancedProperties.tsx",
-                    "packages/dev/inspector-v2/src/components/properties/meshGeneralProperties.tsx",
-                    "packages/dev/inspector-v2/src/components/properties/meshOutlineOverlayProperties.tsx",
-                    "packages/dev/inspector-v2/src/components/properties/nodeGeneralProperties.tsx",
-                    "packages/dev/inspector-v2/src/components/properties/spriteTransformProperties.tsx",
-                    "packages/dev/inspector-v2/src/components/properties/transformProperties.tsx",
-                    "packages/dev/inspector-v2/src/components/scene/sceneExplorer.tsx",
-                    "packages/dev/inspector-v2/src/components/stats/countStats.tsx",
-                    "packages/dev/inspector-v2/src/hooks/compoundPropertyHooks.ts",
-                    "packages/dev/inspector-v2/src/hooks/observableHooks.ts",
-                    "packages/dev/inspector-v2/src/services/panes/properties/propertiesService.tsx",
-                    "packages/dev/inspector-v2/src/services/panes/scene/materialExplorerService.tsx",
-                    "packages/dev/inspector-v2/src/services/panes/scene/nodeExplorerService.tsx",
-                    "packages/dev/inspector-v2/src/services/panes/scene/skeletonExplorerService.tsx",
-                    "packages/dev/inspector-v2/src/services/panes/scene/spriteManagerExplorerService.tsx",
-                    "packages/dev/inspector-v2/src/services/panes/scene/texturesExplorerService.tsx",
-                    "packages/dev/sharedUiComponents/src/fluent/primitives/colorPicker.tsx",
-                    "packages/tools/playground/src/components/rendererComponent.tsx"
-                ],
-                "tags": [
-                    "inspector"
-                ]
-            }
-        ],
         "8.15.1": [
             {
                 "pr": "16822",
@@ -113,6 +77,432 @@
                 ],
                 "tags": [
                     "gizmos"
+                ]
+            }
+        ],
+        "8.16.0": [
+            {
+                "pr": "16865",
+                "title": "Replace PlaceholderPropertyLines with messageBar, readonlyBoolean, and fileUpload components",
+                "description": "Cleanup from the muster before we had these components ready!\r\n\r\n![image](https://github.com/user-attachments/assets/4ca5ac10-834d-4b06-90f7-7a8261046d67)\r\n![image](https://github.com/user-attachments/assets/ce9ee9b8-63b1-4791-bd95-e840fcc9c847)\r\n![image](https://github.com/user-attachments/assets/fc66e8f1-20b3-434f-bcf8-60850e10d5be)",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/stats/performanceStats.tsx",
+                    "packages/dev/inspector-v2/src/components/stats/systemStats.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/physicsPropertiesService.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/fileUploadLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/messageBar.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/fileButtonLineComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/lineWithFileButtonComponent.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16864",
+                "title": "Inspector v2: Rendering Pipelines in Scene Explorer",
+                "description": "This change is mostly just adding basic support for rendering pipelines in scene explorer, but required a few additional changes:\r\n- Added a `uniqueId` to rendering pipelines (everything in the tree needs a unique id, and it is simplest if it is defined directly on the entity, which is usually the case).\r\n- Added observables for adding/removing rendering pipelines.\r\n- Updated the common properties to handle the case where the `name` property is readonly (as is the case with rendering pipelines).",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/core/src/PostProcesses/RenderPipeline/postProcessRenderPipeline.ts",
+                    "packages/dev/core/src/PostProcesses/RenderPipeline/postProcessRenderPipelineManager.ts",
+                    "packages/dev/inspector-v2/src/components/properties/commonGeneralProperties.tsx",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/instrumentation/propertyInstrumentation.ts",
+                    "packages/dev/inspector-v2/src/services/panes/scene/renderingPipelinesExplorerService.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "16862",
+                "title": "NME focus/input bug fix",
+                "description": "Fixing this bug https://github.com/BabylonJS/Babylon.js/issues/16861 that was due to me creating new components at each render of PropertyTabComponentBase rather than rerendering existing ones",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/sharedUiComponents/src/components/propertyTabComponentBase.tsx"
+                ],
+                "tags": [
+                    "bug",
+                    "nme"
+                ]
+            },
+            {
+                "pr": "16859",
+                "title": "Inspector v2: Various minor cleanup",
+                "description": "- Fall back to constructor name for textures in scene explorer.\r\n- Prefer constructor name in the property pane (over getClassName) since it is more accurate.\r\n- Merge TransformNodePropertiesService and bonePropertiesService into TransformPropertiesService (they both are just trying to inject the transform related properties into the Transforms section).\r\n- Fix up the section orders.\r\n- Dispose the assetContainer in the test app when loading a new model (otherwise it can leave behind various things).",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/commonGeneralProperties.tsx",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/bonePropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/meshPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/transformPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/texturesExplorerService.tsx",
+                    "packages/dev/inspector-v2/test/app/index.ts"
+                ],
+                "tags": [
+                    "inspector",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16800",
+                "title": "Inspector V2 Physics properties",
+                "description": "- [x] Motion type\r\n- [x] Prestep type\r\n- [x] Mass\r\n- [x] Linear/angular damping edit\r\n- [x] Linear/angular velocity value\r\n\r\nThis PR contains basic support for physics body properties (from a TransformNode.physicsBody). If there is no physicsBody, right now it just uses a placeholder line component. Later, we are thinking we can provide some info and maybe a link to docs.\r\n\r\nI (@ryantrem) also included some additional changes/fixes in this PR:\r\n- \"Flatten\" AccordionPane. There is really no reason at this layer to have an array of content, since the original purpose of that in the context of PropertiesPane was to make it so the delegate doesn't have to be duplicated, but at this layer there is no delegate.\r\n- Update `useProperty` to return undefined if `target` is undefined, which is more consistent with getting undefined when the property does not exist.\r\n- Update `DropdownProps.options` to be a readonly array (otherwise there is a compile error if you try to pass in a readonly array because it thinks the Dropdown needs to be able to mutate the array).\r\n- Update `Dropdown` to use `useMemo` instead of `useState` so it updates with props changes.\r\n",
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "package-lock.json",
+                    "packages/dev/inspector-v2/package.json",
+                    "packages/dev/inspector-v2/src/components/accordionPane.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/physicsProperties.tsx",
+                    "packages/dev/inspector-v2/src/hooks/compoundPropertyHooks.ts",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/physicsPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/propertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/statsService.tsx",
+                    "packages/dev/inspector-v2/test/app/index.ts",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/dropdown.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "16858",
+                "title": "glTF Exporter: Don't modify original quaternion reference!",
+                "description": "Fixes bug from #16708",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/serializers/src/glTF/2.0/glTFExporter.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16857",
+                "title": "glTF Exporter: Replace PBRMaterial -> PBRBaseMaterial",
+                "description": "Was preventing PBRMetallicRoughnessMaterial and PBRSpecularGlossinessMaterial from exporting. Material exporter seems to handle them fine.",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/serializers/src/glTF/2.0/glTFExporter.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16856",
+                "title": "FrameGraph: Fix scene in wrong state when rendering objects with frame graphs",
+                "description": "See https://forum.babylonjs.com/t/feedback-on-frame-graphs/58672/17",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/FrameGraph/frameGraphRenderContext.ts",
+                    "packages/dev/core/src/scene.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "frame graph"
+                ]
+            },
+            {
+                "pr": "16847",
+                "title": "Update NME to use fluent accordion for both nodeList and properties pane",
+                "description": "- Update nodeListComponent to conditionally use accordion\r\n- Update NME propertyTabComponents to use fluent accordion. This change required a bit of refactoring because the fluent accordion requires its first children to be the accordionItems, so in cases where we had wrappers around the LineContainer we would break the accordion. I thus had to push the accordion inside the individual fooPropertyTabComponent classes and in certain cases (ex: GenericProperties, InputProperties) where the properties were added dynamically, expose them via helper functions)\r\n- Minor styling changes ",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/accordionPane.tsx",
+                    "packages/dev/inspector/src/components/actionTabs/tabs/propertyGridTabComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/components/propertyTabComponentBase.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/fluentToolWrapper.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/pane.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/accordion.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/searchBox.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/lineContainerComponent.tsx",
+                    "packages/tools/nodeEditor/src/components/nodeList/nodeListComponent.tsx",
+                    "packages/tools/nodeEditor/src/components/propertyTab/inputsPropertyTabComponent.tsx",
+                    "packages/tools/nodeEditor/src/components/propertyTab/propertyTabComponent.tsx",
+                    "packages/tools/nodeEditor/src/graphEditor.tsx",
+                    "packages/tools/nodeEditor/src/graphSystem/properties/colorMergerPropertyComponent.tsx",
+                    "packages/tools/nodeEditor/src/graphSystem/properties/debugNodePropertyTabComponent.tsx",
+                    "packages/tools/nodeEditor/src/graphSystem/properties/frameNodePortPropertyComponent.tsx",
+                    "packages/tools/nodeEditor/src/graphSystem/properties/framePropertyComponent.tsx",
+                    "packages/tools/nodeEditor/src/graphSystem/properties/genericNodePropertyComponent.tsx",
+                    "packages/tools/nodeEditor/src/graphSystem/properties/gradientNodePropertyComponent.tsx",
+                    "packages/tools/nodeEditor/src/graphSystem/properties/imageSourcePropertyTabComponent.tsx",
+                    "packages/tools/nodeEditor/src/graphSystem/properties/inputNodePropertyComponent.tsx",
+                    "packages/tools/nodeEditor/src/graphSystem/properties/lightInformationPropertyTabComponent.tsx",
+                    "packages/tools/nodeEditor/src/graphSystem/properties/lightPropertyTabComponent.tsx",
+                    "packages/tools/nodeEditor/src/graphSystem/properties/nodePortPropertyComponent.tsx",
+                    "packages/tools/nodeEditor/src/graphSystem/properties/teleportOutNodePropertyComponent.tsx",
+                    "packages/tools/nodeEditor/src/graphSystem/properties/texturePropertyTabComponent.tsx",
+                    "packages/tools/nodeEditor/src/graphSystem/properties/vectorMergerPropertyComponent.tsx",
+                    "packages/tools/nodeEditor/src/graphSystem/registerToPropertyLedger.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16842",
+                "title": "WebGPU: Fix wrong instances displayed in custom RTT",
+                "description": "See https://forum.babylonjs.com/t/webgpu-displays-wrong-instance-in-rtt-when-triggered-via-actions/59331\r\n\r\nThe problem is that when instances are rendered in a custom RTT, we need different **world0**...**world3** vertex buffers for the RTT than for normal scene rendering, because vertex buffer updates are performed on the queue timeline. This means that all updates (those we do when managing the RTT and those we do when rendering the normal scene) are done before the graphics commands are submitted. Ultimately, the draw calls for the RTT and normal scene rendering use the same buffers, and those buffers contain what we last wrote...\r\n\r\nThis works in WebGL because Angle can detect that in the current frame, we are updating a buffer already used by a pending graphics command, and can act accordingly (either allocate a new buffer to copy the updated data, or reserve unused space in an existing buffer and remap it to a new vertex buffer under the hood).\r\n\r\nWe haven't encountered this issue in WebGPU before, probably because we usually always render the mesh + all its instances in the custom RTT. In this case, the **world0**...**world3** vertex buffers contain the same data for the RTT and normal scene rendering.\r\n\r\nAs for the implementation, I “simply” moved the instance data one level down: it is now by render pass ID, see `_InstanceDataStorage.renderPasses`. A number of properties that were accessible in `_InstanceDataStorage` are now accessible in `_InstanceDataStorage.renderPasses[renderPassId]`.\r\n\r\nTo avoid too many changes in WebGL and stay as close as possible to the old way of working (and also because VAO management was tedious with the new changes...), we access everything via `_InstanceDataStorage.renderPasses[0]` (see `Mesh._getInstanceDataStorage`, we force the `renderPassId` to 0 in WebGL before accessing `_InstanceDataStorage.renderPasses`).",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Meshes/instancedMesh.ts",
+                    "packages/dev/core/src/Meshes/mesh.ts",
+                    "packages/dev/core/src/Misc/snapshotRenderingHelper.ts",
+                    "packages/dev/core/src/Rendering/edgesRenderer.ts",
+                    "packages/dev/core/src/Rendering/geometryBufferRenderer.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "rendering engine",
+                    "WebGPU"
+                ]
+            },
+            {
+                "pr": "16855",
+                "title": "typo fix",
+                "description": null,
+                "author": {
+                    "name": "sebavan",
+                    "url": "https://github.com/sebavan"
+                },
+                "files": [
+                    "packages/dev/core/src/Behaviors/Cameras/framingBehavior.ts"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16853",
+                "title": "Optimize performance of AssetContainer.addToScene",
+                "description": "This change replaces repeated calls to scene.getNodes() in AssetContainer.addToScene with a one-time “snapshot” of all scene nodes (meshes, lights, cameras, transformNodes and skeleton bones) stored in a Set.\r\n\r\nBy doing so we:\r\n- Eliminate O(n²) time spent rebuilding the full node list for every added node  \r\n- Remove transient array allocations and relieve GC pressure  \r\n- Reduce both time and space complexity of this code path to O(n)\r\n\r\nNo external behavior is changed.\r\n\r\nSee forum post <https://forum.babylonjs.com/t/optimize-performance-of-assetcontainer-addtoscene/59125>",
+                "author": {
+                    "name": "kzhsw",
+                    "url": "https://github.com/kzhsw"
+                },
+                "files": [
+                    "packages/dev/core/src/assetContainer.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16851",
+                "title": "Fix Thin Instances Memory leak",
+                "description": "https://forum.babylonjs.com/t/thin-instance-vertex-buffer-memory-leak-thininstancesetbuffer/59351/4\r\n\r\nJust a try at the moment as the change is pretty impactful but it seems to be the right solution.\r\n\r\ncc @deltakosh and @Popov72 \r\n\r\n@bghgary any way to run the native tests with it ?",
+                "author": {
+                    "name": "sebavan",
+                    "url": "https://github.com/sebavan"
+                },
+                "files": [
+                    "packages/dev/core/src/Meshes/geometry.ts",
+                    "packages/dev/core/src/Meshes/thinInstanceMesh.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16844",
+                "title": "Optimize performance of AnimationGroup.Parse",
+                "description": "AnimationGroup.Parse currently invokes scene.getNodeById for each targetedAnimation,\r\nresulting in O(m × n) behavior (m = # of targetedAnimations, n = # of scene nodes)\r\nand causing major slowdown when loading large scenes.\r\n\r\nThis change introduces an optional `nodeMap: Map<string, Node>` parameter to\r\nAnimationGroup.Parse. In the BabylonFileLoader, we build a one‐time hash map\r\nfor all meshes, transformNodes, cameras, etc., in O(n), then pass it to\r\nAnimationGroup.Parse. When provided, the parse method does O(1) lookups per\r\ntargetedAnimation, reducing overall parsing cost to O(m + n).\r\n\r\nFallback to scene.getNodeById is preserved when no nodeMap is supplied.\r\n\r\nForum post: <https://forum.babylonjs.com/t/optimize-performance-of-animationgroup-parse/59124>",
+                "author": {
+                    "name": "kzhsw",
+                    "url": "https://github.com/kzhsw"
+                },
+                "files": [
+                    "packages/dev/core/src/Animations/animationGroup.ts",
+                    "packages/dev/core/src/Loading/Plugins/babylonFileLoader.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16852",
+                "title": "Fix sandbox in Chromium based browsers v138",
+                "description": "https://forum.babylonjs.com/t/sandbox-3dcommerce-viewer-crashing-in-chrome/59359/2",
+                "author": {
+                    "name": "sebavan",
+                    "url": "https://github.com/sebavan"
+                },
+                "files": [
+                    "packages/tools/sandbox/src/components/renderingZone.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16850",
+                "title": "Small fixes to the TAA renderer",
+                "description": "Two small fixes to the TAA renderer:\r\n- only create/enable the material plugin if `reprojectHistory` is enabled, to allow better backwards compatibility by default\r\n- reset the TAA when `reprojectHistory` is enabled, to prevent a \"jump\" for one frame if the previous positions are old",
+                "author": {
+                    "name": "matanui159",
+                    "url": "https://github.com/matanui159"
+                },
+                "files": [
+                    "packages/dev/core/src/PostProcesses/RenderPipeline/Pipelines/taaRenderingPipeline.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16848",
+                "title": "Color picker bug fix causing flickering; Add boolean readonly component",
+                "description": "this is what it looks like now, we can change the component icon / color later \r\n\r\n![image](https://github.com/user-attachments/assets/2836928c-87a9-4aaa-81dc-d144001eeb6b)\r\n\r\n+ a small stylistic change to use colorswatch for the preview \r\n\r\nconfirmed that the colorswatch supports alpha\r\n![image](https://github.com/user-attachments/assets/e01fb3fd-fcff-44b6-a02f-c14e547a13f5)\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/readonlyBooleanLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/colorPicker.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/booleanLineComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/textLineComponent.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16785",
+                "title": "Support for back stencil configuration + blend configuration per target + dual source blending",
+                "description": "~~**!PLEASE KEEP IN DRAFT MODE / DON'T REVIEW, PR IS NOT COMPLETE YET!**~~\r\n\r\nThe PR can now be reviewed.\r\n\r\nThis PR:\r\n* adds support for separate front and back stencil configurations\r\n* adds support for blend configuration per target (uses [OES_draw_buffers_indexed](https://registry.khronos.org/webgl/extensions/OES_draw_buffers_indexed/) in WebGL)\r\n* adds support for dual source blending (uses [WEBGL_blend_func_extended](https://registry.khronos.org/webgl/extensions/WEBGL_blend_func_extended/) in WebGL)\r\n* adds support for multi-target rendering to `FrameGraphObjectRendererTask`\r\n* adds support for multi-target clearing to `FrameGraphClearTextureTask`\r\n\r\nI also fixed a few problems with the inspector when a frame graph is used at scene level (`scene.frameGraph` not empty):\r\n* fixed camera and light gizmos\r\n* fixed light frustum debugging (shadow generator component)\r\n* fixed \"render wireframe over mesh\"\r\n* added missing `orthoXXX` properties for the shadow generator component\r\n\r\nNote that I added an `isMainObjectRenderer` property to the `FrameGraphObjectRendererTask` class so that the user can specify which is the main renderer in cases where the image graph uses multiple renderers. We need this in particular for the inspector, where we sometimes need to render additional meshes (“render wireframe on mesh,” frustum light debugging, etc.). Until now, I was using a heuristic to find the main object renderer (the last one in the frame graph), but it's not robust and doesn't work in what I'm currently doing.",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Debug/directionalLightFrustumViewer.ts",
+                    "packages/dev/core/src/Engines/AbstractEngine/abstractEngine.alpha.ts",
+                    "packages/dev/core/src/Engines/AbstractEngine/abstractEngine.states.ts",
+                    "packages/dev/core/src/Engines/AbstractEngine/abstractEngine.stencil.ts",
+                    "packages/dev/core/src/Engines/AbstractEngine/index.ts",
+                    "packages/dev/core/src/Engines/Extensions/engine.alpha.ts",
+                    "packages/dev/core/src/Engines/WebGL/webGL2ShaderProcessors.ts",
+                    "packages/dev/core/src/Engines/WebGPU/Extensions/engine.alpha.ts",
+                    "packages/dev/core/src/Engines/WebGPU/webgpuCacheRenderPipeline.ts",
+                    "packages/dev/core/src/Engines/WebGPU/webgpuShaderProcessorsWGSL.ts",
+                    "packages/dev/core/src/Engines/WebGPU/webgpuStencilStateComposer.ts",
+                    "packages/dev/core/src/Engines/abstractEngine.ts",
+                    "packages/dev/core/src/Engines/constants.ts",
+                    "packages/dev/core/src/Engines/engine.ts",
+                    "packages/dev/core/src/Engines/engineCapabilities.ts",
+                    "packages/dev/core/src/Engines/nativeEngine.ts",
+                    "packages/dev/core/src/Engines/nullEngine.ts",
+                    "packages/dev/core/src/Engines/thinEngine.ts",
+                    "packages/dev/core/src/Engines/webgpuEngine.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/passTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/objectRendererTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/shadowGeneratorTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/taaObjectRendererTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Texture/clearTextureTask.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraph.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphContext.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphRenderContext.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphUtils.ts",
+                    "packages/dev/core/src/FrameGraph/index.ts",
+                    "packages/dev/core/src/LibDeclarations/webgl2.d.ts",
+                    "packages/dev/core/src/Materials/material.ts",
+                    "packages/dev/core/src/Materials/materialStencilState.ts",
+                    "packages/dev/core/src/Meshes/mesh.ts",
+                    "packages/dev/core/src/PostProcesses/thinPassPostProcess.ts",
+                    "packages/dev/core/src/Rendering/outlineRenderer.ts",
+                    "packages/dev/core/src/Shaders/lod.fragment.fx",
+                    "packages/dev/core/src/ShadersWGSL/lod.fragment.fx",
+                    "packages/dev/core/src/States/IStencilState.ts",
+                    "packages/dev/core/src/States/alphaCullingState.ts",
+                    "packages/dev/core/src/States/stencilState.ts",
+                    "packages/dev/core/src/States/stencilStateComposer.ts",
+                    "packages/dev/inspector/src/components/actionTabs/tabs/propertyGrids/lights/directionalLightPropertyGridComponent.tsx",
+                    "packages/dev/inspector/src/components/actionTabs/tabs/propertyGrids/materials/commonMaterialPropertyGridComponent.tsx",
+                    "packages/dev/inspector/src/components/actionTabs/tabs/propertyGrids/meshes/meshPropertyGridComponent.tsx",
+                    "packages/dev/inspector/src/components/globalState.ts",
+                    "packages/dev/inspector/src/components/sceneExplorer/entities/sceneTreeItemComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/hexLineComponent.tsx"
+                ],
+                "tags": [
+                    "rendering engine",
+                    "new feature"
+                ]
+            },
+            {
+                "pr": "16839",
+                "title": "Fix overlapping audio parameter ramps",
+                "description": "In some cases, short audio parameter ramps are being created faster than they can be processed, which results in later and later ramp end times until they are longer than the `MaxWaitTime` of `0.011` seconds, which throws an error.\r\n\r\nTo fix the issue this change adds a ramp deferral system that makes new ramps override previously deferred ramps that have not started, yet.\r\n\r\nThis change also skips spatial audio parameter updates if the spatial audio node is attached and ramping, since subsequent updates will be coming soon and will be more likely to succeed. This reduces pressure on the ramp deferral system without noticeable difference in audio quality. This cannot be done for spatial audio nodes that are not attached because it cannot be assumed that the position and/or rotation will be updated again soon.",
+                "author": {
+                    "name": "docEdub",
+                    "url": "https://github.com/docEdub"
+                },
+                "files": [
+                    "packages/dev/core/src/AudioV2/webAudio/components/webAudioParameterComponent.ts",
+                    "packages/dev/core/src/AudioV2/webAudio/subNodes/spatialWebAudioSubNode.ts",
+                    "packages/dev/core/src/AudioV2/webAudio/subProperties/spatialWebAudioListener.ts",
+                    "packages/dev/core/src/AudioV2/webAudio/webAudioEngine.ts",
+                    "packages/tools/babylonServer/public/audiov2-test.js",
+                    "packages/tools/tests/test/audioV2/shared/abstractAudioNode.volume.ts",
+                    "packages/tools/tests/test/audioV2/utils/audioV2.utils.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "audio"
+                ]
+            }
+        ],
+        "8.15.0": [
+            {
+                "pr": "16841",
+                "title": "Inspector v2: Handle scene explorer mutations + some bug fixes",
+                "description": "- If an entity name changes, the associated scene explorer tree item now updates.\r\n- If an entity parent changes, the change is now reflected immediately in scene explorer.\r\n- Entities can now be renamed in the properties pane (e.g. it uses a TextInputPropertyLine rather than a TextPropertyLine).\r\n- useObservableState now updates correctly if the lambda `accessor` changes. This is needed for cases where the lambda actually changes because for example a captured value changes. This fixes various things, including the double mount/unmount that was happening for most cases where we have an \"extensible\" list of child components, such as sections in the property pane.\r\n- Because changing the accessor lambda now causes useObservableState to re-evaluate, usages of useObservableState now need to memo-ize the lambda if it is not idempotent (e.g. if each time it returns a different value, such as a new array or object instance).\r\n- Reduced the number of usages of useObservable by switching various use cases over to either useProperty or BoundProperty.\r\n- Increased the width of the color picker to make sure the rgba input fields don't get clipped (since they have a min width).\r\n- Fixed an issue in Playground where it would toggle the inspector twice when hitting the Play button if the playground code for createScene returned a promise. This happened to work for the old inspector, but not for the new inspector (it \"correctly\" toggles back off).",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/commonGeneralProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/shadowGeneratorSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/meshAdvancedProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/meshGeneralProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/meshOutlineOverlayProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/nodeGeneralProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/spriteTransformProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/transformProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/scene/sceneExplorer.tsx",
+                    "packages/dev/inspector-v2/src/components/stats/countStats.tsx",
+                    "packages/dev/inspector-v2/src/hooks/compoundPropertyHooks.ts",
+                    "packages/dev/inspector-v2/src/hooks/observableHooks.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/propertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/materialExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/nodeExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/skeletonExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/spriteManagerExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/texturesExplorerService.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/colorPicker.tsx",
+                    "packages/tools/playground/src/components/rendererComponent.tsx"
+                ],
+                "tags": [
+                    "inspector"
                 ]
             }
         ],
