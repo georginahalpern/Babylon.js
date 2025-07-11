@@ -1,83 +1,146 @@
 {
-    "fromTag": "8.15.1",
+    "fromTag": "8.16.0",
     "changelog": {
-        "8.15.1": [
+        "8.16.1": [
             {
-                "pr": "16822",
-                "title": "GS Flip ply",
-                "description": null,
+                "pr": "16872",
+                "title": "Delete unused components in shared-ui",
+                "description": "Found some components that are not referenced when auditing our tools for UI overhaul (plus deleting a file I accidentally added twice in last PR)",
                 "author": {
-                    "name": "CedricGuillemet",
-                    "url": "https://github.com/CedricGuillemet"
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
                 },
                 "files": [
-                    "packages/dev/core/src/Meshes/GaussianSplatting/gaussianSplattingMesh.ts",
-                    "packages/dev/loaders/src/SPLAT/splatFileLoader.ts"
-                ],
-                "tags": [
-                    "skip changelog"
-                ]
-            },
-            {
-                "pr": "16835",
-                "title": "Implement velocity offset for TAA",
-                "description": "Played around with implementing this while trying to learn how the effects/pipelines work. Might play with it more tomorrow. Current issue is that the velocity buffer is including the offsets from the Halton sequence which ends up making it more blurry and jittery.",
-                "author": {
-                    "name": "matanui159",
-                    "url": "https://github.com/matanui159"
-                },
-                "files": [
-                    "packages/dev/core/src/PostProcesses/RenderPipeline/Pipelines/taaMaterialManager.ts",
-                    "packages/dev/core/src/PostProcesses/RenderPipeline/Pipelines/taaRenderingPipeline.ts",
-                    "packages/dev/core/src/PostProcesses/thinTAAPostProcess.ts",
-                    "packages/dev/core/src/Shaders/taa.fragment.fx",
-                    "packages/dev/core/src/ShadersWGSL/taa.fragment.fx"
+                    "packages/dev/inspector-v2/src/components/properties/particleSystemProperties.tsx",
+                    "packages/dev/sharedUiComponents/src/components/lines/ColorLineComponent.module.scss",
+                    "packages/dev/sharedUiComponents/src/components/lines/ColorLineComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/iconButtonLineComponent.tsx"
                 ],
                 "tags": []
             },
             {
-                "pr": "16846",
-                "title": "Fix static sound disconnect edge case",
-                "description": "In rare cases when lots of static sounds are playing, it's possible for static sound instances to have their `_onEnded` handler called by the underlying AudioBufferSourceNode *after* the sound has been disposed. This causes the static sound instance `_disconnect` call to occur twice, which throws an error on the 2nd call since it is already disconnected.\r\n\r\nThis change adds an `_isConnected` flag to static sound instances which skips the 2nd call to `_disconnect` if it is already disconnected.",
+                "pr": "16871",
+                "title": "Inspector v2: Animation Groups in Scene Explorer",
+                "description": "This PR adds support for Animation Groups in Scene Explorer, along with some other related/needed changes:\r\n- Adding a `uniqueId` and `parent` to `TargetedAnimation`\r\n- Updating the property instrumentation to be able to hook a property that is not yet defined. This makes cases like the CommonGeneralProperties stay simple, where it can try to hook the `name` property, even if it doesn't exist. Otherwise it would make it a hassle since hooks in react function components can't be conditional.\r\n\r\n<img width=\"912\" height=\"415\" alt=\"image\" src=\"https://github.com/user-attachments/assets/3c42f2cc-2fd3-4c99-93de-fff2f8d9af7c\" />",
                 "author": {
-                    "name": "docEdub",
-                    "url": "https://github.com/docEdub"
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
                 },
                 "files": [
-                    "packages/dev/core/src/AudioV2/webAudio/webAudioStaticSound.ts"
+                    "packages/dev/core/src/Animations/animationGroup.ts",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/instrumentation/propertyInstrumentation.ts",
+                    "packages/dev/inspector-v2/src/services/panes/scene/animationGroupExplorerService.tsx"
                 ],
                 "tags": [
-                    "bug",
-                    "audio"
+                    "inspector"
                 ]
             },
             {
-                "pr": "16843",
-                "title": "Add a way to force run paused animatables",
-                "description": null,
+                "pr": "16869",
+                "title": "Inspector v2: Add missing add/remove observables to scene and use ISceneContext for scene explorer sections",
+                "description": "This PR contains a couple of related changes:\r\n1. Update the particle system scene explorer section such that it determines if an entity is a particle system by checking if it is in scene.particleSystems. This works regardless of the concrete implementation of IParticleSystem.\r\n2. Doing this though requires the scene. Originally I had scene explorer pass the scene to the sections various functions to try to make things simpler, but this is kind of just guessing what the scene explorer sections will need to do what they want. Since this isn't always the case (as seen in bullet 1), I decided to just remove this and let the scene explorer sections get the scene from the ISceneContext if they need it, and then it is implicitly available in any of the section functions that need it. This also makes the scene explorer sections more flexible to put whatever they want, which lets us make scene explorer more broad if we want (such as including audio, etc.).\r\n3. Added scene observables for adding/removing particle systems.\r\n4. Added scene observables for adding/removing other scene entities that are not currently available.\r\n5. Added a uniqueId to `IParticleSystem`. This is technically a breaking change, but I suspect this is ok as there probably aren't many (if any) custom IParticleSystem implementations. Also we already did this for ISpriteManager.\r\n6. Added a uniqueId to `FrameGraph`.",
                 "author": {
-                    "name": "sebavan",
-                    "url": "https://github.com/sebavan"
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
                 },
                 "files": [
-                    "packages/dev/core/src/Animations/animatable.core.ts"
+                    "packages/dev/core/src/FrameGraph/frameGraph.ts",
+                    "packages/dev/core/src/Particles/IParticleSystem.ts",
+                    "packages/dev/core/src/Sprites/spriteManager.ts",
+                    "packages/dev/core/src/scene.ts",
+                    "packages/dev/inspector-v2/src/components/scene/sceneExplorer.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/materialExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/nodeExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/particleSystemExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/renderingPipelinesExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/skeletonExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/spriteManagerExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/texturesExplorerService.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "16868",
+                "title": "Properties folder cleanup",
+                "description": "just moving properties.tsx into their respective folders",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/materials/materialTransparencyProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/mesh/meshAdvancedProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/mesh/meshGeneralProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/mesh/meshOutlineOverlayProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/physics/physicsProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/skeleton/boneProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/skeleton/skeletonProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/sprites/spriteAnimationProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/sprites/spriteGeneralProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/sprites/spriteOtherProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/sprites/spriteTransformProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/materialPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/meshPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/physicsPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/skeletonPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/spritePropertiesService.tsx"
                 ],
                 "tags": []
             },
             {
-                "pr": "16845",
-                "title": "gizmo mem leak",
-                "description": "https://forum.babylonjs.com/t/linesmesh-no-longer-disposes-shadermaterial-by-default-causes-memory-leak-in-boundingboxgizmo/59194/4\r\n",
+                "pr": "16744",
+                "title": "Viewer: Align shadow map light with IBL dominant direction",
+                "description": null,
                 "author": {
-                    "name": "CedricGuillemet",
-                    "url": "https://github.com/CedricGuillemet"
+                    "name": "cournoll",
+                    "url": "https://github.com/cournoll"
                 },
                 "files": [
-                    "packages/dev/core/src/Gizmos/boundingBoxGizmo.ts"
+                    "packages/tools/viewer/src/viewer.ts"
                 ],
-                "tags": [
-                    "gizmos"
-                ]
+                "tags": []
+            },
+            {
+                "pr": "16863",
+                "title": "New gradient, list, and gradientList components; Add particleSystemProperties to inspectorv2",
+                "description": "- New primitive components gradient.tsx (supports 1 or 2 values of type IValueGradient) and list.tsx (sortable)\r\n- New HOC gradientList (with separately typed components for FactorGradient, Color4Gradient, and Color3Gradient)\r\n- Add new property service for particleSystem and showcase usage of the above gradientLists\r\n- Conditionally load new gradient component from NME\r\n\r\nI know the CSS is hideous, focusing on functionality now and will do a proper UX pass soon :) \r\n![image](https://github.com/user-attachments/assets/0136e089-8bab-4acb-bccd-ef8e7fc978a7)\r\n![image](https://github.com/user-attachments/assets/90afb7b2-803c-4fb5-bbc9-a23c82f67544)\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/lights/areaLightSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/directionalLightSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/hemisphericLightSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/pointLightSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/shadowsSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/spotLightSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/particleSystemProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/particles/particleSystemProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/physicsProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/skeletonProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/spriteAnimationProperties.tsx",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/particleSystemPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/particleSystemExplorerService.tsx",
+                    "packages/dev/inspector-v2/test/app/index.ts",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/dropdownPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/gradientList.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/inputPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/colorPicker.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/gradient.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/input.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/list.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/messageBar.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/syncedSlider.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/optionsLineComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/textInputLineComponent.tsx",
+                    "packages/tools/nodeEditor/src/graphSystem/properties/gradientNodePropertyComponent.tsx"
+                ],
+                "tags": []
             }
         ],
         "8.16.0": [
@@ -467,6 +530,85 @@
                 "tags": [
                     "bug",
                     "audio"
+                ]
+            }
+        ],
+        "8.15.1": [
+            {
+                "pr": "16822",
+                "title": "GS Flip ply",
+                "description": null,
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "packages/dev/core/src/Meshes/GaussianSplatting/gaussianSplattingMesh.ts",
+                    "packages/dev/loaders/src/SPLAT/splatFileLoader.ts"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16835",
+                "title": "Implement velocity offset for TAA",
+                "description": "Played around with implementing this while trying to learn how the effects/pipelines work. Might play with it more tomorrow. Current issue is that the velocity buffer is including the offsets from the Halton sequence which ends up making it more blurry and jittery.",
+                "author": {
+                    "name": "matanui159",
+                    "url": "https://github.com/matanui159"
+                },
+                "files": [
+                    "packages/dev/core/src/PostProcesses/RenderPipeline/Pipelines/taaMaterialManager.ts",
+                    "packages/dev/core/src/PostProcesses/RenderPipeline/Pipelines/taaRenderingPipeline.ts",
+                    "packages/dev/core/src/PostProcesses/thinTAAPostProcess.ts",
+                    "packages/dev/core/src/Shaders/taa.fragment.fx",
+                    "packages/dev/core/src/ShadersWGSL/taa.fragment.fx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16846",
+                "title": "Fix static sound disconnect edge case",
+                "description": "In rare cases when lots of static sounds are playing, it's possible for static sound instances to have their `_onEnded` handler called by the underlying AudioBufferSourceNode *after* the sound has been disposed. This causes the static sound instance `_disconnect` call to occur twice, which throws an error on the 2nd call since it is already disconnected.\r\n\r\nThis change adds an `_isConnected` flag to static sound instances which skips the 2nd call to `_disconnect` if it is already disconnected.",
+                "author": {
+                    "name": "docEdub",
+                    "url": "https://github.com/docEdub"
+                },
+                "files": [
+                    "packages/dev/core/src/AudioV2/webAudio/webAudioStaticSound.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "audio"
+                ]
+            },
+            {
+                "pr": "16843",
+                "title": "Add a way to force run paused animatables",
+                "description": null,
+                "author": {
+                    "name": "sebavan",
+                    "url": "https://github.com/sebavan"
+                },
+                "files": [
+                    "packages/dev/core/src/Animations/animatable.core.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16845",
+                "title": "gizmo mem leak",
+                "description": "https://forum.babylonjs.com/t/linesmesh-no-longer-disposes-shadermaterial-by-default-causes-memory-leak-in-boundingboxgizmo/59194/4\r\n",
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "packages/dev/core/src/Gizmos/boundingBoxGizmo.ts"
+                ],
+                "tags": [
+                    "gizmos"
                 ]
             }
         ],
