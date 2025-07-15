@@ -1,6 +1,247 @@
 {
-    "fromTag": "8.16.0",
+    "fromTag": "8.16.1",
     "changelog": {
+        "8.16.2": [
+            {
+                "pr": "16883",
+                "title": "Fix broken node list in graph tools",
+                "description": "There was a small error in the fluent check.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    ".build/config.json",
+                    "packages/dev/sharedUiComponents/src/lines/draggableLineComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/draggableLineWithButtonComponent.tsx"
+                ],
+                "tags": [
+                    "bug",
+                    "nme",
+                    "skip changelog",
+                    "nge",
+                    "nrge",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "16881",
+                "title": "Update 2",
+                "description": "Missing changes for the previous merged PR",
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/tools/nodeParticleEditor/src/graphSystem/properties/meshShapeNodePropertyComponent.tsx"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16879",
+                "title": "Add support for Mesh Shape",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/Emitters/index.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/Emitters/meshShapeBlock.ts",
+                    "packages/tools/nodeParticleEditor/src/blockTools.ts",
+                    "packages/tools/nodeParticleEditor/src/components/nodeList/nodeListComponent.tsx",
+                    "packages/tools/nodeParticleEditor/src/graphSystem/properties/meshShapeNodePropertyComponent.tsx",
+                    "packages/tools/nodeParticleEditor/src/graphSystem/registerToPropertyLedger.ts"
+                ],
+                "tags": [
+                    "new feature",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "16876",
+                "title": "DraggableLine, SpinButton/FLoatLineComponent, FileUploadLine with icon for NME",
+                "description": "<img width=\"243\" height=\"355\" alt=\"image\" src=\"https://github.com/user-attachments/assets/d6072ef9-07f7-44a7-9adb-ac31130f6725\" />\r\n\r\n- split up floatLineComponent into usage of spinbutton/numberinput, parsing props to send proper precision/step values\r\n- condense draggableLine and draggableLineWithButton (only the delete button being used)\r\n- upload fileUploadLine UX",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/debug/debugPane.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/boundProperty.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/commonGeneralProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/areaLightSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/directionalLightSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/hemisphericLightSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/pointLightSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/shadowGeneratorSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/shadowsSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/spotLightSetupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/materials/materialTransparencyProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/mesh/meshAdvancedProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/mesh/meshGeneralProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/mesh/meshOutlineOverlayProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/nodeGeneralProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/physics/physicsProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/skeleton/boneProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/skeleton/skeletonProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/sprites/spriteAnimationProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/sprites/spriteGeneralProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/sprites/spriteOtherProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/sprites/spriteTransformProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/transformProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/stats/countStats.tsx",
+                    "packages/dev/inspector-v2/src/components/stats/frameStepStats.tsx",
+                    "packages/dev/inspector-v2/src/components/stats/statsPane.tsx",
+                    "packages/dev/inspector-v2/src/components/stats/systemStats.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/settingsService.tsx",
+                    "packages/dev/sharedUiComponents/src/components/Button.tsx",
+                    "packages/dev/sharedUiComponents/src/components/TextInputWithSubmit.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/buttonLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/fileUploadLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/booleanBadgePropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/checkboxPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/colorPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/dropdownPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/hexPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/inputPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/linkPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/propertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/switchPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/syncedSliderPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/textPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/vectorPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/button.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/checkbox.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/colorPicker.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/draggable.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/dropdown.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/gradient.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/input.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/spinButton.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/switch.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/syncedSlider.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/textarea.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/booleanLineComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/buttonLineComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/checkBoxLineComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/colorLineComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/draggableLineComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/draggableLineWithButtonComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/fileButtonLineComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/floatLineComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/messageLineComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/optionsLineComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/sliderLineComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/textInputLineComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/textLineComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/vector3LineComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/split/splitContainer.tsx",
+                    "packages/tools/nodeEditor/src/graphSystem/properties/gradientNodePropertyComponent.tsx",
+                    "packages/tools/nodeEditor/src/sharedComponents/checkBoxLineComponent.tsx"
+                ],
+                "tags": [
+                    "tools"
+                ]
+            },
+            {
+                "pr": "16878",
+                "title": "Fix Billboard individual mode in RH",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Meshes/transformNode.ts"
+                ],
+                "tags": [
+                    "bug"
+                ]
+            },
+            {
+                "pr": "16870",
+                "title": "Fix IES texture sampling mode and Mipmaps generation",
+                "description": "- prevents erasing mipmaps from #16419\r\n- ensure IES loading follows the texture requested setup\r\n\r\nhttps://forum.babylonjs.com/t/noticeable-difference-in-environment-texture-after-clicking-in-inspector/59464/5",
+                "author": {
+                    "name": "sebavan",
+                    "url": "https://github.com/sebavan"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/Textures/Loaders/iesTextureLoader.ts",
+                    "packages/dev/core/src/Materials/Textures/thinTexture.ts"
+                ],
+                "tags": [
+                    "bug"
+                ]
+            },
+            {
+                "pr": "16874",
+                "title": "Dispose ragdoll resources",
+                "description": "fixes #16867 ",
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "packages/dev/core/src/Physics/v2/ragdoll.ts"
+                ],
+                "tags": [
+                    "physics",
+                    "memory leak"
+                ]
+            },
+            {
+                "pr": "16875",
+                "title": "Inspector v2: Post Processes in Scene Explorer",
+                "description": "Adds post processes to scene explorer.\r\n- Add missing observables and functions for add/remove post processes in scene.\r\n- Update orders for scene explorer sections.\r\n- Make scene explorer section service definition naming consistent (Hierarchy -> Explorer).\r\n\r\n<img width=\"348\" height=\"603\" alt=\"image\" src=\"https://github.com/user-attachments/assets/1d0b0132-fac9-4f30-90a1-a9b46ca6c6e1\" />\r\n",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/core/src/PostProcesses/postProcess.ts",
+                    "packages/dev/core/src/scene.ts",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/animationGroupExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/defaultSectionsMetadata.ts",
+                    "packages/dev/inspector-v2/src/services/panes/scene/frameGraphExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/guiExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/materialExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/nodeExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/particleSystemExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/postProcessExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/renderingPipelinesExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/skeletonExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/spriteManagerExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/texturesExplorerService.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16873",
+                "title": "Inspector v2: Add GUI and Frame Graphs to Scene Explorer",
+                "description": "This PR adds support for GUI (AdvancedDynamicTexture) and Frame Graphs to Scene Explorer.\r\n- Configures the gui dependency in the inspector v2 test app and in Playground (when it uses inspector v2).\r\n- Add support for the two new scene explorer sections.\r\n- NOTE: The gui scene explorer service only imports types from the gui package so that it doesn't cause the gui package to be loaded when it otherwise often will not be.\r\n\r\n<img width=\"345\" height=\"495\" alt=\"image\" src=\"https://github.com/user-attachments/assets/1c9006d5-392b-46e1-8d8b-4443d1563c6b\" />",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/package.json",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/frameGraphExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/guiExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/texturesExplorerService.tsx",
+                    "packages/dev/inspector-v2/webpack.config.js",
+                    "packages/tools/playground/webpack.config.js"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            }
+        ],
         "8.16.1": [
             {
                 "pr": "16872",
