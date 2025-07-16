@@ -1,6 +1,133 @@
 {
-    "fromTag": "8.16.1",
+    "fromTag": "8.16.2",
     "changelog": {
+        "8.16.3": [
+            {
+                "pr": "16890",
+                "title": "Fix sandbox loading issue",
+                "description": "Fix #16887 ",
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    ".build/config.json",
+                    "packages/tools/sandbox/public/index.js"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16860",
+                "title": "Add React fast refresh to Sandbox and Playground",
+                "description": "This change enables React fast refresh in both Sandbox and Playground. This means when changes are made to React components in .tsx files (as long as the React components are exported), the changes will be reflected \"immediately\" (within about 5 seconds or so).",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "package-lock.json",
+                    "packages/dev/buildTools/src/webpackTools.ts",
+                    "packages/dev/inspector-v2/webpack.config.js",
+                    "packages/tools/playground/package.json",
+                    "packages/tools/playground/webpack.config.js",
+                    "packages/tools/sandbox/package.json",
+                    "packages/tools/sandbox/webpack.config.js"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16882",
+                "title": "Adding attractor to NPE",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/Update/updateAttractorBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/Update/updateFlowMapBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/index.ts",
+                    "packages/tools/nodeParticleEditor/src/blockTools.ts",
+                    "packages/tools/nodeParticleEditor/src/components/nodeList/nodeListComponent.tsx"
+                ],
+                "tags": [
+                    "new feature",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "16889",
+                "title": "Link PS to NPS",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.ts",
+                    "packages/dev/core/src/Particles/particleSystem.ts"
+                ],
+                "tags": [
+                    "skip changelog",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "16888",
+                "title": "glTF Exporter: Convert IBM to RH for LH bones",
+                "description": "This semi-reverts #11168 -- we should still convert IBMs to right-hand, but only when the bone linked to the node was also converted. This case is easier to detect now, thanks to the rework from earlier this year.\r\n\r\nOther:\r\n- Add and clarify comments for future reference",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/serializers/src/exportUtils.ts",
+                    "packages/dev/serializers/src/glTF/2.0/glTFExporter.ts",
+                    "packages/dev/serializers/src/glTF/2.0/glTFUtilities.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16885",
+                "title": "Fix missing serialized comments for node editors",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/FrameGraph/Node/nodeRenderGraphBlock.ts",
+                    "packages/dev/core/src/Meshes/Node/nodeGeometryBlock.ts",
+                    "packages/dev/core/src/Particles/Node/nodeParticleBlock.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "nme",
+                    "nrge",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "16884",
+                "title": "Inspector v2: Basic animation properties",
+                "description": "This PR partially adds animation properties. I started following what inspector v1 does, but the further I got into it the more sense I had that perhaps the current v1 impl evolved over time and there might be some bugs and potential design improvements. Given this, I think it's still worth merging this partial implementation and tracking a follow to either:\r\n1. Chat with someone on the team with more animation system expertise to understand if there are current bugs and if we want to improve the design of these properties/controls, or\r\n2. Have someone on the team with more animation system expertise just take over on the implementation in a future inspector v2 team wide push.\r\n\r\nThis PR also has a few fixes/improvements for some of the new shared controls.\r\n\r\n<img width=\"353\" height=\"629\" alt=\"image\" src=\"https://github.com/user-attachments/assets/ab49e15a-2913-4a2f-9560-ba460c84c286\" />\r\n\r\n<img width=\"351\" height=\"302\" alt=\"image\" src=\"https://github.com/user-attachments/assets/b4f30420-c1fc-46ba-bb1c-89c8aed38c56\" />\r\n\r\n<img width=\"351\" height=\"120\" alt=\"image\" src=\"https://github.com/user-attachments/assets/869505de-72f3-4bd8-9567-856f97954255\" />\r\n",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/animation/animationsProperties.tsx",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/animationPropertiesService.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/propertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/messageBar.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/syncedSlider.tsx"
+                ],
+                "tags": []
+            }
+        ],
         "8.16.2": [
             {
                 "pr": "16883",
