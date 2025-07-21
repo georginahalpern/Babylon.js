@@ -1,5 +1,5 @@
 {
-    "fromTag": "8.16.3",
+    "fromTag": "8.17.0",
     "changelog": {
         "8.17.0": [
             {
@@ -16,6 +16,265 @@
                 "tags": [
                     "audio",
                     "skip changelog"
+                ]
+            }
+        ],
+        "8.17.1": [
+            {
+                "pr": "16898",
+                "title": "Reimplement legacy `AudioEngine` class with AudioEngineV2 `WebAudioEngine` class",
+                "description": "This change replaces the old `AudioEngine` class's internals with the AudioEngineV2 `WebAudioEngine` class's implementation.\r\n\r\nThis reduces the babylon.js UMD package size by 2.41 KB.\r\n\r\nNote that this change *only* replaces the legacy `AudioEngine` class. More legacy classes will be replaced soon for more reductions in package size.\r\n\r\nTested for regressions on all legacy audio engine doc playgrounds:\r\n- https://playground.babylonjs.com/#PCY1J\r\n- https://playground.babylonjs.com/#PCY1J#1\r\n- https://playground.babylonjs.com/#PCY1J#299\r\n- https://playground.babylonjs.com/#KBA3JY#4\r\n- https://playground.babylonjs.com/#6LXPBX#12\r\n- https://playground.babylonjs.com/#PCY1J#190\r\n- https://playground.babylonjs.com/#PCY1J#6\r\n- https://playground.babylonjs.com/#PCY1J#2\r\n- https://playground.babylonjs.com/#PWY6NL\r\n- https://playground.babylonjs.com/#PCY1J#8\r\n- https://playground.babylonjs.com/#2AH4YH\r\n- https://playground.babylonjs.com/#EDVU95\r\n- https://playground.babylonjs.com/#1BO0YS\r\n- https://playground.babylonjs.com/#2AH4YH#2\r\n- https://playground.babylonjs.com/#PTV7W#1",
+                "author": {
+                    "name": "docEdub",
+                    "url": "https://github.com/docEdub"
+                },
+                "files": [
+                    "packages/dev/core/src/Audio/audioEngine.ts",
+                    "packages/dev/core/src/AudioV2/webAudio/webAudioEngine.ts",
+                    "packages/dev/core/src/AudioV2/webAudio/webAudioMainOut.ts",
+                    "packages/dev/core/src/AudioV2/webAudio/webAudioUnmuteUI.ts",
+                    "packages/dev/core/test/unit/Audio/audioEngine.test.ts",
+                    "packages/dev/core/test/unit/Audio/helpers/mockedAudioObjects.ts",
+                    "packages/dev/core/test/unit/Audio/sound.test.ts"
+                ],
+                "tags": [
+                    "enhancement",
+                    "audio"
+                ]
+            },
+            {
+                "pr": "16903",
+                "title": "Remove unwanted dependencies",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/materialHelper.functions.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16901",
+                "title": "Fix some boolean options",
+                "description": "Just noticed these while working on some other stuff and they were sending me insane\r\n- `|| true` will always make the value true regardless of what the option is set to since the RHS will be used if the LHS is false\r\n- also noticed `UniformBuffer` having its `isDynamic` be `!== undefined` so will be marked as `true` if u explicitly set it to `false`. Might be more like this but a lot harder to find/replace",
+                "author": {
+                    "name": "matanui159",
+                    "url": "https://github.com/matanui159"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/uniformBuffer.ts",
+                    "packages/dev/core/src/Meshes/trailMesh.ts",
+                    "packages/dev/core/src/PostProcesses/RenderPipeline/postProcessRenderEffect.ts",
+                    "packages/dev/core/src/XR/features/WebXRControllerMovement.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16900",
+                "title": "enum fix for ktx/basis",
+                "description": "while investigating\r\n\r\nhttps://forum.babylonjs.com/t/ktx2-ios-mipmap-issue/59136\r\n\r\nFound an issue here:\r\n\r\nhttps://github.com/BabylonJS/Babylon.js/blob/2a36f70486180195605b4b381a569d8b43fbf986/packages/tools/ktx2Decoder/src/Transcoders/mscTranscoder.ts#L146\r\n\r\nTo make it short, `KTX2.TranscodeTarget[dst]` returned `ASTC_4X4_RGBA` while expected value for basis is `ASTC_4x4_RGBA`. Keeping old enum value to not break back compat.",
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/Textures/ktx2decoderTypes.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "texture"
+                ]
+            },
+            {
+                "pr": "16899",
+                "title": "Fix performance issue on morph targets manager clone",
+                "description": null,
+                "author": {
+                    "name": "littleboarx",
+                    "url": "https://github.com/littleboarx"
+                },
+                "files": [
+                    "packages/dev/core/src/Morph/morphTargetManager.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16897",
+                "title": "Add settings to prefer project relative paths for the VS Code import quick fix",
+                "description": "Two changes here:\r\n\r\n## VSCode settings for import quickfix\r\nFor the entire workspace/repo, prefer project relative paths for the import quick fix. The default setting is to prefer whatever form of the import has the fewest characters, which means it may choose a relative path or it may choose an \"absolute\" path (starting with the module name).\r\n\r\n### Before:\r\n<img width=\"798\" height=\"183\" alt=\"image\" src=\"https://github.com/user-attachments/assets/79af60bf-fda0-4456-bf61-41a54bf5b04f\" />\r\n\r\n### After:\r\n<img width=\"797\" height=\"181\" alt=\"image\" src=\"https://github.com/user-attachments/assets/888868e7-abf1-44e0-8387-b5aa77106afa\" />\r\n\r\n## Allow absolute module imports in the inspector-v2 test app\r\nEven with the first configuration, it should still not be an error to import from `\"inspector-v2/...\"` in the inspector-v2 test app. This is consistent with other projects in the repo. This is just a small change in the webpack config for the test app.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    ".vscode/settings.json",
+                    "packages/dev/inspector-v2/webpack.config.js"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16896",
+                "title": "Inspector v2: Flesh out camera properties",
+                "description": "This change is mostly about fleshing out the camera properties to get parity with inspector v1.\r\n- Add properties for `Camera`, `TargetCamera`, `ArcRotateCamera`, `FreeCamera`, and `FollowCamera`.\r\n- Update `BoundProperty` to be a forward ref (e.g. if you pass in a `ref` it will be passed along to the underlying `component` being used with the `BoundProperty`. If the underlying component itself is not a forward ref (and doesn't have a `ref`), then it will be a compile error.\r\n- Update `SyncedSliderPropertyLine` to be a forward ref.\r\n- Add a simple react hook to provide angle conversion functions depending on the settings (e.g. whether the user has requested degrees or radians).\r\n- Update `SpriteTransformProperties` to use this new hook (in addition to using it in the camera properties).\r\n\r\n<img width=\"329\" height=\"1304\" alt=\"image\" src=\"https://github.com/user-attachments/assets/252d2fde-03e1-403a-8738-451319a8337b\" />\r\n\r\n<img width=\"325\" height=\"795\" alt=\"image\" src=\"https://github.com/user-attachments/assets/76fd1a00-c442-4234-b17d-6b73f2e39559\" />\r\n\r\n<img width=\"325\" height=\"951\" alt=\"image\" src=\"https://github.com/user-attachments/assets/dc8201c5-028c-4474-952f-1add741834fa\" />\r\n",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/boundProperty.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/cameras/arcRotateCameraProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/cameras/cameraProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/cameras/followCameraProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/cameras/freeCameraProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/cameras/targetCameraProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/sprites/spriteTransformProperties.tsx",
+                    "packages/dev/inspector-v2/src/hooks/settingsHooks.ts",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/cameraPropertiesService.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/syncedSliderPropertyLine.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "16895",
+                "title": "Fix flaky audio tests",
+                "description": "Realtime audio tests are flaky due to timing issues and need a larger range when checking actual values with expected values. This change adds a new audio test utility function named `ExpectValueToBeCloseTo` that checks a tight range for \"offline\" audio contexts, and a relaxed range for \"realtime\" audio contexts.",
+                "author": {
+                    "name": "docEdub",
+                    "url": "https://github.com/docEdub"
+                },
+                "files": [
+                    "packages/tools/tests/test/audioV2/shared/abstractAudioNode.volume.ts",
+                    "packages/tools/tests/test/audioV2/utils/audioV2.utils.ts"
+                ],
+                "tags": [
+                    "audio",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16894",
+                "title": "Inspector v2: Property pane implicit sections, section order, and content order",
+                "description": "This is something that came up in the recent team push on inspector v2 - defining property pane sections, order of sections, and order of content within the sections was confusing to people. As we continue to flesh out the properties pane, it just adds more and more orders and relationships between orders, which further increases complexity. With this PR, I'm making the following changes to address this:\r\n\r\n1. Sections do not have to be explicitly registered. If they are not registered, but referenced when inserting section content, the section is implicitly created and its implicit order is the order in which it was first referenced. Sections can still be explicitly registered which allows extensions to insert a new section in whatever order makes sense.\r\n2. Removed all explicit orders, and instead rely on default ordering (e.g. order in which the section content was registered).\r\n3. Section identity is now just a string rather than a symbol, which means as long as the string is the same (e.g. \"General\", \"Transform\", etc.), the content for that section is merged.\r\n\r\nSo far this approach seems to work well, and I think people will find this easier to work with, and it still allows for precise and explicit ordering when needed.\r\n\r\nIn a separate change, I also plan to experiment with removing all of the *PropertiesService.tsx files and putting all the default properties section content registrations in one place together within the main propertiesService.tsx. I hope this be another step in making the ordering more clear (since it will all be laid out in one file, rather than spread across files and then order being dependent on the order those service definitions are added in Inspector.tsx).",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/debug/debugPane.tsx",
+                    "packages/dev/inspector-v2/src/components/extensibleAccordion.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/physics/physicsProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/propertiesPane.tsx",
+                    "packages/dev/inspector-v2/src/components/stats/statsPane.tsx",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/debugService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/animationPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/commonPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lights/areaLightPropertiesServices.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lights/directionalLightPropertiesServices.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lights/hemisphericLightPropertiesServices.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lights/pointLightPropertiesServices.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lights/shadowLightPropertiesServices.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lights/spotLightPropertiesServices.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/materialPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/meshPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/nodePropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/particleSystemPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/physicsPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/propertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/skeletonPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/spritePropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/transformPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/settingsService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/statsService.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "16877",
+                "title": "Inspector v2: Add Effect Layers to Scene Explorer",
+                "description": "Adds effect layers to scene explorer:\r\n- Add `uniqueId` to `EffectLayer`\r\n- Add observables for add/remove effect layers, and *move* the add/remove functions from effectLayerSceneComponent.ts to scene.ts. This seems to be a weird case unlike any other entity types where the actual array of `EffectLayer`s lives in scene.ts, but the functions for adding/removing live in effectLayerSceneComponent.ts and the `EffectLayer` constructor directly pushes the instance into the `scene.effectLayers` array. To try to make things consistent, I've moved the `addEffectLayer` and `removeEffectLayer` to scene.ts, and call those functions from the `EffectLayer` constructor and dispose function. @sebavan \r\n- Add the effect layer explorer.\r\n\r\n<img width=\"366\" height=\"407\" alt=\"image\" src=\"https://github.com/user-attachments/assets/3d8273d6-4247-439b-adf1-4f2887b817bd\" />\r\n",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/core/src/Layers/effectLayer.ts",
+                    "packages/dev/core/src/Layers/effectLayerSceneComponent.ts",
+                    "packages/dev/core/src/scene.ts",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/defaultSectionsMetadata.ts",
+                    "packages/dev/inspector-v2/src/services/panes/scene/effectLayersExplorerService.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16880",
+                "title": "Fix setMotionType with Physics instances",
+                "description": null,
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "packages/dev/core/src/Physics/v2/characterController.ts",
+                    "packages/dev/core/src/Physics/v2/physicsBody.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "physics"
+                ]
+            },
+            {
+                "pr": "16892",
+                "title": "playground: allow zip download in self-hosted server with non-root path",
+                "description": "When the playground is served from a subdirectory (e.g. `http://127.0.0.1:8080/dev/babylon.js/playground/`), the hard-coded `/zipContent/index.html` URL breaks, because it always resolves against the server root. Changing it to `./zipContent/index.html` makes the request relative to the current path, restoring zip download functionality on self-hosted and non-root environments.\r\n\r\nForum post: <https://forum.babylonjs.com/t/playground-allow-zip-download-in-self-hosted-server-with-non-root-path/59541>",
+                "author": {
+                    "name": "kzhsw",
+                    "url": "https://github.com/kzhsw"
+                },
+                "files": [
+                    "packages/tools/playground/src/tools/downloadManager.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16891",
+                "title": "Initial release for the Particle System to Node Particle System Set converter",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/Emitters/IShapeBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/Emitters/boxShapeBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/Emitters/customShapeBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/Emitters/cylinderShapeBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/Emitters/meshShapeBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/Emitters/pointShapeBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/Emitters/sphereShapeBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/systemBlock.ts",
+                    "packages/dev/core/src/Particles/Node/index.ts",
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.helper.ts",
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.ts",
+                    "packages/dev/core/src/Particles/particleSystem.ts",
+                    "packages/dev/inspector/src/components/actionTabs/tabs/propertyGrids/particleSystems/particleSystemPropertyGridComponent.tsx",
+                    "packages/tools/babylonServer/public/index-ts.html",
+                    "packages/tools/babylonServer/public/index.html",
+                    "packages/tools/babylonServer/webpack.config.js"
+                ],
+                "tags": [
+                    "skip changelog",
+                    "npe"
                 ]
             }
         ],
