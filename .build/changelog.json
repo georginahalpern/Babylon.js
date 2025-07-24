@@ -1,5 +1,5 @@
 {
-    "fromTag": "8.17.1",
+    "fromTag": "8.17.2",
     "changelog": {
         "8.17.2": [
             {
@@ -153,6 +153,180 @@
                     "new feature",
                     "security"
                 ]
+            }
+        ],
+        "8.18.0": [
+            {
+                "pr": "16918",
+                "title": "Update min node version to 20.11.0",
+                "description": null,
+                "author": {
+                    "name": "AmoebaChant",
+                    "url": "https://github.com/AmoebaChant"
+                },
+                "files": [
+                    "package-lock.json",
+                    "package.json"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16917",
+                "title": "Inspector v2: Add useResource hook and use it to correctly manage some object lifetimes in stats",
+                "description": "One challenge with React function components is managing lifetimes of disposable resources. I noticed that my previous implementation in stats was totally wrong and recreating a ton of `SceneInstrumentation` and `EngineInstrumentation` instances that were never disposed. I have more cases of this kind of resource management as well, so I'm introducing a `useResource` custom hook that makes it easy to correctly manage disposable resources in a React function component, and using this in stats.\r\n\r\nAlso, I included one other small fix that prevents registering for the animation callback for animation properties when the entity has no animations.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/animation/animationsProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/stats/frameStepStats.tsx",
+                    "packages/dev/inspector-v2/src/hooks/resourceHooks.ts"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "16915",
+                "title": "glTF Exporter: Fix false positive test and add extra winding order handling",
+                "description": "- Zoom in on test for greater pixel diff if triangle is missing\r\n- Add //options// line to tests that were missing it\r\n- Flip the winding order of LHS noop children in the exporter\r\n  - Before, using `rotation = Math.PI` in the test would make the noop node check fail. Since introducing epsilons to our checks in #16708, the noop check passes, hence why this didn't crop up earlier. \r\n  \r\nFortunately, this didn't cause us too much trouble, as the current test failure case was uncommon (an explicitly CW mesh under a left-hand scene's coordinate conversion node with a floating point error... yeah, sounds pretty uncommon). \r\n\r\nI'd remove the errorRatio of 1.1, since the default appears to already be 1.1 in our new playwright setup, but leaving it just in case it changes in the future.",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/serializers/src/glTF/2.0/glTFExporter.ts",
+                    "packages/tools/tests/test/visualization/ReferenceImages/glTFSerializerNegativeWorldMatrix-Right.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/glTFSerializerNegativeWorldMatrix.png",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16908",
+                "title": "Fix bug where glow layer is recreated every frame under NullEngine",
+                "description": "The render() method in effectLayer.ts checks whether the current main texture size matches the desired size; it disposes and recreates it if it doesn't. Unfortunately when running with the null engine, the size of the created texture is always zero (whatever size arguments are passed into its constructor) so it never matches the desired size and is thus recreated every time.\r\n\r\nChanging things such that textures return their intended size when running under the null engine seemed like quite an invasive and risky change, so my fix just changes effectLayer.ts to remember the size it asked for and check against that rather than the reported size of the texture.",
+                "author": {
+                    "name": "djn24",
+                    "url": "https://github.com/djn24"
+                },
+                "files": [
+                    "packages/dev/core/src/Layers/effectLayer.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16914",
+                "title": "Migrate Smart Filters into the main repo",
+                "description": "This moves the Smart Filters feature from the https://github.com/BabylonJS/SmartFilters repo into this repo.",
+                "author": {
+                    "name": "AmoebaChant",
+                    "url": "https://github.com/AmoebaChant"
+                },
+                "files": [
+                    ".gitignore",
+                    ".vscode/launch.json",
+                    ".vscode/settings.json",
+                    ".vscode/tasks.json",
+                    "jest.config.ts",
+                    "package-lock.json",
+                    "package.json",
+                    "packages/dev/buildTools/src/packageMapping.ts",
+                    "packages/dev/buildTools/src/pathTransform.ts",
+                    "packages/dev/smartFilterBlocks/license.md",
+                    "packages/dev/smartFilterBlocks/package.json",
+                    "packages/dev/smartFilterBlocks/readme.md",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/blackAndWhiteBlock.block.glsl",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/blurBlock.deserializer.ts",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/blurBlock.serializer.ts",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/blurBlock.ts",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/compositionBlock.deserializer.ts",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/compositionBlock.fragment.glsl",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/compositionBlock.serializer.ts",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/compositionBlock.ts",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/contrastBlock.block.glsl",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/desaturateBlock.block.glsl",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/directionalBlurBlock.deserializer.ts",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/directionalBlurBlock.serializer.ts",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/directionalBlurBlock.ts",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/exposureBlock.block.glsl",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/greenScreenBlock.block.glsl",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/index.ts",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/kaleidoscopeBlock.ts",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/maskBlock.block.glsl",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/pixelateBlock.block.glsl",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/posterizeBlock.block.glsl",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/spritesheetBlock.fragment.glsl",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/spritesheetBlock.ts",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/effects/tintBlock.ts",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/transitions/index.ts",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/transitions/wipeBlock.block.glsl",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/utilities/index.ts",
+                    "packages/dev/smartFilterBlocks/src/blocks/babylon/demo/utilities/premultiplyAlphaBlock.block.glsl",
+                    "packages/dev/smartFilterBlocks/src/blocks/blockNamespaces.ts",
+                    "packages/dev/smartFilterBlocks/src/blocks/blockTypes.ts",
+                    "packages/dev/smartFilterBlocks/src/blocks/index.ts",
+                    "packages/dev/smartFilterBlocks/src/index.ts",
+                    "packages/dev/smartFilterBlocks/src/registration/IBlockRegistration.ts",
+                    "packages/dev/smartFilterBlocks/src/registration/blockSerializers.ts",
+                    "packages/dev/smartFilterBlocks/src/registration/builtInBlockRegistrations.ts",
+                    "packages/dev/smartFilterBlocks/src/registration/index.ts",
+                    "packages/dev/smartFilterBlocks/tsconfig.build.json",
+                    "packages/dev/smartFilterBlocks/tsconfig.json",
+                    "packages/dev/smartFilters/license.md",
+                    "packages/dev/smartFilters/package.json",
+                    "packages/dev/smartFilters/readme.md",
+                    "packages/dev/smartFilters/src/IDisposable.ts",
+                    "packages/dev/smartFilters/src/blockFoundation/aggregateBlock.ts",
+                    "packages/dev/smartFilters/src/blockFoundation/baseBlock.ts",
+                    "packages/dev/smartFilters/src/blockFoundation/customAggregateBlock.ts",
+                    "packages/dev/smartFilters/src/blockFoundation/customShaderBlock.ts",
+                    "packages/dev/smartFilters/src/blockFoundation/disableableShaderBlock.ts",
+                    "packages/dev/smartFilters/src/blockFoundation/index.ts",
+                    "packages/dev/smartFilters/src/blockFoundation/inputBlock.deserializer.ts",
+                    "packages/dev/smartFilters/src/blockFoundation/inputBlock.serialization.types.ts",
+                    "packages/dev/smartFilters/src/blockFoundation/inputBlock.serializer.ts",
+                    "packages/dev/smartFilters/src/blockFoundation/inputBlock.ts",
+                    "packages/dev/smartFilters/src/blockFoundation/outputBlock.ts",
+                    "packages/dev/smartFilters/src/blockFoundation/shaderBlock.ts",
+                    "packages/dev/smartFilters/src/blockFoundation/textureOptions.ts",
+                    "packages/dev/smartFilters/src/command/command.ts",
+                    "packages/dev/smartFilters/src/command/commandBuffer.ts",
+                    "packages/dev/smartFilters/src/command/commandBufferDebugger.ts",
+                    "packages/dev/smartFilters/src/command/index.ts",
+                    "packages/dev/smartFilters/src/connection/connectionPoint.ts",
+                    "packages/dev/smartFilters/src/connection/connectionPointCompatibilityState.ts",
+                    "packages/dev/smartFilters/src/connection/connectionPointDirection.ts",
+                    "packages/dev/smartFilters/src/connection/connectionPointType.ts",
+                    "packages/dev/smartFilters/src/connection/connectionPointWithDefault.ts",
+                    "packages/dev/smartFilters/src/connection/index.ts",
+                    "packages/dev/smartFilters/src/editorUtils/editableInPropertyPage.ts",
+                    "packages/dev/smartFilters/src/editorUtils/index.ts",
+                    "packages/dev/smartFilters/src/index.ts",
+                    "packages/dev/smartFilters/src/optimization/dependencyGraph.ts",
+                    "packages/dev/smartFilters/src/optimization/index.ts",
+                    "packages/dev/smartFilters/src/optimization/optimizedShaderBlock.ts",
+                    "packages/dev/smartFilters/src/optimization/smartFilterOptimizer.ts",
+                    "packages/dev/smartFilters/src/runtime/index.ts",
+                    "packages/dev/smartFilters/src/runtime/renderTargetGenerator.ts",
+                    "packages/dev/smartFilters/src/runtime/shaderRuntime.ts",
+                    "packages/dev/smartFilters/src/runtime/smartFilterRuntime.ts",
+                    "packages/dev/smartFilters/src/runtime/strongRef.ts",
+                    "packages/dev/smartFilters/src/serialization/importCustomBlockDefinition.ts",
+                    "packages/dev/smartFilters/src/serialization/index.ts",
+                    "packages/dev/smartFilters/src/serialization/serializedBlockDefinition.ts",
+                    "packages/dev/smartFilters/src/serialization/serializedShaderBlockDefinition.ts",
+                    "packages/dev/smartFilters/src/serialization/serializedSmartFilter.ts",
+                    "packages/dev/smartFilters/src/serialization/smartFilterDeserializer.ts",
+                    "packages/dev/smartFilters/src/serialization/smartFilterSerializer.ts",
+                    "packages/dev/smartFilters/src/serialization/v1/defaultBlockSerializer.ts",
+                    "packages/dev/smartFilters/src/serialization/v1/index.ts",
+                    "packages/dev/smartFilters/src/serialization/v1/shaderBlockSerialization.types.ts",
+                    "packages/dev/smartFilters/src/serialization/v1/smartFilterSerialization.types.ts",
+                    "packages/dev/smartFilters/src/smartFilter.ts"
+                ],
+                "tags": []
             }
         ],
         "8.17.1": [
