@@ -1,6 +1,6 @@
-import { Matrix, Quaternion, Vector3 } from "./math";
+import { Matrix, Quaternion, Vector3 } from "./math.vector";
 
-function GeodeticToCartesian(lon: number, lat: number, alt: number) {
+export function GeodeticToCartesian(lon: number, lat: number, alt: number) {
     // Constants for WGS84 ellipsoid
     const a = 6378137; // semi-major axis
     const f = 1 / 298.257223563; // flattening
@@ -21,7 +21,7 @@ function GeodeticToCartesian(lon: number, lat: number, alt: number) {
     return [x, y, z];
 }
 
-function CartesianToGeodetic(x: number, y: number, z: number) {
+export function CartesianToGeodetic(x: number, y: number, z: number) {
     // Constants for WGS84 ellipsoid
     const a = 6378137; // semi-major axis
     const f = 1 / 298.257223563; // flattening
@@ -50,7 +50,7 @@ function CartesianToGeodetic(x: number, y: number, z: number) {
     return [lon, lat, alt];
 }
 
-function LatLongToEulerAngles(lat: number, long: number) {
+export function LatLongToEulerAngles(lat: number, long: number) {
     let matrix = Matrix.FromArray([
         -Math.sin(long),
         0,
