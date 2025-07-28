@@ -1,0 +1,24 @@
+{
+    "asset": {
+        "version": "1.1"
+    },
+    "geometricError": 1000.0,
+    "root": {
+        "boundingVolume": {
+            "region": [-74.017, 40.7, -74.005, 40.712, 0, 300]
+        },
+        "geometricError": 500.0,
+        "refine": "REPLACE",
+        "children": [
+            {
+                "boundingVolume": {
+                    "region": [-74.012, 40.704, -74.011, 40.705, 0, 100]
+                },
+                "geometricError": 50.0,
+                "content": {
+                    "uri": "TestGeo.gltf"
+                }
+            }
+        ]
+    }
+}
