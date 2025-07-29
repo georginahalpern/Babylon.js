@@ -16,7 +16,7 @@
                 },
                 "geometricError": 50.0,
                 "content": {
-                    "uri": "TestGeo.gltf"
+                    "uri": "BoxPrimitiveOutline.gltf"
                 }
             }
         ]
