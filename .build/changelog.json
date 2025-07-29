@@ -1,160 +1,6 @@
 {
-    "fromTag": "8.17.2",
+    "fromTag": "8.18.0",
     "changelog": {
-        "8.17.2": [
-            {
-                "pr": "16912",
-                "title": "USDZ Exporter: Winding order and vertex data handedness handling",
-                "description": "- Set `sideOrientation` property properly\r\n- Handle right-handed vertex data\r\n- Swap raw and sRGB values\r\n\r\nThis doesn't comprehensively address RH and LH handedness, but we can revisit and refactor later.\r\n\r\nNote: RealityKit doesn't implicitly flip the winding order of meshes with negative scaling, so we can't (properly) handle that case without introducing an awkward parameter or doing extra baking. For now, we'll capture this in a warning message.",
-                "author": {
-                    "name": "alexchuber",
-                    "url": "https://github.com/alexchuber"
-                },
-                "files": [
-                    "packages/dev/serializers/src/USDZ/usdzExporter.ts"
-                ],
-                "tags": []
-            },
-            {
-                "pr": "16911",
-                "title": "Add floating Search Box to graph canvas",
-                "description": "- Rename SearchBox to SearchBar (the bar where user can type to filter content)\r\n- Introduce SearchBox component and PositionedPopover components, allowing us to show/hide a searchbox at specified location in the UX \r\n- Conditionally use fluent SearchBox wrapped in a PositionedPopover from within nodegraph tools \r\n- Fix DraggableLine styling to look more polished (though we will still do a full styling pass)\r\n- Though not used yet, added comboBox component in case that is the preferred UX\r\n<img width=\"784\" height=\"722\" alt=\"image\" src=\"https://github.com/user-attachments/assets/1ae93cc1-c8a8-41bb-99ec-05295bb21d33\" />\r\n<img width=\"210\" height=\"134\" alt=\"image\" src=\"https://github.com/user-attachments/assets/3762dd7f-fd58-4221-b746-ffd8d46738ee\" />\r\n",
-                "author": {
-                    "name": "georginahalpern",
-                    "url": "https://github.com/georginahalpern"
-                },
-                "files": [
-                    "packages/dev/sharedUiComponents/src/fluent/primitives/comboBox.tsx",
-                    "packages/dev/sharedUiComponents/src/fluent/primitives/draggable.tsx",
-                    "packages/dev/sharedUiComponents/src/fluent/primitives/positionedPopover.tsx",
-                    "packages/dev/sharedUiComponents/src/fluent/primitives/searchBar.tsx",
-                    "packages/dev/sharedUiComponents/src/fluent/primitives/searchBox.tsx",
-                    "packages/dev/sharedUiComponents/src/nodeGraphSystem/searchBox.tsx",
-                    "packages/tools/nodeEditor/src/components/nodeList/nodeListComponent.tsx"
-                ],
-                "tags": []
-            },
-            {
-                "pr": "16913",
-                "title": "Fix Out of range values with high contrast",
-                "description": "https://forum.babylonjs.com/t/color-grading-doesnt-work-properly/59657/4",
-                "author": {
-                    "name": "sebavan",
-                    "url": "https://github.com/sebavan"
-                },
-                "files": [
-                    "packages/dev/core/src/Shaders/ShadersInclude/imageProcessingFunctions.fx",
-                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/imageProcessingFunctions.fx"
-                ],
-                "tags": []
-            },
-            {
-                "pr": "16910",
-                "title": "native morph workaround",
-                "description": "morphTargetCount is a uniform int;\r\nbut bgfx only support vec4 as uniform.\r\nwhen doing the replacement, morphTargetCount.x is used and comparison between `int i` and `morphTargetCount.x` which is a float break shader compilation with GLSL.\r\ncasting `morphTargetCount` to int doesn't work: casting qualifier is removed becaused it's still an int before shader traversers.\r\nSetting morphTargetCount a float in the engine and casting iterators to float seems to work better. \r\nI've also done the change for WGSL to pass the tests.\r\n\r\nLong term is to add (or change) traversers for float/int comparison.",
-                "author": {
-                    "name": "CedricGuillemet",
-                    "url": "https://github.com/CedricGuillemet"
-                },
-                "files": [
-                    "packages/dev/core/src/Culling/Helper/computeShaderBoundingHelper.ts",
-                    "packages/dev/core/src/Materials/Node/Blocks/Vertex/morphTargetsBlock.ts",
-                    "packages/dev/core/src/Morph/morphTargetManager.ts",
-                    "packages/dev/core/src/Shaders/ShadersInclude/morphTargetsVertex.fx",
-                    "packages/dev/core/src/Shaders/ShadersInclude/morphTargetsVertexDeclaration.fx",
-                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/morphTargetsVertex.fx",
-                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/morphTargetsVertexDeclaration.fx",
-                    "packages/dev/core/src/ShadersWGSL/boundingInfo.compute.fx"
-                ],
-                "tags": []
-            },
-            {
-                "pr": "16909",
-                "title": "Fix the problem that the four methods of PBRSubSurfaceConfiguration class isReadyForSubMesh/getActiveTextures/getAnimatables/dispose miss the _refractionIntensityTexture issue.",
-                "description": "see:https://forum.babylonjs.com/t/subsurface-getactivetextures-questions/59638",
-                "author": {
-                    "name": "xiehangyun",
-                    "url": "https://github.com/xiehangyun"
-                },
-                "files": [
-                    "packages/dev/core/src/Materials/PBR/pbrSubSurfaceConfiguration.ts"
-                ],
-                "tags": []
-            },
-            {
-                "pr": "16907",
-                "title": "Bump form-data from 4.0.2 to 4.0.4",
-                "description": "Bumps [form-data](https://github.com/form-data/form-data) from 4.0.2 to 4.0.4.\n<details>\n<summary>Changelog</summary>\n<p><em>Sourced from <a href=\"https://github.com/form-data/form-data/blob/master/CHANGELOG.md\">form-data's changelog</a>.</em></p>\n<blockquote>\n<h2><a href=\"https://github.com/form-data/form-data/compare/v4.0.3...v4.0.4\">v4.0.4</a> - 2025-07-16</h2>\n<h3>Commits</h3>\n<ul>\n<li>[meta] add <code>auto-changelog</code> <a href=\"https://github.com/form-data/form-data/commit/811f68282fab0315209d0e2d1c44b6c32ea0d479\"><code>811f682</code></a></li>\n<li>[Tests] handle predict-v8-randomness failures in node &lt; 17 and node &gt; 23 <a href=\"https://github.com/form-data/form-data/commit/1d11a76434d101f22fdb26b8aef8615f28b98402\"><code>1d11a76</code></a></li>\n<li>[Fix] Switch to using <code>crypto</code> random for boundary values <a href=\"https://github.com/form-data/form-data/commit/3d1723080e6577a66f17f163ecd345a21d8d0fd0\"><code>3d17230</code></a></li>\n<li>[Tests] fix linting errors <a href=\"https://github.com/form-data/form-data/commit/5e340800b5f8914213e4e0378c084aae71cfd73a\"><code>5e34080</code></a></li>\n<li>[meta] actually ensure the readme backup isn’t published <a href=\"https://github.com/form-data/form-data/commit/316c82ba93fd4985af757b771b9a1f26d3b709ef\"><code>316c82b</code></a></li>\n<li>[Dev Deps] update <code>@ljharb/eslint-config</code> <a href=\"https://github.com/form-data/form-data/commit/58c25d76406a5b0dfdf54045cf252563f2bbda8d\"><code>58c25d7</code></a></li>\n<li>[meta] fix readme capitalization <a href=\"https://github.com/form-data/form-data/commit/2300ca19595b0ee96431e868fe2a40db79e41c61\"><code>2300ca1</code></a></li>\n</ul>\n<h2><a href=\"https://github.com/form-data/form-data/compare/v4.0.2...v4.0.3\">v4.0.3</a> - 2025-06-05</h2>\n<h3>Fixed</h3>\n<ul>\n<li>[Fix] <code>append</code>: avoid a crash on nullish values <a href=\"https://redirect.github.com/form-data/form-data/issues/577\"><code>[#577](https://github.com/form-data/form-data/issues/577)</code></a></li>\n</ul>\n<h3>Commits</h3>\n<ul>\n<li>[eslint] use a shared config <a href=\"https://github.com/form-data/form-data/commit/426ba9ac440f95d1998dac9a5cd8d738043b048f\"><code>426ba9a</code></a></li>\n<li>[eslint] fix some spacing issues <a href=\"https://github.com/form-data/form-data/commit/20941917f0e9487e68c564ebc3157e23609e2939\"><code>2094191</code></a></li>\n<li>[Refactor] use <code>hasown</code> <a href=\"https://github.com/form-data/form-data/commit/81ab41b46fdf34f5d89d7ff30b513b0925febfaa\"><code>81ab41b</code></a></li>\n<li>[Fix] validate boundary type in <code>setBoundary()</code> method <a href=\"https://github.com/form-data/form-data/commit/8d8e4693093519f7f18e3c597d1e8df8c493de9e\"><code>8d8e469</code></a></li>\n<li>[Tests] add tests to check the behavior of <code>getBoundary</code> with non-strings <a href=\"https://github.com/form-data/form-data/commit/837b8a1f7562bfb8bda74f3fc538adb7a5858995\"><code>837b8a1</code></a></li>\n<li>[Dev Deps] remove unused deps <a href=\"https://github.com/form-data/form-data/commit/870e4e665935e701bf983a051244ab928e62d58e\"><code>870e4e6</code></a></li>\n<li>[meta] remove local commit hooks <a href=\"https://github.com/form-data/form-data/commit/e6e83ccb545a5619ed6cd04f31d5c2f655eb633e\"><code>e6e83cc</code></a></li>\n<li>[Dev Deps] update <code>eslint</code> <a href=\"https://github.com/form-data/form-data/commit/4066fd6f65992b62fa324a6474a9292a4f88c916\"><code>4066fd6</code></a></li>\n<li>[meta] fix scripts to use prepublishOnly <a href=\"https://github.com/form-data/form-data/commit/c4bbb13c0ef669916657bc129341301b1d331d75\"><code>c4bbb13</code></a></li>\n</ul>\n</blockquote>\n</details>\n<details>\n<summary>Commits</summary>\n<ul>\n<li><a href=\"https://github.com/form-data/form-data/commit/41996f5ac73a867046d48512cab62e64fc846dad\"><code>41996f5</code></a> v4.0.4</li>\n<li><a href=\"https://github.com/form-data/form-data/commit/316c82ba93fd4985af757b771b9a1f26d3b709ef\"><code>316c82b</code></a> [meta] actually ensure the readme backup isn’t published</li>\n<li><a href=\"https://github.com/form-data/form-data/commit/2300ca19595b0ee96431e868fe2a40db79e41c61\"><code>2300ca1</code></a> [meta] fix readme capitalization</li>\n<li><a href=\"https://github.com/form-data/form-data/commit/811f68282fab0315209d0e2d1c44b6c32ea0d479\"><code>811f682</code></a> [meta] add <code>auto-changelog</code></li>\n<li><a href=\"https://github.com/form-data/form-data/commit/5e340800b5f8914213e4e0378c084aae71cfd73a\"><code>5e34080</code></a> [Tests] fix linting errors</li>\n<li><a href=\"https://github.com/form-data/form-data/commit/1d11a76434d101f22fdb26b8aef8615f28b98402\"><code>1d11a76</code></a> [Tests] handle predict-v8-randomness failures in node &lt; 17 and node &gt; 23</li>\n<li><a href=\"https://github.com/form-data/form-data/commit/58c25d76406a5b0dfdf54045cf252563f2bbda8d\"><code>58c25d7</code></a> [Dev Deps] update <code>@ljharb/eslint-config</code></li>\n<li><a href=\"https://github.com/form-data/form-data/commit/3d1723080e6577a66f17f163ecd345a21d8d0fd0\"><code>3d17230</code></a> [Fix] Switch to using <code>crypto</code> random for boundary values</li>\n<li><a href=\"https://github.com/form-data/form-data/commit/d8d67dc8ac79285154edf7d3f57dbab593b9a146\"><code>d8d67dc</code></a> v4.0.3</li>\n<li><a href=\"https://github.com/form-data/form-data/commit/e6e83ccb545a5619ed6cd04f31d5c2f655eb633e\"><code>e6e83cc</code></a> [meta] remove local commit hooks</li>\n<li>Additional commits viewable in <a href=\"https://github.com/form-data/form-data/compare/v4.0.2...v4.0.4\">compare view</a></li>\n</ul>\n</details>\n<br />\n\n\n[![Dependabot compatibility score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=form-data&package-manager=npm_and_yarn&previous-version=4.0.2&new-version=4.0.4)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)\n\nDependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can also trigger a rebase manually by commenting `@dependabot rebase`.\n\n[//]: # (dependabot-automerge-start)\n[//]: # (dependabot-automerge-end)\n\n---\n\n<details>\n<summary>Dependabot commands and options</summary>\n<br />\n\nYou can trigger Dependabot actions by commenting on this PR:\n- `@dependabot rebase` will rebase this PR\n- `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it\n- `@dependabot merge` will merge this PR after your CI passes on it\n- `@dependabot squash and merge` will squash and merge this PR after your CI passes on it\n- `@dependabot cancel merge` will cancel a previously requested merge and block automerging\n- `@dependabot reopen` will reopen this PR if it is closed\n- `@dependabot close` will close this PR and stop Dependabot recreating it. You can achieve the same result by closing it manually\n- `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of the specified dependency\n- `@dependabot ignore this major version` will close this PR and stop Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it yourself)\n- `@dependabot ignore this minor version` will close this PR and stop Dependabot creating any more for this minor version (unless you reopen the PR or upgrade to it yourself)\n- `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for this dependency (unless you reopen the PR or upgrade to it yourself)\nYou can disable automated security fix PRs for this repo from the [Security Alerts page](https://github.com/BabylonJS/Babylon.js/network/alerts).\n\n</details>",
-                "author": {
-                    "name": "dependabot[bot]",
-                    "url": "https://github.com/apps/dependabot"
-                },
-                "files": [
-                    "package-lock.json"
-                ],
-                "tags": [
-                    "dependencies",
-                    "javascript"
-                ]
-            },
-            {
-                "pr": "16906",
-                "title": "Inspector v2: Consolidate light service definitions into one",
-                "description": "This change mostly just consolidates the different service definitions for light related properties into a single service definition (all or none). This just makes it easier to manage, since they are all small registrations that just associate a specific light properties react component with a section and an associated predicate. This is similar to what I did for cameras, and I think this is easier to understand and maintain.\r\n\r\nAlso, adding back lost properties for Bone (just the link to the associated node), which got lost in a smaller consolidation that was similar to this one.",
-                "author": {
-                    "name": "ryantrem",
-                    "url": "https://github.com/ryantrem"
-                },
-                "files": [
-                    "packages/dev/inspector-v2/src/inspector.tsx",
-                    "packages/dev/inspector-v2/src/services/panes/properties/lightPropertiesServices.tsx",
-                    "packages/dev/inspector-v2/src/services/panes/properties/lights/areaLightPropertiesServices.ts",
-                    "packages/dev/inspector-v2/src/services/panes/properties/lights/directionalLightPropertiesServices.ts",
-                    "packages/dev/inspector-v2/src/services/panes/properties/lights/hemisphericLightPropertiesServices.ts",
-                    "packages/dev/inspector-v2/src/services/panes/properties/lights/pointLightPropertiesServices.ts",
-                    "packages/dev/inspector-v2/src/services/panes/properties/lights/shadowLightPropertiesServices.ts",
-                    "packages/dev/inspector-v2/src/services/panes/properties/lights/spotLightPropertiesServices.ts",
-                    "packages/dev/inspector-v2/src/services/panes/properties/skeletonPropertiesService.tsx"
-                ],
-                "tags": [
-                    "inspector",
-                    "skip changelog"
-                ]
-            },
-            {
-                "pr": "16905",
-                "title": "Make sure svg sanitize avoid pure url",
-                "description": null,
-                "author": {
-                    "name": "deltakosh",
-                    "url": "https://github.com/deltakosh"
-                },
-                "files": [
-                    "packages/dev/gui/src/2D/controls/image.ts",
-                    "packages/tools/tests/test/visualization/ReferenceImages/GUI-Images-in-Grid.png",
-                    "packages/tools/tests/test/visualization/config.json"
-                ],
-                "tags": [
-                    "skip changelog"
-                ]
-            },
-            {
-                "pr": "16904",
-                "title": "Add a function to sanitize SVG",
-                "description": "Fix #16902 ",
-                "author": {
-                    "name": "deltakosh",
-                    "url": "https://github.com/deltakosh"
-                },
-                "files": [
-                    "packages/dev/gui/src/2D/controls/image.ts"
-                ],
-                "tags": [
-                    "new feature",
-                    "security"
-                ]
-            }
-        ],
         "8.18.0": [
             {
                 "pr": "16918",
@@ -327,6 +173,452 @@
                     "packages/dev/smartFilters/src/smartFilter.ts"
                 ],
                 "tags": []
+            }
+        ],
+        "8.19.0": [
+            {
+                "pr": "16935",
+                "title": "Patch trigger",
+                "description": null,
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    ".build/config.json"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16932",
+                "title": "Fix Smart Filter Debugger build instructions",
+                "description": null,
+                "author": {
+                    "name": "AmoebaChant",
+                    "url": "https://github.com/AmoebaChant"
+                },
+                "files": [
+                    "packages/tools/smartFiltersDebugger/readme.md"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16931",
+                "title": "Make CustomShaderBlock resilient to incompatible default values, simplify log/warning/error handling in SFE",
+                "description": "This change adds type checking for default values when loading a custom shader block, so you now get an actionable warning in SFE if you get the type wrong on a custom block you're trying to load. This change also adds the ability for warnings, not just logs and errors, to show in the SFE UI. It also simplifies the way logs/warning/errors are recorded in SFE, no longer requiring an observable to be passed around, but instead in one place wiring it up to the Logger class, then using Logger everywhere. This means SF core logs can show up in the SFE UI as well, such as these new custom shader block warnings this PR adds. This change also adds watching assets (e.g. scss files) to the SFE VSCode launch config.",
+                "author": {
+                    "name": "AmoebaChant",
+                    "url": "https://github.com/AmoebaChant"
+                },
+                "files": [
+                    ".vscode/tasks.json",
+                    "packages/dev/smartFilters/src/blockFoundation/customShaderBlock.ts",
+                    "packages/dev/smartFilters/test/unit/customShaderBlock.test.ts",
+                    "packages/tools/smartFiltersEditor/src/app.ts",
+                    "packages/tools/smartFiltersEditor/src/smartFilterLoadSave/loadStartingSmartFilter.ts",
+                    "packages/tools/smartFiltersEditor/src/smartFilterRenderer.ts",
+                    "packages/tools/smartFiltersEditorControl/src/assets/styles/components/log.scss",
+                    "packages/tools/smartFiltersEditorControl/src/components/log/logComponent.tsx",
+                    "packages/tools/smartFiltersEditorControl/src/configuration/getBlockEditorRegistration.ts",
+                    "packages/tools/smartFiltersEditorControl/src/graphEditor.tsx",
+                    "packages/tools/smartFiltersEditorControl/src/index.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16929",
+                "title": "USDZ Exporter: Place \"Materials\" under the default prim",
+                "description": "Having multiple root prims (\"Root\" and \"Materials\") in a USD can lead to odd behavior, like this error from Reality Composer Pro:\r\n<img width=\"720\" height=\"722\" alt=\"image\" src=\"https://github.com/user-attachments/assets/eba11705-a048-4b4c-87be-794236c85529\" />\r\nSo let's just move the \"Materials\" def under \"Root\", which is the default prim of the main USD. \r\n\r\nExtras\r\n- Clean up an error message\r\n- Compute world matrix before use, in case it was modified before the scene was rendered with the changes",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/serializers/src/USDZ/usdzExporter.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16930",
+                "title": "Fix bug when blob where requested to IDB",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Misc/fileTools.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "database"
+                ]
+            },
+            {
+                "pr": "16826",
+                "title": "Support vertex pulling",
+                "description": "Vertex pulling is where you do your own reading of vertex data in the vertex shader instead of relying on the standard vertex attribute pipeline. I'm not sure of the best approach in Babylon but I made some minimal changes to make it work. I'd appreciate some feedback and ideas for a better way to set this up.\r\n\r\nFirst, some motivation:\r\nI want vertex pulling as a way of selecting vertex data from neighboring vertices in the IBL Shadows voxelization shader. By retrieving normal info for the provoking vertex of a triangle, I can selectively swizzle the axes of the position to maximize rasterization area and avoid missing voxels. This eliminates the need for 3-pass voxelization and opens the door for doing realtime voxelization of animated geometry (in WebGPU only due to the need for 3D storage textures).\r\nhttps://playground.babylonjs.com/?snapshot=refs/pull/16826/merge#XSNYAU#131\r\n\r\nFor vertex pulling to work, we typically need:\r\n1. An empty vertex layout.\r\n2. Our needed vertex buffers assigned as storage buffers\r\n3. A non-indexed draw call with the number of vertices to process. This causes `@builtin(vertex_index)` to be sequential which is critical for fetching info about neighboring vertices.\r\n\r\nNo changes are needed to Babylon for the first two requirements. For the 3rd point though, we want to do a `engine.drawArraysType` even though the mesh has indices. To do this, we set `material.useVertexPulling`.\r\nThe shader must also _not_ declare vertex attributes.\r\n",
+                "author": {
+                    "name": "MiiBond",
+                    "url": "https://github.com/MiiBond"
+                },
+                "files": [
+                    "packages/dev/core/src/Engines/IMaterialContext.ts",
+                    "packages/dev/core/src/Engines/WebGPU/webgpuCacheRenderPipeline.ts",
+                    "packages/dev/core/src/Engines/WebGPU/webgpuDrawContext.ts",
+                    "packages/dev/core/src/Engines/WebGPU/webgpuMaterialContext.ts",
+                    "packages/dev/core/src/Engines/abstractEngine.ts",
+                    "packages/dev/core/src/Engines/thinEngine.ts",
+                    "packages/dev/core/src/Engines/webgpuEngine.ts",
+                    "packages/dev/core/src/Materials/PBR/pbrBaseMaterial.ts",
+                    "packages/dev/core/src/Materials/material.ts",
+                    "packages/dev/core/src/Materials/materialHelper.functions.ts",
+                    "packages/dev/core/src/Materials/shaderMaterial.ts",
+                    "packages/dev/core/src/Materials/standardMaterial.ts",
+                    "packages/dev/core/src/Materials/uniformBuffer.ts",
+                    "packages/dev/core/src/Meshes/mesh.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16927",
+                "title": "_updateLight now works with _loadedModels",
+                "description": "if the viewer is used with multiple models, _activeModel property is never set which make the use a multiple models that don't have pbr support all black",
+                "author": {
+                    "name": "alexandremottet",
+                    "url": "https://github.com/alexandremottet"
+                },
+                "files": [
+                    "packages/tools/viewer/src/viewer.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16926",
+                "title": "PBR node material: Fix iblIntensity in reflection block",
+                "description": "See https://forum.babylonjs.com/t/bug-in-inspector-environment-intensity/59135/6",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/Node/Blocks/PBR/reflectionBlock.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "nme"
+                ]
+            },
+            {
+                "pr": "16924",
+                "title": "Fix submesh identification with picking octrees",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Collisions/intersectionInfo.ts",
+                    "packages/dev/core/src/Meshes/abstractMesh.ts"
+                ],
+                "tags": [
+                    "bug"
+                ]
+            },
+            {
+                "pr": "16925",
+                "title": "NME DebugBlock focus lock",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/tools/nodeEditor/src/globalState.ts",
+                    "packages/tools/nodeEditor/src/graphSystem/display/debugDisplayManager.ts",
+                    "packages/tools/nodeEditor/src/graphSystem/properties/debugNodePropertyTabComponent.tsx"
+                ],
+                "tags": [
+                    "nme",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16923",
+                "title": "Don't apply fog on skybox by default",
+                "description": "By default the fog should not apply on the skybox for the viewer in case there is some grid used.",
+                "author": {
+                    "name": "alexandremottet",
+                    "url": "https://github.com/alexandremottet"
+                },
+                "files": [
+                    "packages/tools/viewer/src/viewer.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16919",
+                "title": "Add nullable property support to PropertyLine/BoundProperty",
+                "description": "The UX now shows a checkbox to toggle between null/defined values in cases where Target[PropertyKey] is Nullable\r\n<img width=\"304\" height=\"185\" alt=\"image\" src=\"https://github.com/user-attachments/assets/9c1c6216-e43e-4be9-8b6b-c29dcb9131b0\" />\r\n\r\nThis lets inspector more closely represent the property value (i.e. shows as null instead of 0) and also improves InspectorV2 development, enabling use of BoundProperty for cases that werent previously possible (ex: if the underlying component didn't have onChange, like the readonly props) \r\n\r\n\r\nCode changes include\r\n- Update PropertyLineProps such that if nullable=true, we expect defaultValue<T>, value<T>, and onChange<T>. In that case the PropertyLine component will render a checkbox which will store the currentValue before switching to null, that way toggling out of null state restores the previous value\r\n- Rename BaseComponentProps to PrimitiveProps and give it a MutableT generic param that adds the onChange parameter (letting more components use this base type such as readonly boolean badge)\r\n- Update BoundProperty to have strict nullable checks such that \r\n  -  if Target[PropertyKey] is nullable\r\n     - can use raw primitive IFF the primitive explicitly allows null (none do today)\r\n     - can use a propertyline IFF sending nullable / defaultValue\r\n  - if Target[PropertyKey] is nonnullable\r\n    - can use a raw primitive or propertyline IFF not sending nullable or defaultValue params\r\n\r\nWith the new typechecks in boundproperty, the following errors will be shown at compile time and only the proper usage is allowed\r\n<img width=\"1307\" height=\"682\" alt=\"image\" src=\"https://github.com/user-attachments/assets/fdace9a0-eeee-4c8b-9108-cd5eab491baf\" />",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/boundProperty.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/cameras/arcRotateCameraProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/materials/materialTransparencyProperties.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/booleanBadgePropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/checkboxPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/colorPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/dropdownPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/hexPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/inputPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/linkPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/propertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/spinButtonPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/switchPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/syncedSliderPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/textAreaPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/textPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/vectorPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/checkbox.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/colorPicker.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/dropdown.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/gradient.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/input.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/positionedPopover.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/primitive.ts",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/spinButton.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/switch.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/syncedSlider.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/textarea.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/floatLineComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/textInputLineComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/vector3LineComponent.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16922",
+                "title": "Fix alphaMode serialization of Node Materials",
+                "description": null,
+                "author": {
+                    "name": "sebavan",
+                    "url": "https://github.com/sebavan"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/Node/nodeMaterial.ts",
+                    "packages/dev/core/src/Materials/material.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16916",
+                "title": "Improved depth/stencil support in the engine and in frame graphs + miscellaneous",
+                "description": "In this PR:\r\n* Fixes back stencil parameters not set up correctly in WebGPU\r\n* Allows the stencil buffer to be cleared with a user-defined value\r\n* Adds options to make depth and stencil read-only\r\n* Adds optional depth/stencil texture and stencil state to the frame graph post-process task\r\n* Allows setting a texture with an `InternalTexture` instance in compute shaders\r\n* Adds a way for the end-user to use an indirect draw call instead of a direct draw call (WebGPU only) -> `DrawContext.enableIndirectDraw` property\r\n",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Compute/computeShader.ts",
+                    "packages/dev/core/src/Engines/Extensions/engine.computeShader.ts",
+                    "packages/dev/core/src/Engines/IDrawContext.ts",
+                    "packages/dev/core/src/Engines/WebGPU/webgpuComputeContext.ts",
+                    "packages/dev/core/src/Engines/WebGPU/webgpuDrawContext.ts",
+                    "packages/dev/core/src/Engines/WebGPU/webgpuStencilStateComposer.ts",
+                    "packages/dev/core/src/Engines/abstractEngine.ts",
+                    "packages/dev/core/src/Engines/nativeEngine.ts",
+                    "packages/dev/core/src/Engines/renderTargetWrapper.ts",
+                    "packages/dev/core/src/Engines/thinEngine.ts",
+                    "packages/dev/core/src/Engines/webgpuEngine.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/PostProcesses/basePostProcessBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Passes/renderPass.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/postProcessTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Texture/clearTextureTask.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphRenderContext.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphTextureManager.ts",
+                    "packages/dev/core/src/LibDeclarations/webgpu.d.ts",
+                    "packages/dev/core/src/Materials/drawWrapper.ts",
+                    "packages/dev/core/src/Materials/effectRenderer.ts",
+                    "packages/dev/core/src/Materials/index.ts",
+                    "packages/dev/core/src/States/index.ts"
+                ],
+                "tags": [
+                    "enhancement",
+                    "rendering engine"
+                ]
+            },
+            {
+                "pr": "16920",
+                "title": "Add update-version script to dev/smart-filters in preparation for adding SFE to Tools CD",
+                "description": null,
+                "author": {
+                    "name": "AmoebaChant",
+                    "url": "https://github.com/AmoebaChant"
+                },
+                "files": [
+                    "packages/dev/smartFilters/package.json",
+                    "packages/dev/smartFilters/src/utils/buildTools/recordVersionNumber.js"
+                ],
+                "tags": []
+            }
+        ],
+        "8.17.2": [
+            {
+                "pr": "16912",
+                "title": "USDZ Exporter: Winding order and vertex data handedness handling",
+                "description": "- Set `sideOrientation` property properly\r\n- Handle right-handed vertex data\r\n- Swap raw and sRGB values\r\n\r\nThis doesn't comprehensively address RH and LH handedness, but we can revisit and refactor later.\r\n\r\nNote: RealityKit doesn't implicitly flip the winding order of meshes with negative scaling, so we can't (properly) handle that case without introducing an awkward parameter or doing extra baking. For now, we'll capture this in a warning message.",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/serializers/src/USDZ/usdzExporter.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16911",
+                "title": "Add floating Search Box to graph canvas",
+                "description": "- Rename SearchBox to SearchBar (the bar where user can type to filter content)\r\n- Introduce SearchBox component and PositionedPopover components, allowing us to show/hide a searchbox at specified location in the UX \r\n- Conditionally use fluent SearchBox wrapped in a PositionedPopover from within nodegraph tools \r\n- Fix DraggableLine styling to look more polished (though we will still do a full styling pass)\r\n- Though not used yet, added comboBox component in case that is the preferred UX\r\n<img width=\"784\" height=\"722\" alt=\"image\" src=\"https://github.com/user-attachments/assets/1ae93cc1-c8a8-41bb-99ec-05295bb21d33\" />\r\n<img width=\"210\" height=\"134\" alt=\"image\" src=\"https://github.com/user-attachments/assets/3762dd7f-fd58-4221-b746-ffd8d46738ee\" />\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/comboBox.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/draggable.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/positionedPopover.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/searchBar.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/searchBox.tsx",
+                    "packages/dev/sharedUiComponents/src/nodeGraphSystem/searchBox.tsx",
+                    "packages/tools/nodeEditor/src/components/nodeList/nodeListComponent.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16913",
+                "title": "Fix Out of range values with high contrast",
+                "description": "https://forum.babylonjs.com/t/color-grading-doesnt-work-properly/59657/4",
+                "author": {
+                    "name": "sebavan",
+                    "url": "https://github.com/sebavan"
+                },
+                "files": [
+                    "packages/dev/core/src/Shaders/ShadersInclude/imageProcessingFunctions.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/imageProcessingFunctions.fx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16910",
+                "title": "native morph workaround",
+                "description": "morphTargetCount is a uniform int;\r\nbut bgfx only support vec4 as uniform.\r\nwhen doing the replacement, morphTargetCount.x is used and comparison between `int i` and `morphTargetCount.x` which is a float break shader compilation with GLSL.\r\ncasting `morphTargetCount` to int doesn't work: casting qualifier is removed becaused it's still an int before shader traversers.\r\nSetting morphTargetCount a float in the engine and casting iterators to float seems to work better. \r\nI've also done the change for WGSL to pass the tests.\r\n\r\nLong term is to add (or change) traversers for float/int comparison.",
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "packages/dev/core/src/Culling/Helper/computeShaderBoundingHelper.ts",
+                    "packages/dev/core/src/Materials/Node/Blocks/Vertex/morphTargetsBlock.ts",
+                    "packages/dev/core/src/Morph/morphTargetManager.ts",
+                    "packages/dev/core/src/Shaders/ShadersInclude/morphTargetsVertex.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/morphTargetsVertexDeclaration.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/morphTargetsVertex.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/morphTargetsVertexDeclaration.fx",
+                    "packages/dev/core/src/ShadersWGSL/boundingInfo.compute.fx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16909",
+                "title": "Fix the problem that the four methods of PBRSubSurfaceConfiguration class isReadyForSubMesh/getActiveTextures/getAnimatables/dispose miss the _refractionIntensityTexture issue.",
+                "description": "see:https://forum.babylonjs.com/t/subsurface-getactivetextures-questions/59638",
+                "author": {
+                    "name": "xiehangyun",
+                    "url": "https://github.com/xiehangyun"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/PBR/pbrSubSurfaceConfiguration.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16907",
+                "title": "Bump form-data from 4.0.2 to 4.0.4",
+                "description": "Bumps [form-data](https://github.com/form-data/form-data) from 4.0.2 to 4.0.4.\n<details>\n<summary>Changelog</summary>\n<p><em>Sourced from <a href=\"https://github.com/form-data/form-data/blob/master/CHANGELOG.md\">form-data's changelog</a>.</em></p>\n<blockquote>\n<h2><a href=\"https://github.com/form-data/form-data/compare/v4.0.3...v4.0.4\">v4.0.4</a> - 2025-07-16</h2>\n<h3>Commits</h3>\n<ul>\n<li>[meta] add <code>auto-changelog</code> <a href=\"https://github.com/form-data/form-data/commit/811f68282fab0315209d0e2d1c44b6c32ea0d479\"><code>811f682</code></a></li>\n<li>[Tests] handle predict-v8-randomness failures in node &lt; 17 and node &gt; 23 <a href=\"https://github.com/form-data/form-data/commit/1d11a76434d101f22fdb26b8aef8615f28b98402\"><code>1d11a76</code></a></li>\n<li>[Fix] Switch to using <code>crypto</code> random for boundary values <a href=\"https://github.com/form-data/form-data/commit/3d1723080e6577a66f17f163ecd345a21d8d0fd0\"><code>3d17230</code></a></li>\n<li>[Tests] fix linting errors <a href=\"https://github.com/form-data/form-data/commit/5e340800b5f8914213e4e0378c084aae71cfd73a\"><code>5e34080</code></a></li>\n<li>[meta] actually ensure the readme backup isn’t published <a href=\"https://github.com/form-data/form-data/commit/316c82ba93fd4985af757b771b9a1f26d3b709ef\"><code>316c82b</code></a></li>\n<li>[Dev Deps] update <code>@ljharb/eslint-config</code> <a href=\"https://github.com/form-data/form-data/commit/58c25d76406a5b0dfdf54045cf252563f2bbda8d\"><code>58c25d7</code></a></li>\n<li>[meta] fix readme capitalization <a href=\"https://github.com/form-data/form-data/commit/2300ca19595b0ee96431e868fe2a40db79e41c61\"><code>2300ca1</code></a></li>\n</ul>\n<h2><a href=\"https://github.com/form-data/form-data/compare/v4.0.2...v4.0.3\">v4.0.3</a> - 2025-06-05</h2>\n<h3>Fixed</h3>\n<ul>\n<li>[Fix] <code>append</code>: avoid a crash on nullish values <a href=\"https://redirect.github.com/form-data/form-data/issues/577\"><code>[#577](https://github.com/form-data/form-data/issues/577)</code></a></li>\n</ul>\n<h3>Commits</h3>\n<ul>\n<li>[eslint] use a shared config <a href=\"https://github.com/form-data/form-data/commit/426ba9ac440f95d1998dac9a5cd8d738043b048f\"><code>426ba9a</code></a></li>\n<li>[eslint] fix some spacing issues <a href=\"https://github.com/form-data/form-data/commit/20941917f0e9487e68c564ebc3157e23609e2939\"><code>2094191</code></a></li>\n<li>[Refactor] use <code>hasown</code> <a href=\"https://github.com/form-data/form-data/commit/81ab41b46fdf34f5d89d7ff30b513b0925febfaa\"><code>81ab41b</code></a></li>\n<li>[Fix] validate boundary type in <code>setBoundary()</code> method <a href=\"https://github.com/form-data/form-data/commit/8d8e4693093519f7f18e3c597d1e8df8c493de9e\"><code>8d8e469</code></a></li>\n<li>[Tests] add tests to check the behavior of <code>getBoundary</code> with non-strings <a href=\"https://github.com/form-data/form-data/commit/837b8a1f7562bfb8bda74f3fc538adb7a5858995\"><code>837b8a1</code></a></li>\n<li>[Dev Deps] remove unused deps <a href=\"https://github.com/form-data/form-data/commit/870e4e665935e701bf983a051244ab928e62d58e\"><code>870e4e6</code></a></li>\n<li>[meta] remove local commit hooks <a href=\"https://github.com/form-data/form-data/commit/e6e83ccb545a5619ed6cd04f31d5c2f655eb633e\"><code>e6e83cc</code></a></li>\n<li>[Dev Deps] update <code>eslint</code> <a href=\"https://github.com/form-data/form-data/commit/4066fd6f65992b62fa324a6474a9292a4f88c916\"><code>4066fd6</code></a></li>\n<li>[meta] fix scripts to use prepublishOnly <a href=\"https://github.com/form-data/form-data/commit/c4bbb13c0ef669916657bc129341301b1d331d75\"><code>c4bbb13</code></a></li>\n</ul>\n</blockquote>\n</details>\n<details>\n<summary>Commits</summary>\n<ul>\n<li><a href=\"https://github.com/form-data/form-data/commit/41996f5ac73a867046d48512cab62e64fc846dad\"><code>41996f5</code></a> v4.0.4</li>\n<li><a href=\"https://github.com/form-data/form-data/commit/316c82ba93fd4985af757b771b9a1f26d3b709ef\"><code>316c82b</code></a> [meta] actually ensure the readme backup isn’t published</li>\n<li><a href=\"https://github.com/form-data/form-data/commit/2300ca19595b0ee96431e868fe2a40db79e41c61\"><code>2300ca1</code></a> [meta] fix readme capitalization</li>\n<li><a href=\"https://github.com/form-data/form-data/commit/811f68282fab0315209d0e2d1c44b6c32ea0d479\"><code>811f682</code></a> [meta] add <code>auto-changelog</code></li>\n<li><a href=\"https://github.com/form-data/form-data/commit/5e340800b5f8914213e4e0378c084aae71cfd73a\"><code>5e34080</code></a> [Tests] fix linting errors</li>\n<li><a href=\"https://github.com/form-data/form-data/commit/1d11a76434d101f22fdb26b8aef8615f28b98402\"><code>1d11a76</code></a> [Tests] handle predict-v8-randomness failures in node &lt; 17 and node &gt; 23</li>\n<li><a href=\"https://github.com/form-data/form-data/commit/58c25d76406a5b0dfdf54045cf252563f2bbda8d\"><code>58c25d7</code></a> [Dev Deps] update <code>@ljharb/eslint-config</code></li>\n<li><a href=\"https://github.com/form-data/form-data/commit/3d1723080e6577a66f17f163ecd345a21d8d0fd0\"><code>3d17230</code></a> [Fix] Switch to using <code>crypto</code> random for boundary values</li>\n<li><a href=\"https://github.com/form-data/form-data/commit/d8d67dc8ac79285154edf7d3f57dbab593b9a146\"><code>d8d67dc</code></a> v4.0.3</li>\n<li><a href=\"https://github.com/form-data/form-data/commit/e6e83ccb545a5619ed6cd04f31d5c2f655eb633e\"><code>e6e83cc</code></a> [meta] remove local commit hooks</li>\n<li>Additional commits viewable in <a href=\"https://github.com/form-data/form-data/compare/v4.0.2...v4.0.4\">compare view</a></li>\n</ul>\n</details>\n<br />\n\n\n[![Dependabot compatibility score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=form-data&package-manager=npm_and_yarn&previous-version=4.0.2&new-version=4.0.4)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)\n\nDependabot will resolve any conflicts with this PR as long as you don't alter it yourself. You can also trigger a rebase manually by commenting `@dependabot rebase`.\n\n[//]: # (dependabot-automerge-start)\n[//]: # (dependabot-automerge-end)\n\n---\n\n<details>\n<summary>Dependabot commands and options</summary>\n<br />\n\nYou can trigger Dependabot actions by commenting on this PR:\n- `@dependabot rebase` will rebase this PR\n- `@dependabot recreate` will recreate this PR, overwriting any edits that have been made to it\n- `@dependabot merge` will merge this PR after your CI passes on it\n- `@dependabot squash and merge` will squash and merge this PR after your CI passes on it\n- `@dependabot cancel merge` will cancel a previously requested merge and block automerging\n- `@dependabot reopen` will reopen this PR if it is closed\n- `@dependabot close` will close this PR and stop Dependabot recreating it. You can achieve the same result by closing it manually\n- `@dependabot show <dependency name> ignore conditions` will show all of the ignore conditions of the specified dependency\n- `@dependabot ignore this major version` will close this PR and stop Dependabot creating any more for this major version (unless you reopen the PR or upgrade to it yourself)\n- `@dependabot ignore this minor version` will close this PR and stop Dependabot creating any more for this minor version (unless you reopen the PR or upgrade to it yourself)\n- `@dependabot ignore this dependency` will close this PR and stop Dependabot creating any more for this dependency (unless you reopen the PR or upgrade to it yourself)\nYou can disable automated security fix PRs for this repo from the [Security Alerts page](https://github.com/BabylonJS/Babylon.js/network/alerts).\n\n</details>",
+                "author": {
+                    "name": "dependabot[bot]",
+                    "url": "https://github.com/apps/dependabot"
+                },
+                "files": [
+                    "package-lock.json"
+                ],
+                "tags": [
+                    "dependencies",
+                    "javascript"
+                ]
+            },
+            {
+                "pr": "16906",
+                "title": "Inspector v2: Consolidate light service definitions into one",
+                "description": "This change mostly just consolidates the different service definitions for light related properties into a single service definition (all or none). This just makes it easier to manage, since they are all small registrations that just associate a specific light properties react component with a section and an associated predicate. This is similar to what I did for cameras, and I think this is easier to understand and maintain.\r\n\r\nAlso, adding back lost properties for Bone (just the link to the associated node), which got lost in a smaller consolidation that was similar to this one.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lightPropertiesServices.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lights/areaLightPropertiesServices.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lights/directionalLightPropertiesServices.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lights/hemisphericLightPropertiesServices.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lights/pointLightPropertiesServices.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lights/shadowLightPropertiesServices.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lights/spotLightPropertiesServices.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/skeletonPropertiesService.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16905",
+                "title": "Make sure svg sanitize avoid pure url",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/gui/src/2D/controls/image.ts",
+                    "packages/tools/tests/test/visualization/ReferenceImages/GUI-Images-in-Grid.png",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16904",
+                "title": "Add a function to sanitize SVG",
+                "description": "Fix #16902 ",
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/gui/src/2D/controls/image.ts"
+                ],
+                "tags": [
+                    "new feature",
+                    "security"
+                ]
             }
         ],
         "8.17.1": [
