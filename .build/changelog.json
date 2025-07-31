@@ -1,5 +1,5 @@
 {
-    "fromTag": "8.19.0",
+    "fromTag": "8.19.1",
     "changelog": {
         "8.19.1": [
             {
@@ -27,6 +27,168 @@
                 },
                 "files": [
                     "packages/tools/viewer/src/viewer.ts"
+                ],
+                "tags": []
+            }
+        ],
+        "8.20.0": [
+            {
+                "pr": "16943",
+                "title": "Inspector v2: Make properties services and component structure consistent and stub out services for the rest of the entity types",
+                "description": "The consistent pattern now is:\r\n\r\n- One properties service definition / file per top level entity type (as defined by scene, e.g. scene. Textures, scene.rootNodes, etc.). For example, `texturePropertiesService.tsx`, `nodePropertiesService.tsx`, etc.\r\n- One file per concrete entity of the class hierarchy. For example, `nodeProperties.tsx`, `abstractMeshProperties.tsx`, `meshProperties.tsx`, etc.\r\n- One react component per concrete entity per section. For example, `AbstractMeshGeneralProperties`, `AbstractMeshAdvancedProperties` (both in `abstractMeshProperties.tsx`).\r\n\r\nSo far this seems to be a good balance of not too many files, and files not being too big.\r\n\r\nI also stubbed out the *PropertiesService.tsx files for the remaining top level entity types.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/lights/areaLightProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/directionalLightProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/hemisphericLightProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/pointLightProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/shadowGeneratorProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/shadowLightProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/spotLightProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/materials/materialProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/mesh/meshAdvancedProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/mesh/meshGeneralProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/mesh/meshOutlineOverlayProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/nodeGeneralProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/nodes/abstractMeshProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/nodes/nodeProperties.tsx",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/effectLayerPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/frameGraphPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lightPropertiesServices.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/materialPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/meshPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/nodePropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/postProcessPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/renderingPipelinePropertiesService.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "16937",
+                "title": "Inspector v2: Texture properties + MakeAsyncComponent",
+                "description": "This PR is mostly about porting over texture properties:\r\n\r\n<img width=\"390\" height=\"1044\" alt=\"image\" src=\"https://github.com/user-attachments/assets/06e633db-d90e-4824-8929-0ba9c14bb7b0\" />\r\n<img width=\"391\" height=\"348\" alt=\"image\" src=\"https://github.com/user-attachments/assets/3e283025-2351-4e8c-a9d1-74a005b0c54d\" />\r\n<img width=\"408\" height=\"96\" alt=\"image\" src=\"https://github.com/user-attachments/assets/80e8296a-9c4e-4830-9fd0-1d0fc3c8f9c0\" />\r\n<img width=\"387\" height=\"768\" alt=\"image\" src=\"https://github.com/user-attachments/assets/402c3171-e208-4357-9dfd-05eafff8b374\" />\r\n\r\nA few other notable changes:\r\n- There was a bug where the content within the accordion sections was sorted before determining the implicit sections. The idea was to have the default order be based on the order the \"services\" were registered, but that ordering got lost when the content \"services\" were sorted by explicit order first. So now we determine the implicit sections before sorting the content, which means default section order will be the order the services are registered, as was originally intended. I also made the sections and section content arrays readonly to avoid inadvertent bugs like in-place sorting on those arrays (the full of those arrays should be determined by the useMemo calls).\r\n- Fixed an issue where changes to `Texture.displayName` were not immediately reflected in scene explorer.\r\n- Fixed an issue where the label and description props were not passed through to the BooleanBadgePropertyLine for the nested PropertyLine.\r\n- Added a `MakeAsyncComponent` helper that wraps a dynamic import of a component and shows a spinner while it is loading.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/extensibleAccordion.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/textures/advancedDynamicTextureProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/textures/baseTextureProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/textures/cubeTextureProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/textures/multiRenderTargetProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/textures/renderTargetTextureProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/textures/textureFormatUtils.ts",
+                    "packages/dev/inspector-v2/src/components/properties/textures/textureProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/textures/thinTextureProperties.tsx",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/propertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/texturePropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/texturesExplorerService.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/booleanBadgePropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/lazyComponent.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "16936",
+                "title": "Introduce DepthSourceBlock to read depth data in NME",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/Node/Blocks/Dual/depthSourceBlock.ts",
+                    "packages/dev/core/src/Materials/Node/Blocks/Dual/imageSourceBlock.ts",
+                    "packages/dev/core/src/Materials/Node/Blocks/Dual/index.ts",
+                    "packages/tools/nodeEditor/src/blockTools.ts",
+                    "packages/tools/nodeEditor/src/components/nodeList/nodeListComponent.tsx",
+                    "packages/tools/nodeEditor/src/graphSystem/display/depthSourceDisplayManager.ts",
+                    "packages/tools/nodeEditor/src/graphSystem/display/textureDisplayManager.module.scss",
+                    "packages/tools/nodeEditor/src/graphSystem/display/textureDisplayManager.ts",
+                    "packages/tools/nodeEditor/src/graphSystem/properties/imageSourcePropertyTabComponent.tsx",
+                    "packages/tools/nodeEditor/src/graphSystem/registerToDisplayLedger.ts"
+                ],
+                "tags": [
+                    "new feature",
+                    "nme"
+                ]
+            },
+            {
+                "pr": "16933",
+                "title": "Add sampler2dArray support to ImageSourceBlock",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/Node/Blocks/Dual/imageSourceBlock.ts",
+                    "packages/dev/core/src/Materials/Node/Blocks/customBlock.ts",
+                    "packages/dev/core/src/Materials/Node/nodeMaterialBuildState.ts"
+                ],
+                "tags": [
+                    "new feature",
+                    "nme"
+                ]
+            },
+            {
+                "pr": "16942",
+                "title": "Add Vector2PropertyLine",
+                "description": "<img width=\"368\" height=\"100\" alt=\"image\" src=\"https://github.com/user-attachments/assets/f1ce9f6e-5257-42aa-ad81-6e1b6412a7a2\" />",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/vectorPropertyLine.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "tools"
+                ]
+            },
+            {
+                "pr": "16941",
+                "title": "StringifiedPropertyLine",
+                "description": "Takes in a number and converts to a string with optional unit / precision parameters so that caller doesn't need to do the casting / string formatting\r\n\r\nCan be used with BoundProperty for numerical values ",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/commonGeneralProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/skeleton/skeletonProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/stats/countStats.tsx",
+                    "packages/dev/inspector-v2/src/components/stats/frameStepStats.tsx",
+                    "packages/dev/inspector-v2/src/components/stats/statsPane.tsx",
+                    "packages/dev/inspector-v2/src/components/stats/systemStats.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/stringifiedPropertyLine.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "tools"
+                ]
+            },
+            {
+                "pr": "16940",
+                "title": "Smart Filter custom shader blocks: add unit test for falsy default values",
+                "description": "…lues",
+                "author": {
+                    "name": "AmoebaChant",
+                    "url": "https://github.com/AmoebaChant"
+                },
+                "files": [
+                    "packages/dev/smartFilters/test/unit/customShaderBlock.test.ts"
                 ],
                 "tags": []
             }
