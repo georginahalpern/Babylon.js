@@ -1,0 +1,253 @@
+{
+    "asset": {
+        "version": "1.1",
+        "extras": {
+            "name": "CC-3dv4-3-51152",
+            "copyrightText": "Copyright (c) Microsoft Corporation. All Rights Reserved.",
+            "generatorName": "TilesetGenerator"
+        }
+    },
+    "geometricError": 786432,
+    "root": {
+        "boundingVolume": {
+            "region": [-3.14159265, -1.48442223, 3.14159265, 1.48442223, -421, 4369]
+        },
+        "geometricError": 786432,
+        "refine": "REPLACE",
+        "children": [
+            {
+                "boundingVolume": {
+                    "region": [-3.14159265, 0, 0, 1.48442223, -421, 4369]
+                },
+                "geometricError": 393216,
+                "children": [
+                    {
+                        "boundingVolume": {
+                            "region": [-3.14159265, 0, -1.57079633, 1.16087539, -287, 4369]
+                        },
+                        "geometricError": 196608,
+                        "children": [
+                            {
+                                "boundingVolume": {
+                                    "region": [-2.35619449, 0.71523415, -1.57079633, 1.16087539, -287, 4369]
+                                },
+                                "geometricError": 98304,
+                                "content": {
+                                    "uri": "td0021"
+                                }
+                            },
+                            {
+                                "boundingVolume": {
+                                    "region": [-3.14159265, 0, -2.35619449, 0.71523415, -53, 1063]
+                                },
+                                "geometricError": 98304,
+                                "content": {
+                                    "uri": "td0022"
+                                }
+                            },
+                            {
+                                "boundingVolume": {
+                                    "region": [-2.35619449, 0, -1.57079633, 0.71523415, -137, 3991]
+                                },
+                                "geometricError": 98304,
+                                "content": {
+                                    "uri": "td0023"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "boundingVolume": {
+                            "region": [-1.57079633, 0, 0, 1.16087539, -421, 1202]
+                        },
+                        "geometricError": 196608,
+                        "children": [
+                            {
+                                "boundingVolume": {
+                                    "region": [-1.57079633, 0.71523415, -0.78539816, 1.16087539, -197, 587]
+                                },
+                                "geometricError": 98304,
+                                "content": {
+                                    "uri": "td0030"
+                                }
+                            },
+                            {
+                                "boundingVolume": {
+                                    "region": [-0.78539816, 0.71523415, 0, 1.16087539, -82, 1067]
+                                },
+                                "geometricError": 98304,
+                                "content": {
+                                    "uri": "td0031"
+                                }
+                            },
+                            {
+                                "boundingVolume": {
+                                    "region": [-1.57079633, 0, -0.78539816, 0.71523415, -421, 815]
+                                },
+                                "geometricError": 98304,
+                                "content": {
+                                    "uri": "td0032"
+                                }
+                            },
+                            {
+                                "boundingVolume": {
+                                    "region": [-0.78539816, 0, 0, 0.71523415, -226, 1202]
+                                },
+                                "geometricError": 98304,
+                                "content": {
+                                    "uri": "td0033"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "boundingVolume": {
+                    "region": [0, 0, 3.14159265, 1.48442223, -179, 1876]
+                },
+                "geometricError": 393216,
+                "children": [
+                    {
+                        "boundingVolume": {
+                            "region": [0, 0, 1.57079633, 1.16087539, -179, 1876]
+                        },
+                        "geometricError": 196608,
+                        "children": [
+                            {
+                                "boundingVolume": {
+                                    "region": [0, 0.71523415, 0.78539816, 1.16087539, -179, 1876]
+                                },
+                                "geometricError": 98304,
+                                "content": {
+                                    "uri": "td0120"
+                                }
+                            },
+                            {
+                                "boundingVolume": {
+                                    "region": [0, 0, 0.78539816, 0.71523415, 2, 1004]
+                                },
+                                "geometricError": 98304,
+                                "content": {
+                                    "uri": "td0122"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "boundingVolume": {
+                            "region": [1.57079633, 0, 3.14159265, 1.16087539, -120, 1326]
+                        },
+                        "geometricError": 196608,
+                        "children": [
+                            {
+                                "boundingVolume": {
+                                    "region": [2.35619449, 0.71523415, 3.14159265, 1.16087539, -43, 1326]
+                                },
+                                "geometricError": 98304,
+                                "content": {
+                                    "uri": "td0131"
+                                }
+                            },
+                            {
+                                "boundingVolume": {
+                                    "region": [1.57079633, 0, 2.35619449, 0.71523415, -120, 1078]
+                                },
+                                "geometricError": 98304,
+                                "content": {
+                                    "uri": "td0132"
+                                }
+                            },
+                            {
+                                "boundingVolume": {
+                                    "region": [2.35619449, 0, 3.14159265, 0.71523415, -118, 1207]
+                                },
+                                "geometricError": 98304,
+                                "content": {
+                                    "uri": "td0133"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "boundingVolume": {
+                    "region": [-3.14159265, -1.48442223, 0, 0, -36, 1616]
+                },
+                "geometricError": 393216,
+                "children": [
+                    {
+                        "boundingVolume": {
+                            "region": [-1.57079633, -1.16087539, 0, 0, -36, 1616]
+                        },
+                        "geometricError": 196608,
+                        "children": [
+                            {
+                                "boundingVolume": {
+                                    "region": [-1.57079633, -0.71523415, -0.78539816, 0, 592, 1353]
+                                },
+                                "geometricError": 98304,
+                                "content": {
+                                    "uri": "td0210"
+                                }
+                            },
+                            {
+                                "boundingVolume": {
+                                    "region": [-0.78539816, -0.71523415, 0, 0, -36, 1616]
+                                },
+                                "geometricError": 98304,
+                                "content": {
+                                    "uri": "td0211"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "boundingVolume": {
+                    "region": [0, -1.48442223, 3.14159265, 0, -165, 2064]
+                },
+                "geometricError": 393216,
+                "children": [
+                    {
+                        "boundingVolume": {
+                            "region": [1.57079633, -1.16087539, 3.14159265, 0, -165, 2064]
+                        },
+                        "geometricError": 196608,
+                        "children": [
+                            {
+                                "boundingVolume": {
+                                    "region": [1.57079633, -0.71523415, 2.35619449, 0, -122, 369]
+                                },
+                                "geometricError": 98304,
+                                "content": {
+                                    "uri": "td0310"
+                                }
+                            },
+                            {
+                                "boundingVolume": {
+                                    "region": [2.35619449, -0.71523415, 3.14159265, 0, -165, 1366]
+                                },
+                                "geometricError": 98304,
+                                "content": {
+                                    "uri": "td0311"
+                                }
+                            },
+                            {
+                                "boundingVolume": {
+                                    "region": [2.35619449, -1.16087539, 3.14159265, -0.71523415, -66, 2064]
+                                },
+                                "geometricError": 98304,
+                                "content": {
+                                    "uri": "td0313"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

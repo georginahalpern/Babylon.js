@@ -1,6 +1,6 @@
 import { RegisterClass } from "core/Misc";
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports, @typescript-eslint/consistent-type-imports
-import { Vector3, Scene, GeospatialCamera, UniversalCamera } from "core/index";
+import { Vector3, Scene, GeospatialArcRotateCamera } from "core/index";
 import { CreateSphere } from "core/Meshes/Builders/sphereBuilder";
 import { StandardMaterial } from "core/Materials/standardMaterial";
 import { Color3 } from "core/Maths/math.color";
@@ -17,8 +17,8 @@ export class TestApp {
         // const camera = new FreeCamera("camera", new Vector3(0, 0, -100), scene);
 
         // const camera = new ArcRotateCamera("camera", 0, 1, 10, Vector3.Zero(), scene);
-        const camera = new UniversalCamera("geo", new Vector3(0, 0, -RADIUS * 2), scene);
-        //        const camera = new GeospatialCamera("geo", new Vector3(0, 0, -50), scene, true);
+        // const camera = new UniversalCamera("geo", new Vector3(0, 0, -RADIUS * 2), scene);
+        const camera = new GeospatialArcRotateCamera("geo", scene, true);
 
         camera.attachControl(canvas, true);
 
