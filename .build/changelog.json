@@ -1,6 +1,155 @@
 {
-    "fromTag": "8.20.0",
+    "fromTag": "8.21.0",
     "changelog": {
+        "8.21.1": [
+            {
+                "pr": "16977",
+                "title": "Serialize decorator: Handle arrays",
+                "description": "Avoids this guy:\r\n<img width=\"423\" height=\"97\" alt=\"image\" src=\"https://github.com/user-attachments/assets/1832576b-f360-4814-8cce-d8589419fe5b\" />\r\n",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    ".build/config.json",
+                    "packages/dev/core/src/Misc/decorators.serialization.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16974",
+                "title": "RH WebXR camera fix",
+                "description": "This change applies the recent right hand camera fixes from PR #16691 to the WebXR camera.\r\n\r\nTest playground: https://playground.babylonjs.com/#4EGO4T#3.",
+                "author": {
+                    "name": "docEdub",
+                    "url": "https://github.com/docEdub"
+                },
+                "files": [
+                    "packages/dev/core/src/XR/webXRCamera.ts"
+                ],
+                "tags": [
+                    "bug"
+                ]
+            },
+            {
+                "pr": "16951",
+                "title": "Inspector V2: SkyMaterial, AbstractMesh Occlusions, AbstractMesh Edge Rendering",
+                "description": "Sky material:\r\n<img width=\"436\" height=\"423\" alt=\"image\" src=\"https://github.com/user-attachments/assets/8506d834-1873-41ec-8313-899b2ac0730d\" />\r\n\r\nAbstract Mesh:\r\n\r\n<img width=\"432\" height=\"327\" alt=\"image\" src=\"https://github.com/user-attachments/assets/d1464de2-7e7c-480f-b0a7-c43cdfd642dd\" />\r\n",
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/materials/skyMaterialProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/nodes/abstractMeshProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/materialPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/nodePropertiesService.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16972",
+                "title": "Exporters: Refactor texture pixel reading",
+                "description": "This PR aims to unify how pixel data is retrieved in our exporters (and beyond?). The end result is that both exporters now wait for textures to be ready, pixels are always returned as Uint8, and the USDZ exporter can export compressed textures.\r\n\r\n- Extend `GetTextureDataAsync` (or optimize it, depending on how you look at it) such that uncompressed textures are read directly; compressed textures behave as they did before\r\n- Use just `GetTextureDataAsync` to get pixel data for easier maintenance, less repetition\r\n- Remove redundant code in glTF exporter\r\n- Add DumpData overloads for QoL\r\n- Add test for texture exports (which, in turn, should be testing `GetTextureDataAsync` and `DumpData`)\r\n\r\nNOTE: The vis test will need to be updated in the future. Right now, we export compressed textures without their compression, so the roundtripped texture appears higher quality than before. When we decide to preserve the compression of textures on export, this test will probably fail and need updating.",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/core/src/Misc/dumpTools.ts",
+                    "packages/dev/core/src/Misc/textureTools.ts",
+                    "packages/dev/core/src/Particles/flowMap.ts",
+                    "packages/dev/serializers/src/USDZ/usdzExporter.ts",
+                    "packages/dev/serializers/src/glTF/2.0/glTFMaterialExporter.ts",
+                    "packages/tools/tests/test/visualization/ReferenceImages/glTFSerializerTextureExport.png",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16970",
+                "title": "Fix shader material clone missing the alphaMode",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/material.ts"
+                ],
+                "tags": [
+                    "bug"
+                ]
+            },
+            {
+                "pr": "16969",
+                "title": "Add WebXR hand parenting",
+                "description": "Parent WebXR hand meshes to camera parent so they move with camera when parented\r\n\r\nWith initial WebXR camera parenting support implemented in PR #10850, controllers are also parented so they move with the headset as expected. WebXR hand meshes are not parented, yet, though. This change parents the hand meshes, too, so they also move with the headset as expected.\r\n\r\n### Example playgrounds\r\nhttps://playground.babylonjs.com/#F41V6N#2236\r\nhttps://playground.babylonjs.com/#X7Y4H8#332",
+                "author": {
+                    "name": "docEdub",
+                    "url": "https://github.com/docEdub"
+                },
+                "files": [
+                    "packages/dev/core/src/XR/features/WebXRHandTracking.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16954",
+                "title": "Adding debug properties for mesh in InspectorV2",
+                "description": "These ports the V1 debug properties for Mesh to Inspector V2. In Inspector V1 the properties with \"display\" in their name can only be enabled individually, so there is state management that handles enabling and disabling them as they get selected.\r\n\r\n<img width=\"1484\" height=\"606\" alt=\"image\" src=\"https://github.com/user-attachments/assets/c0c47af7-b33c-4c37-9d07-41e0e7f50f3a\" />\r\n",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/nodes/abstractMeshProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/nodePropertiesService.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/dropdownPropertyLine.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16963",
+                "title": "Adding scene properties",
+                "description": "<img width=\"642\" height=\"1365\" alt=\"image\" src=\"https://github.com/user-attachments/assets/d3f6967d-b064-4122-89cc-8f42d23f1dad\" />\r\n",
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/scene/sceneProperties.tsx",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/scenePropertiesService.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16965",
+                "title": "Stringify baby",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/animation/animationGroupProperties.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "skip changelog"
+                ]
+            }
+        ],
         "8.21.0": [
             {
                 "pr": "16964",
