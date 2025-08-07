@@ -1,6 +1,173 @@
 {
-    "fromTag": "8.21.0",
+    "fromTag": "8.21.1",
     "changelog": {
+        "8.22.0": [
+            {
+                "pr": "16978",
+                "title": "GreasedLine far positions precision loss fix",
+                "description": "Fixes this issue:\r\nhttps://forum.babylonjs.com/t/greased-line-visual-glitch-at-large-scale/59320 \r\n\r\nIt might need a more elaborate solution in the future, but since this fixes the only reported issue so far, I wouldn't add more calculations to the shader. (calculate the direction in world space and convert the resulting offset to clip space).\r\n",
+                "author": {
+                    "name": "RolandCsibrei",
+                    "url": "https://github.com/RolandCsibrei"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/GreasedLine/greasedLinePluginMaterialShadersGLSL.ts",
+                    "packages/dev/core/src/Materials/GreasedLine/greasedLinePluginMaterialShadersWGSL.ts",
+                    "packages/dev/core/src/Shaders/greasedLine.vertex.fx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16980",
+                "title": "Smart Filter optimizer fixes - SFE now optimizes correctly, optimizer handles texture2D symbols better, new UTs",
+                "description": null,
+                "author": {
+                    "name": "AmoebaChant",
+                    "url": "https://github.com/AmoebaChant"
+                },
+                "files": [
+                    "package.json",
+                    "packages/dev/smartFilterBlocks/test/unit/optimizerTestCases/contrastTintAndBlur.json",
+                    "packages/dev/smartFilterBlocks/test/unit/optimizerTestCases/contrastTintAndBlur.optimized.ts",
+                    "packages/dev/smartFilterBlocks/test/unit/optimizerTestCases/doubleTintAndWipe.json",
+                    "packages/dev/smartFilterBlocks/test/unit/optimizerTestCases/doubleTintAndWipe.optimized.ts",
+                    "packages/dev/smartFilterBlocks/test/unit/optimizerTestCases/pixelate.json",
+                    "packages/dev/smartFilterBlocks/test/unit/optimizerTestCases/pixelate.optimized.ts",
+                    "packages/dev/smartFilterBlocks/test/unit/optimizerTestCases/pixelateAndTint.json",
+                    "packages/dev/smartFilterBlocks/test/unit/optimizerTestCases/pixelateAndTint.optimized.ts",
+                    "packages/dev/smartFilterBlocks/test/unit/smartFilterOptimizer.test.ts",
+                    "packages/dev/smartFilterBlocks/test/unit/smartFilterOptimizerTestCases.ts",
+                    "packages/dev/smartFilterBlocks/tsconfig.json",
+                    "packages/dev/smartFilters/src/optimization/smartFilterOptimizer.ts",
+                    "packages/dev/smartFilters/test/unit/smartFilterOptimizer.test.ts",
+                    "packages/tools/smartFiltersEditor/src/optimizerUnitTestHelper.ts",
+                    "packages/tools/smartFiltersEditor/src/smartFilterRenderer.ts"
+                ],
+                "tags": [
+                    "bug"
+                ]
+            },
+            {
+                "pr": "16983",
+                "title": "Inspector v2: Allow BoundProperty target to be null/undefined",
+                "description": "This change allows the `target` prop of `BoundProperty` to be null or undefined, in which case it just doesn't render anything. This is to simplify cases like we see in this PR: https://github.com/BabylonJS/Babylon.js/pull/16973/files#diff-ba9e3905606d2f4a03f291915936063cc4bb1002b7d34d571015865303218bf7\r\n\r\nIf the `target` prop of `BoundProperty` can be null or undefined, then the `useProperty` hooks are not necessary and it can simply be:\r\n\r\n`<BoundProperty component={SyncedSliderPropertyLine} label=\"Diffuse Level\" target={diffuseTexture} propertyKey=\"level\" min={0} max={2} step={0.01} />`\r\n\r\ninstead of\r\n\r\n`{diffuseTexture && <BoundProperty component={SyncedSliderPropertyLine} label=\"Diffuse Level\" target={diffuseTexture} propertyKey=\"level\" min={0} max={2} step={0.01} />}`",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/boundProperty.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "16979",
+                "title": "Collapse shared component, fix animation property bug",
+                "description": "- Create shared component for collapse which handles the styling (Removing content overflow) and the creation of a root-level div (so that we can pass in fragments to wrap our components). I could perhaps detext whether first child is a div or fragment and only create div if the child is a fragment, but i would then need to apply overflow styling to the passed i children which feels weird, so im preferring this approach (create div and make note in the function docs that we should be using fragments over empty divs)\r\n- Only create collapse component if expandedContent is defined (helps avoid so many collapse component instances and improves perf slowdown of collapse component, note i plan to go to fluent office hours tomorrow to further debug the slowdown but this should help in meantime)\r\n- Fix bug in animationProperties.tsx which would set hasAnimations to true if the node has animatables, but wasn't checking whether those actually contained animations (following inspectorv1 logic where i concat the childAnimatableAnimations with the animations)",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/animation/animationGroupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/animation/animationsProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/cameras/cameraProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/shadowLightProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/materials/materialProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/nodes/abstractMeshProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/skeleton/skeletonProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/scene/sceneProperties.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/propertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/collapse.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16981",
+                "title": "ESLint: Relax naming conventions for destructured vars",
+                "description": "This change makes it so that if you do something like:\r\n\r\n`const { NormalMaterial } = await import(\"materials/normal/normalMaterial\");`\r\n\r\nThis is on longer considered a naming convention violation. This applies to all destructured variables, not just dynamic imports, but since it is destructuring properties of an object, those properties should already have been checked for naming conventions (e.g. camelCase).",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    ".eslintrc.js",
+                    "packages/dev/core/src/Engines/Extensions/engine.prefilteredCubeTexture.ts",
+                    "packages/dev/core/src/Meshes/abstractMesh.ts",
+                    "packages/dev/inspector-v2/src/components/properties/nodes/abstractMeshProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/textures/advancedDynamicTextureProperties.tsx",
+                    "packages/tools/viewer/src/viewer.ts",
+                    "packages/tools/viewer/src/viewerFactory.ts"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16967",
+                "title": "Various new features/fixes from our muster munday madness",
+                "description": "- BoundProperty now has the option to send ignoreNullable in place of nullable. When sent, the underlying component will use the default value in an enabled state (vs the nullable behavior of showing a checkbox to set/unset null). You can see this being used in AnimationGroupProperties\r\n- DropdownPropertyLine now uses the type of options in order to infer the type of value/onChange (to avoid casting as foo). It also condenses the old logic of nullable foo to instead use the nullable checkbox feature of boundproperty\r\n<img width=\"239\" height=\"84\" alt=\"image\" src=\"https://github.com/user-attachments/assets/35a496a1-8b60-40ab-98ed-64a9b584ee5f\" />\r\n<img width=\"217\" height=\"60\" alt=\"image\" src=\"https://github.com/user-attachments/assets/8f926991-b47d-4b2d-b793-1f31664d4e48\" />\r\n\r\n- RegisterDataStore.hidden is now accounted for within sceneExplorer when determining an entity's visibility\r\n- Shared LinkToEntityPropertyLine that does the selection logic for an entity and encapsulates the check for whether node exists as well as the check for whether the entity has registeredDataStore.hidden\r\n- Use propertyLine directly for cases where we want a nested component available in the expanded content. And add some padding to expandedContent\r\n<img width=\"707\" height=\"498\" alt=\"image\" src=\"https://github.com/user-attachments/assets/4f56d3e7-7c74-4e5d-b8c0-2b0069ee9acf\" />\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/animation/animationGroupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/animation/targetedAnimationProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/boundProperty.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/cameras/cameraProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/shadowGeneratorProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/linkToEntityPropertyLine.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/materials/materialProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/nodes/abstractMeshProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/nodes/nodeProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/physics/physicsProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/skeleton/boneProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/skeleton/skeletonProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/sprites/spriteGeneralProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/textures/advancedDynamicTextureProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/textures/baseTextureProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/scene/sceneExplorer.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/nodePropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/skeletonPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/spritePropertiesService.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/dropdownPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/propertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/stringifiedPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/vectorPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/dropdown.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16971",
+                "title": "Inspector v2: Improve scene explorer command infra",
+                "description": "This PR mainly is about improving the scene explorer command infrastructure in preparation for fleshing out the commands.\r\n\r\n- Rework commands so that more state change can be observed. For example, if you toggle the visiblity of a mesh in the property pane, the command can reflect the state immediately.\r\n- As was already the case, command buttons on tree view items are only shown when the item is focused or has pointer hover. However, now toggle commands that are toggled on will always show so you can easily see the nodes where you've toggled on a command (such as toggling visibility to false (not visible)).\r\n\r\nhttps://github.com/user-attachments/assets/c8032108-d988-4523-b6ac-3659499f81ae",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/nodes/abstractMeshProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/scene/sceneExplorer.tsx",
+                    "packages/dev/inspector-v2/src/hooks/resourceHooks.ts",
+                    "packages/dev/inspector-v2/src/services/panes/scene/nodeExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/sceneExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/shellService.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            }
+        ],
         "8.21.1": [
             {
                 "pr": "16977",
