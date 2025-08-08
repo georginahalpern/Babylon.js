@@ -1,4 +1,4 @@
-import type { RawBezier, RawGroupShape, RawPathShape, RawRectangleShape } from "../lottie/rawTypes";
+import type { LottieBezier, GroupShape, PathShape, RectangleShape } from "../lottie/descriptiveTypes";
 
 /**
  * Represents a bounding box for a shape in the animation.
@@ -32,10 +32,10 @@ type Corners = {
 
 /**
  * Calculates the bounding box for a group shape in a Lottie animation.
- * @param rawGroup The raw group shape to calculate the bounding box for
+ * @param groupShape The group shape to calculate the bounding box for
  * @returns The bounding box for the group shape
  */
-export function GetBoundingBox(rawGroup: RawGroupShape): BoundingBox {
+export function GetBoundingBox(groupShape: GroupShape): BoundingBox {
     const boxCorners: Corners = {
         minX: Infinity,
         minY: Infinity,
@@ -43,12 +43,12 @@ export function GetBoundingBox(rawGroup: RawGroupShape): BoundingBox {
         maxY: -Infinity,
     };
 
-    if (rawGroup.it !== undefined) {
-        for (let i = 0; i < rawGroup.it.length; i++) {
-            if (rawGroup.it[i].ty === "rc") {
-                GetRectangleVertices(boxCorners, rawGroup.it[i] as RawRectangleShape);
-            } else if (rawGroup.it[i].ty === "sh") {
-                GetPathVertices(boxCorners, rawGroup.it[i] as RawPathShape);
+    if (groupShape.items !== undefined) {
+        for (let i = 0; i < groupShape.items.length; i++) {
+            if (groupShape.items[i].type === "rc") {
+                GetRectangleVertices(boxCorners, groupShape.items[i] as RectangleShape);
+            } else if (groupShape.items[i].type === "sh") {
+                GetPathVertices(boxCorners, groupShape.items[i] as PathShape);
             }
         }
     }
@@ -61,9 +61,9 @@ export function GetBoundingBox(rawGroup: RawGroupShape): BoundingBox {
     };
 }
 
-function GetRectangleVertices(boxCorners: Corners, rect: RawRectangleShape): void {
-    const size = rect.s.k as number[];
-    const position = rect.p.k as number[];
+function GetRectangleVertices(boxCorners: Corners, rect: RectangleShape): void {
+    const size = rect.size.keyframes as number[];
+    const position = rect.position.keyframes as number[];
 
     // Calculate the four corners of the rectangle
     UpdateBoxCorners(boxCorners, position[0] - size[0] / 2, position[1] - size[1] / 2);
@@ -72,11 +72,11 @@ function GetRectangleVertices(boxCorners: Corners, rect: RawRectangleShape): voi
     UpdateBoxCorners(boxCorners, position[0] - size[0] / 2, position[1] + size[1] / 2);
 }
 
-function GetPathVertices(boxCorners: Corners, path: RawPathShape): void {
-    const bezier = path.ks.k as RawBezier;
-    const vertices = bezier.v;
-    const inTangents = bezier.i;
-    const outTangents = bezier.o;
+function GetPathVertices(boxCorners: Corners, path: PathShape): void {
+    const bezier = path.shape.keyframes as LottieBezier;
+    const vertices = bezier.vertices as number[][];
+    const inTangents = bezier.inTangents;
+    const outTangents = bezier.outTangents;
 
     // Check the control points of the path
     for (let i = 0; i < vertices.length; i++) {
@@ -85,7 +85,7 @@ function GetPathVertices(boxCorners: Corners, path: RawPathShape): void {
 
     for (let i = 0; i < vertices.length; i++) {
         // Skip last point if the path is not closed
-        if (!bezier.c && i === vertices.length - 1) {
+        if (!bezier.closed && i === vertices.length - 1) {
             continue;
         }
 

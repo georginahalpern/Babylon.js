@@ -2,20 +2,19 @@ import type { IVector2Like } from "core/Maths/math.like";
 import { ThinSprite } from "core/Sprites/thinSprite";
 
 import type {
-    RawFillShape,
-    RawGradientFillShape,
-    RawGraphicElement,
-    RawGroupShape,
-    RawLottieAnimation,
-    RawLottieLayer,
-    RawPathShape,
-    RawRectangleShape,
-    RawScalarProperty,
-    RawTransform,
-    RawTransformShape,
-    RawVectorKeyframe,
-    RawVectorProperty,
-} from "./rawTypes";
+    LottieLayer,
+    GroupShape,
+    LottieAnimation,
+    LottieTransform,
+    GraphicElement,
+    LottieVectorProperty,
+    RectangleShape,
+    PathShape,
+    FillShape,
+    GradientFillShape,
+    LottieVectorKeyframe,
+    LottieScalarProperty,
+} from "./descriptiveTypes";
 import type { AnimationInfo, ScalarKeyframe, ScalarProperty, Transform, Vector2Keyframe, Vector2Property } from "./parsedTypes";
 
 import type { SpritePacker } from "../sprites/spritePacker";
@@ -64,7 +63,7 @@ export class AnimationParser {
     private _rootNodes: Node[]; // Array of root-level nodes in the animation, in top-down z order
 
     // Loop variables to save allocations
-    private _shape: RawGraphicElement | undefined = undefined;
+    private _shape: GraphicElement | undefined = undefined;
 
     /**
      * Get the animation information parsed from the Lottie file.
@@ -105,10 +104,10 @@ export class AnimationParser {
 
     private _loadFromData(fileContentAsJsonString: string): AnimationInfo {
         this._unsupportedFeatures.length = 0; // Clear previous errors
-        const rawData = JSON.parse(fileContentAsJsonString) as RawLottieAnimation;
+        const lottieData = JSON.parse(fileContentAsJsonString) as LottieAnimation;
 
-        for (let i = 0; i < rawData.layers.length; i++) {
-            this._parseLayer(rawData.layers[i]);
+        for (let i = 0; i < lottieData.layers.length; i++) {
+            this._parseLayer(lottieData.layers[i]);
         }
 
         // Update the atlas texture after creating all sprites from the animation
@@ -122,27 +121,27 @@ export class AnimationParser {
         this._packer = undefined as any; // Clear the reference to the sprite packer to allow garbage collection
 
         return {
-            startFrame: rawData.ip,
-            endFrame: rawData.op,
-            frameRate: rawData.fr,
-            widthPx: rawData.w,
-            heightPx: rawData.h,
+            startFrame: lottieData.inPoint,
+            endFrame: lottieData.outPoint,
+            frameRate: lottieData.frameRate,
+            widthPx: lottieData.width,
+            heightPx: lottieData.height,
             nodes: this._rootNodes,
         };
     }
 
-    private _parseLayer(layer: RawLottieLayer): void {
-        if (layer.hd === true) {
+    private _parseLayer(layer: LottieLayer): void {
+        if (layer.hidden === true) {
             return; // Ignore hidden layers
         }
 
-        if (layer.ty !== 3 && layer.ty !== 4) {
-            this._unsupportedFeatures.push(`UnsupportedLayerType - Index: ${layer.ind} Name: ${layer.nm} Type: ${layer.ty}`);
+        if (layer.type !== 3 && layer.type !== 4) {
+            this._unsupportedFeatures.push(`UnsupportedLayerType - Index: ${layer.index} Name: ${layer.name} Type: ${layer.type}`);
             return;
         }
 
-        if (layer.ind === undefined || layer.ip === undefined || layer.op === undefined || layer.st === undefined) {
-            this._unsupportedFeatures.push(`Layer without required values - Name: ${layer.nm}`);
+        if (layer.index === undefined || layer.inPoint === undefined || layer.outPoint === undefined || layer.startTime === undefined) {
+            this._unsupportedFeatures.push(`Layer without required values - Name: ${layer.name}`);
             return;
         }
 
@@ -150,17 +149,17 @@ export class AnimationParser {
         if (layer.parent) {
             parentNode = this._parentNodes.get(layer.parent);
             if (parentNode === undefined) {
-                this._unsupportedFeatures.push(`Parent node with index ${layer.parent} not found for layer ${layer.nm}`);
+                this._unsupportedFeatures.push(`Parent node with index ${layer.parent} not found for layer ${layer.name}`);
             }
         }
 
-        const transform = this._parseTransform(layer.ks);
+        const transform = this._parseTransform(layer.transform);
 
         const controlNode = new ControlNode(
-            parentNode ? `${parentNode.id} - ${layer.nm} - ControlNode (TRS)` : `${layer.nm} - ControlNode (TRS)`,
+            parentNode ? `${parentNode.id} - ${layer.name} - ControlNode (TRS)` : `${layer.name} - ControlNode (TRS)`,
             this._configuration.ignoreOpacityAnimations,
-            layer.ip,
-            layer.op,
+            layer.inPoint,
+            layer.outPoint,
             transform.position,
             transform.rotation,
             transform.scale,
@@ -174,7 +173,7 @@ export class AnimationParser {
         }
 
         const anchorNode = new Node(
-            parentNode ? `${parentNode.id} - ${layer.nm} - Node (Anchor)` : `${layer.nm} - Node (Anchor)`,
+            parentNode ? `${parentNode.id} - ${layer.name} - Node (Anchor)` : `${layer.name} - Node (Anchor)`,
             this._configuration.ignoreOpacityAnimations,
             transform.anchorPoint,
             undefined, // Rotation is not used for anchor point
@@ -184,7 +183,7 @@ export class AnimationParser {
         );
 
         // Anchor nodes are always the parent of the control node of a child layer, build a map to build the scenegraph
-        this._parentNodes.set(layer.ind, anchorNode);
+        this._parentNodes.set(layer.index, anchorNode);
 
         // Create the sprites for the layer if it has shapes
         if (layer.shapes && layer.shapes.length > 0) {
@@ -193,53 +192,53 @@ export class AnimationParser {
         }
     }
 
-    private _parseShapes(parent: Node, shapes: RawGraphicElement[], scalingFactor: IVector2Like): void {
+    private _parseShapes(parent: Node, shapes: GraphicElement[], scalingFactor: IVector2Like): void {
         for (let i = 0; i < shapes.length; i++) {
-            if (shapes[i].hd === true) {
+            if (shapes[i].hidden === true) {
                 continue; // Ignore hidden shapes
             }
 
-            if (shapes[i].ty === "gr") {
-                this._parseGroupShape(parent, shapes[i] as RawGroupShape, scalingFactor);
+            if (shapes[i].type === "gr") {
+                this._parseGroupShape(parent, shapes[i], scalingFactor);
             } else {
-                this._unsupportedFeatures.push(`Only group shapes are supported as children of layers - Name: ${shapes[i].nm} Type: ${shapes[i].ty}`);
+                this._unsupportedFeatures.push(`Only group shapes are supported as children of layers - Name: ${shapes[i].name} Type: ${shapes[i].type}`);
                 continue;
             }
         }
     }
 
-    private _parseGroupShape(parent: Node, rawGroup: RawGroupShape, scalingFactor: IVector2Like): void {
-        if (!rawGroup.it || rawGroup.it.length === 0) {
+    private _parseGroupShape(parent: Node, group: GroupShape, scalingFactor: IVector2Like): void {
+        if (!group.items || group.items.length === 0) {
             return;
         }
 
         let transform: Transform | undefined = undefined;
-        for (let i = 0; i < rawGroup.it.length; i++) {
-            this._shape = rawGroup.it[i];
-            if (this._shape.ty === "gr") {
-                this._unsupportedFeatures.push(`Nested group shapes are not supported. - Group ${rawGroup.nm} - Nested Group ${this._shape.nm}`);
-            } else if (this._shape.ty === "tr") {
-                transform = this._parseTransform(this._shape as RawTransformShape);
-            } else if (this._shape.ty === "sh") {
-                this._validatePathShape(this._shape as RawPathShape);
-            } else if (this._shape.ty === "rc") {
-                this._validateRectangleShape(this._shape as RawRectangleShape);
-            } else if (this._shape.ty === "fl") {
-                this._validateFillShape(this._shape as RawFillShape);
-            } else if (this._shape.ty === "gf") {
-                this._validateGradientFillShape(this._shape as RawGradientFillShape);
-            } else {
-                this._unsupportedFeatures.push(`Unsupported shape type - Name: ${this._shape.nm} Type: ${this._shape.ty}`);
+        for (let i = 0; i < group.items.length; i++) {
+            this._shape = group.items[i];
+            if (this._shape?.type === "gr") {
+                this._unsupportedFeatures.push(`Nested group shapes are not supported. - Group ${group.name} - Nested Group ${this._shape.name}`);
+            } else if (this._shape?.type === "tr") {
+                transform = this._parseTransform(this._shape as LottieTransform);
+            } else if (this._shape?.type === "sh") {
+                this._validatePathShape(this._shape as PathShape);
+            } else if (this._shape?.type === "rc") {
+                this._validateRectangleShape(this._shape as RectangleShape);
+            } else if (this._shape?.type === "fl") {
+                this._validateFillShape(this._shape as FillShape);
+            } else if (this._shape?.type === "gf") {
+                this._validateGradientFillShape(this._shape as GradientFillShape);
+            } else if (this._shape) {
+                this._unsupportedFeatures.push(`Unsupported shape type - Name: ${this._shape.name} Type: ${this._shape.type}`);
             }
         }
 
         if (transform === undefined) {
-            this._unsupportedFeatures.push(`Group ${rawGroup.nm} does not have a transform which is not supported`);
+            this._unsupportedFeatures.push(`Group ${group.name} does not have a transform which is not supported`);
             return;
         }
 
         const trsNode = new Node(
-            `${parent.id} - ${rawGroup.nm} - ControlNode (TRS)`,
+            `${parent.id} - ${group.name} - ControlNode (TRS)`,
             this._configuration.ignoreOpacityAnimations,
             transform.position,
             transform.rotation,
@@ -248,7 +247,7 @@ export class AnimationParser {
             parent
         );
 
-        const spriteInfo = this._packer.addLottieShape(rawGroup, scalingFactor);
+        const spriteInfo = this._packer.addLottieShape(group, scalingFactor);
 
         const sprite = new ThinSprite();
 
@@ -269,7 +268,7 @@ export class AnimationParser {
         transform.anchorPoint.startValue.y -= spriteInfo.centerY || 0;
 
         new SpriteNode(
-            `${parent.id} - ${rawGroup.nm} - SpriteNode (Anchor)`,
+            `${parent.id} - ${group.name} - SpriteNode (Anchor)`,
             this._configuration.ignoreOpacityAnimations,
             sprite,
             transform.anchorPoint,
@@ -280,17 +279,18 @@ export class AnimationParser {
         );
     }
 
-    private _parseTransform(transform: RawTransform): Transform {
+    private _parseTransform(transform: LottieTransform): Transform {
+        // Access using raw properties with descriptive names as fallback
         return {
-            opacity: this._fromLottieScalarToBabylonScalar(transform.o, "Opacity", 1),
-            rotation: this._fromLottieScalarToBabylonScalar(transform.r, "Rotation", 0),
-            scale: this._fromLottieVector2ToBabylonVector2(transform.s, "Scale", DefaultScale),
-            position: this._fromLottieVector2ToBabylonVector2(transform.p, "Position", DefaultPosition),
-            anchorPoint: this._fromLottieVector2ToBabylonVector2(transform.a, "AnchorPoint", DefaultPosition),
+            opacity: this._fromLottieScalarToBabylonScalar(transform.opacity, "Opacity", 1),
+            rotation: this._fromLottieScalarToBabylonScalar(transform.rotation, "Rotation", 0),
+            scale: this._fromLottieVector2ToBabylonVector2(transform.scale, "Scale", DefaultScale),
+            position: this._fromLottieVector2ToBabylonVector2(transform.position, "Position", DefaultPosition),
+            anchorPoint: this._fromLottieVector2ToBabylonVector2(transform.anchorPoint, "AnchorPoint", DefaultPosition),
         };
     }
 
-    private _fromLottieScalarToBabylonScalar(property: RawScalarProperty | undefined, scalarType: ScalarType, defaultValue: number): ScalarProperty {
+    private _fromLottieScalarToBabylonScalar(property: LottieScalarProperty | undefined, scalarType: ScalarType, defaultValue: number): ScalarProperty {
         if (!property) {
             return {
                 startValue: defaultValue,
@@ -299,54 +299,59 @@ export class AnimationParser {
             };
         }
 
-        if (property.a === 0) {
+        if (property.animated === 0) {
             return {
-                startValue: property.k as number,
-                currentValue: property.k as number,
+                startValue: property.keyframes as number,
+                currentValue: property.keyframes as number,
                 currentKeyframeIndex: 0,
             };
         }
 
         const keyframes: ScalarKeyframe[] = [];
-        const rawKeyFrames = property.k as RawVectorKeyframe[];
+        const rawKeyFrames = property.keyframes;
+        if (!Array.isArray(rawKeyFrames)) {
+            throw new Error("parsing error");
+        }
         let i = 0;
         for (i = 0; i < rawKeyFrames.length; i++) {
+            const kf = rawKeyFrames[i];
             let easeFunction: BezierCurve | undefined = undefined;
-            if (rawKeyFrames[i].o !== undefined && rawKeyFrames[i].i !== undefined) {
-                if (Array.isArray(rawKeyFrames[i].o!.x)) {
-                    // Value is an array
-                    easeFunction = new BezierCurve(
-                        (rawKeyFrames[i].o!.x as number[])[0],
-                        (rawKeyFrames[i].o!.y as number[])[0],
-                        (rawKeyFrames[i].i!.x as number[])[0],
-                        (rawKeyFrames[i].i!.y as number[])[0],
-                        this._configuration.easingSteps
-                    );
-                } else {
-                    // Value is a number
-                    easeFunction = new BezierCurve(
-                        rawKeyFrames[i].o!.x as number,
-                        rawKeyFrames[i].o!.y as number,
-                        rawKeyFrames[i].i!.x as number,
-                        rawKeyFrames[i].i!.y as number,
-                        this._configuration.easingSteps
-                    );
-                }
+            if (!IsCompleteLottieKeyFrame(kf)) {
+                throw new Error("Incomplete Lottie KeyFrame");
+            }
+            if (AreArrayTangents(kf)) {
+                // Value is an array
+                easeFunction = new BezierCurve(
+                    kf.outTangent.timeComponent[0],
+                    kf.outTangent.valueComponent[0],
+                    kf.inTangent.timeComponent[0],
+                    kf.inTangent.valueComponent[0],
+                    this._configuration.easingSteps
+                );
+            } else {
+                // Value is a number
+                easeFunction = new BezierCurve(
+                    kf.outTangent.timeComponent as number,
+                    kf.outTangent.valueComponent as number,
+                    kf.inTangent.timeComponent as number,
+                    kf.inTangent.valueComponent as number,
+                    this._configuration.easingSteps
+                );
             }
 
-            let value = rawKeyFrames[i].s[0];
+            let value = kf.value[0];
             if (scalarType === "Rotation") {
                 value = (value * Math.PI) / 180; // Lottie uses degrees for rotation, convert to radians
             }
 
             keyframes.push({
                 value: value,
-                time: rawKeyFrames[i].t,
-                easeFunction: easeFunction!, // We assume that the ease function is always defined if we have keyframes
+                time: kf.time,
+                easeFunction, // We assume that the ease function is always defined if we have keyframes
             });
         }
 
-        let startValue = rawKeyFrames[0].s[0];
+        let startValue = rawKeyFrames[0].value[0];
         if (scalarType === "Rotation") {
             startValue = (startValue * Math.PI) / 180; // Lottie uses degrees for rotation, convert to radians
         }
@@ -359,7 +364,7 @@ export class AnimationParser {
         };
     }
 
-    private _fromLottieVector2ToBabylonVector2(property: RawVectorProperty | undefined, vectorType: VectorType, defaultValue: IVector2Like): Vector2Property {
+    private _fromLottieVector2ToBabylonVector2(property: LottieVectorProperty | undefined, vectorType: VectorType, defaultValue: IVector2Like): Vector2Property {
         if (!property) {
             return {
                 startValue: defaultValue,
@@ -368,8 +373,8 @@ export class AnimationParser {
             };
         }
 
-        if (property.l !== undefined && property.l !== 2) {
-            this._unsupportedFeatures.push(`Invalid Vector2 Length - Length: ${property.l}`);
+        if (property.length !== undefined && property.length !== 2) {
+            this._unsupportedFeatures.push(`Invalid Vector2 Length - Length: ${property.length}`);
             return {
                 startValue: defaultValue,
                 currentValue: defaultValue,
@@ -377,8 +382,8 @@ export class AnimationParser {
             };
         }
 
-        if (property.a === 0) {
-            const values = property.k as number[];
+        if (property.animated === 0) {
+            const values = property.keyframes as number[];
             const value = this._calculateFinalVector(values[0], values[1], vectorType);
             return {
                 startValue: value,
@@ -388,64 +393,62 @@ export class AnimationParser {
         }
 
         const keyframes: Vector2Keyframe[] = [];
-        const rawKeyFrames = property.k as RawVectorKeyframe[];
+        const rawKeyFrames = property.keyframes as LottieVectorKeyframe[];
         let i = 0;
         for (i = 0; i < rawKeyFrames.length; i++) {
             let easeFunction1: BezierCurve | undefined = undefined;
-            if (rawKeyFrames[i].o !== undefined && rawKeyFrames[i].i !== undefined) {
-                if (Array.isArray(rawKeyFrames[i].o!.x)) {
-                    // Value is an array
-                    easeFunction1 = new BezierCurve(
-                        (rawKeyFrames[i].o!.x as number[])[0],
-                        (rawKeyFrames[i].o!.y as number[])[0],
-                        (rawKeyFrames[i].i!.x as number[])[0],
-                        (rawKeyFrames[i].i!.y as number[])[0],
-                        this._configuration.easingSteps
-                    );
-                } else {
-                    // Value is a number
-                    easeFunction1 = new BezierCurve(
-                        rawKeyFrames[i].o!.x as number,
-                        rawKeyFrames[i].o!.y as number,
-                        rawKeyFrames[i].i!.x as number,
-                        rawKeyFrames[i].i!.y as number,
-                        this._configuration.easingSteps
-                    );
-                }
+            const kf = rawKeyFrames[i];
+            if (!IsCompleteLottieKeyFrame(kf)) {
+                throw new Error("Incomplete Lottie KeyFrame");
             }
-
+            if (AreArrayTangents(kf)) {
+                // Value is an array
+                easeFunction1 = new BezierCurve(
+                    kf.outTangent.timeComponent[0],
+                    kf.outTangent.valueComponent[0],
+                    kf.inTangent.timeComponent[0],
+                    kf.inTangent.valueComponent[0],
+                    this._configuration.easingSteps
+                );
+            } else {
+                // Value is a number
+                easeFunction1 = new BezierCurve(
+                    kf.outTangent.timeComponent as number,
+                    kf.outTangent.valueComponent as number,
+                    kf.inTangent.timeComponent as number,
+                    kf.inTangent.valueComponent as number,
+                    this._configuration.easingSteps
+                );
+            }
             let easeFunction2: BezierCurve | undefined = undefined;
-            if (rawKeyFrames[i].o !== undefined && rawKeyFrames[i].i !== undefined) {
-                if (Array.isArray(rawKeyFrames[i].o!.x)) {
-                    // Value is an array
-                    easeFunction2 = new BezierCurve(
-                        (rawKeyFrames[i].o!.x as number[])[1],
-                        (rawKeyFrames[i].o!.y as number[])[1],
-                        (rawKeyFrames[i].i!.x as number[])[1],
-                        (rawKeyFrames[i].i!.y as number[])[1],
-                        this._configuration.easingSteps
-                    );
-                } else {
-                    // Value is a number
-                    easeFunction2 = new BezierCurve(
-                        rawKeyFrames[i].o!.x as number,
-                        rawKeyFrames[i].o!.y as number,
-                        rawKeyFrames[i].i!.x as number,
-                        rawKeyFrames[i].i!.y as number,
-                        this._configuration.easingSteps
-                    );
-                }
+            if (AreArrayTangents(kf)) {
+                // Value is an array
+                easeFunction2 = new BezierCurve(
+                    kf.outTangent.timeComponent[1],
+                    kf.outTangent.valueComponent[1],
+                    kf.inTangent.timeComponent[1],
+                    kf.inTangent.valueComponent[1],
+                    this._configuration.easingSteps
+                );
+            } else {
+                // Value is a number
+                easeFunction2 = new BezierCurve(
+                    kf.outTangent.timeComponent as number,
+                    kf.outTangent.valueComponent as number,
+                    kf.inTangent.timeComponent as number,
+                    kf.inTangent.valueComponent as number,
+                    this._configuration.easingSteps
+                );
             }
-
             keyframes.push({
-                value: this._calculateFinalVector(rawKeyFrames[i].s[0], rawKeyFrames[i].s[1], vectorType),
-                time: rawKeyFrames[i].t,
+                value: this._calculateFinalVector(kf.value[0], kf.value[1], vectorType),
+                time: kf.time,
                 easeFunction1: easeFunction1!, // We assume that the ease function is always defined if we have keyframes
                 easeFunction2: easeFunction2!, // We assume that the ease function is always defined if we have keyframes
             });
         }
 
-        const startValue = this._calculateFinalVector(rawKeyFrames[0].s[0], rawKeyFrames[0].s[1], vectorType);
+        const startValue = this._calculateFinalVector(rawKeyFrames[0].value[0], rawKeyFrames[0].value[1], vectorType);
         return {
             startValue: startValue,
             currentValue: { x: startValue.x, y: startValue.y }, // All vectors are passed by reference, so we need to create a copy to avoid modifying the start value
@@ -486,47 +489,78 @@ export class AnimationParser {
         return scale;
     }
 
-    private _validatePathShape(shape: RawPathShape): void {
-        if (shape.ks.a === 1) {
-            this._unsupportedFeatures.push(`Path ${shape.nm} has animated properties which are not supported`);
+    private _validatePathShape(pathShape: PathShape): void {
+        if (pathShape.shape.animated === 1) {
+            this._unsupportedFeatures.push(`Path ${pathShape.name} has animated properties which are not supported`);
         }
     }
 
-    private _validateRectangleShape(shape: RawRectangleShape): void {
-        if (shape.p.a === 1) {
-            this._unsupportedFeatures.push(`Rectangle ${shape.nm} has an position property that is animated which is not supported`);
+    private _validateRectangleShape(rectShape: RectangleShape): void {
+        if (rectShape.position.animated === 1) {
+            this._unsupportedFeatures.push(`Rectangle ${rectShape.name} has an position property that is animated which is not supported`);
         }
 
-        if (shape.s.a === 1) {
-            this._unsupportedFeatures.push(`Rectangle ${shape.nm} has a size property that is animated which is not supported`);
+        if (rectShape.size.animated === 1) {
+            this._unsupportedFeatures.push(`Rectangle ${rectShape.name} has a size property that is animated which is not supported`);
         }
 
-        if (shape.r.a === 1) {
-            this._unsupportedFeatures.push(`Rectangle ${shape.nm} has a rounded corners property that is animated which is not supported`);
-        }
-    }
-
-    private _validateFillShape(shape: RawFillShape) {
-        if (shape.o.a === 1) {
-            this._unsupportedFeatures.push(`Fill ${shape.nm} has an opacity property that is animated which is not supported`);
-        }
-
-        if (shape.c.a === 1) {
-            this._unsupportedFeatures.push(`Fill ${shape.nm} has a color property that is animated which is not supported`);
+        if (rectShape.roundness.animated === 1) {
+            this._unsupportedFeatures.push(`Rectangle ${rectShape.name} has a rounded corners property that is animated which is not supported`);
         }
     }
 
-    private _validateGradientFillShape(shape: RawGradientFillShape) {
-        if (shape.o.a === 1) {
-            this._unsupportedFeatures.push(`Gradient fill ${shape.nm} has an opacity property that is animated which is not supported`);
+    private _validateFillShape(fillShape: FillShape): void {
+        if (fillShape.opacity.animated === 1) {
+            this._unsupportedFeatures.push(`Fill ${fillShape.name} has an opacity property that is animated which is not supported`);
         }
 
-        if (shape.s.a === 1) {
-            this._unsupportedFeatures.push(`Gradient fill ${shape.nm} has a start point property that is animated which is not supported`);
+        if (fillShape.color?.animated === 1) {
+            this._unsupportedFeatures.push(`Fill ${fillShape.name} has a color property that is animated which is not supported`);
+        }
+    }
+
+    private _validateGradientFillShape(gradFillShape: GradientFillShape): void {
+        if (gradFillShape.opacity.animated === 1) {
+            this._unsupportedFeatures.push(`Gradient fill ${gradFillShape.name} has an opacity property that is animated which is not supported`);
         }
 
-        if (shape.e.a === 1) {
-            this._unsupportedFeatures.push(`Gradient fill ${shape.nm} has an end point property that is animated which is not supported`);
+        if (gradFillShape.startPoint.animated === 1) {
+            this._unsupportedFeatures.push(`Gradient fill ${gradFillShape.name} has a start point property that is animated which is not supported`);
+        }
+
+        if (gradFillShape.endPoint.animated === 1) {
+            this._unsupportedFeatures.push(`Gradient fill ${gradFillShape.name} has an end point property that is animated which is not supported`);
         }
     }
 }
+
+const IsCompleteLottieKeyFrame = (keyframe: LottieVectorKeyframe): keyframe is Required<LottieVectorKeyframe> => {
+    return (
+        keyframe.outTangent !== undefined &&
+        keyframe.inTangent !== undefined &&
+        keyframe.outTangent.timeComponent !== undefined &&
+        keyframe.outTangent.valueComponent !== undefined &&
+        keyframe.inTangent.timeComponent !== undefined &&
+        keyframe.inTangent.valueComponent !== undefined
+    );
+};
+
+const AreArrayTangents = (keyFrame: Required<LottieVectorKeyframe>): keyFrame is LottieVectorKeyframeWithArrayTangents => {
+    return (
+        Array.isArray(keyFrame.outTangent.timeComponent) &&
+        Array.isArray(keyFrame.outTangent.valueComponent) &&
+        Array.isArray(keyFrame.inTangent.timeComponent) &&
+        Array.isArray(keyFrame.inTangent.valueComponent)
+    );
+};
+
+type LottieVectorKeyframeWithArrayTangents = Required<LottieVectorKeyframe> & {
+    outTangent: {
+        timeComponent: number[];
+        valueComponent: number[];
+    };
+    inTangent: {
+        timeComponent: number[];
+        valueComponent: number[];
+    };
+};
