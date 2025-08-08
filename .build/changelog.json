@@ -1,6 +1,57 @@
 {
-    "fromTag": "8.22.0",
+    "fromTag": "8.22.1",
     "changelog": {
+        "8.22.2": [
+            {
+                "pr": "16997",
+                "title": "Update GUI control to be forgiving of text resizeToFit layout calculations",
+                "description": "Control.ts expects less than 3 layouts to occur but textBlock.ts will layout 3 times when resizeToFit is true -- this is because isDirty is set to true causing a recreation of fontOffset (even if font offset has the proper height) and thus fontOffset.height is getting recalculated to the old value We should fix the logic so that fontOffset retains the updated height value. Until then, upping the layout cycle detection error threshold\r\n\r\nRelayout 1: NewHeight 106, InternalHeight 187 --> updates internal height to be new height unnecessarily since the internalheight is valid \r\nRelayout 2: NewHeight 187, InternalHeight 106 \r\nRelayout 3: Both 187 --> exit loop (but at this point we're already at 3) \r\n<img width=\"236\" height=\"39\" alt=\"image\" src=\"https://github.com/user-attachments/assets/2e2508c5-377e-42d1-be79-0a3d15d50529\" />\r\n\r\nSee https://forum.babylonjs.com/t/jumping-text-with-resizetofit-false/59949 for more details\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/gui/src/2D/controls/control.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16999",
+                "title": "Npe update age",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    ".build/config.json",
+                    "packages/dev/core/src/Particles/Node/Blocks/Update/updateAgeBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/index.ts",
+                    "packages/tools/nodeParticleEditor/src/blockTools.ts",
+                    "packages/tools/nodeParticleEditor/src/components/nodeList/nodeListComponent.tsx",
+                    "packages/tools/nodeParticleEditor/src/graphSystem/registerToDisplayLedger.ts"
+                ],
+                "tags": [
+                    "skip changelog",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "16996",
+                "title": "Remove unnecessary BBox computation",
+                "description": "Discussion:\r\nhttps://forum.babylonjs.com/t/instancedmesh-duplicated-call-to-refreshboundinginfo-in-clone/59939\r\n\r\nMy analysis:\r\n- The createInstance already calls the bbox computation\r\n- The DeepClone does not affect properties related to BBox\r\n",
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Meshes/instancedMesh.ts"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            }
+        ],
         "8.22.1": [
             {
                 "pr": "16992",
