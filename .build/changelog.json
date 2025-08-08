@@ -1,6 +1,265 @@
 {
-    "fromTag": "8.21.1",
+    "fromTag": "8.22.0",
     "changelog": {
+        "8.22.1": [
+            {
+                "pr": "16992",
+                "title": "Fix texture deserializer to not ignore base64String storage",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    ".build/config.json",
+                    "packages/dev/core/src/Materials/Node/Blocks/Dual/imageSourceBlock.ts",
+                    "packages/dev/core/src/Materials/Node/Blocks/Dual/textureBlock.ts",
+                    "packages/dev/core/src/Materials/Textures/texture.ts"
+                ],
+                "tags": [
+                    "new feature"
+                ]
+            },
+            {
+                "pr": "16988",
+                "title": "Add support for SSAO in NME",
+                "description": "snippet to test in NME: #HQQ2XH\r\n\r\n<img width=\"616\" height=\"575\" alt=\"image\" src=\"https://github.com/user-attachments/assets/726a0d71-5a6d-4011-9c55-5cab8c4eaa6e\" />\r\n",
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/Node/Blocks/Fragment/ambientOcclusionBlock.ts",
+                    "packages/dev/core/src/Materials/Node/Blocks/Fragment/index.ts",
+                    "packages/dev/core/src/Materials/Node/Blocks/Input/inputBlock.ts",
+                    "packages/dev/core/src/Materials/Node/Enums/nodeMaterialSystemValues.ts",
+                    "packages/tools/nodeEditor/src/blockTools.ts",
+                    "packages/tools/nodeEditor/src/components/nodeList/nodeListComponent.tsx",
+                    "packages/tools/nodeEditor/src/graphSystem/display/inputDisplayManager.ts",
+                    "packages/tools/nodeEditor/src/graphSystem/properties/inputNodePropertyComponent.tsx"
+                ],
+                "tags": [
+                    "new feature",
+                    "nme"
+                ]
+            },
+            {
+                "pr": "16982",
+                "title": "Update glTF interactivity mapping to match latest spec",
+                "description": "See spec updates:\r\n- https://github.com/KhronosGroup/glTF/commit/4f0e47ebd75bfc3957aa8f0b3a69ded5f359d10b\r\n- https://github.com/KhronosGroup/glTF/commit/72fe934689bd3a84eed66963e56ae49c1c3af9ff\r\n",
+                "author": {
+                    "name": "bghgary",
+                    "url": "https://github.com/bghgary"
+                },
+                "files": [
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/KHR_interactivity/declarationMapper.ts",
+                    "packages/dev/loaders/test/unit/Interactivity/interactivity.math nodes.test.ts"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16989",
+                "title": "Update Fluent packages to the latest",
+                "description": "This PR just updates Fluent to the latest version. I did some quick testing in Inspector v2 and didn't see any issues.\r\n\r\n@georginahalpern do you want to test this in any of the other tools before we merge?",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "package-lock.json"
+                ],
+                "tags": [
+                    "tools",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16991",
+                "title": "Allow node to display visual clue when a port is not active due to th…",
+                "description": "…e node configuration\r\n\r\nexample here with perturbnormal:\r\n\r\n<img width=\"246\" height=\"512\" alt=\"image\" src=\"https://github.com/user-attachments/assets/b47f879b-ca05-40ce-9e5e-ea057f7631ae\" />\r\n<img width=\"288\" height=\"542\" alt=\"image\" src=\"https://github.com/user-attachments/assets/884cd5a8-3e17-470d-afa9-a923a93382fe\" />\r\n\r\nThe use parallax occlusion check will flag the parallaxScale and parallaxHeight as inactive",
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/Node/Blocks/Fragment/perturbNormalBlock.ts",
+                    "packages/dev/core/src/Materials/Node/nodeMaterialBlockConnectionPoint.ts",
+                    "packages/dev/sharedUiComponents/src/nodeGraphSystem/automaticProperties.ts",
+                    "packages/dev/sharedUiComponents/src/nodeGraphSystem/interfaces/portData.ts",
+                    "packages/tools/nodeEditor/src/graphSystem/connectionPointPortData.ts",
+                    "packages/tools/nodeEditor/src/graphSystem/registerNodePortDesign.ts",
+                    "packages/tools/nodeGeometryEditor/src/graphSystem/connectionPointPortData.ts",
+                    "packages/tools/nodeParticleEditor/src/graphSystem/connectionPointPortData.ts",
+                    "packages/tools/nodeRenderGraphEditor/src/graphSystem/connectionPointPortData.ts",
+                    "packages/tools/smartFiltersEditorControl/src/graphSystem/connectionPointPortData.ts"
+                ],
+                "tags": [
+                    "new feature",
+                    "nme"
+                ]
+            },
+            {
+                "pr": "16968",
+                "title": "Vicartas/muster pbrmaterial",
+                "description": "Added the Clear Coat, Iridescence, Anisotropic and Sheen sections for PBRBaseMaterial\r\n\r\n<img width=\"1696\" height=\"1374\" alt=\"image\" src=\"https://github.com/user-attachments/assets/e99f7e44-3eeb-4cda-8c36-32ee0896a436\" />\r\n\r\n<img width=\"1700\" height=\"1154\" alt=\"image\" src=\"https://github.com/user-attachments/assets/679ad1ee-f535-4fe1-853e-13e2acbc0b29\" />\r\n",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/materials/pbrBaseMaterialProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/materials/pbrMaterialProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/materialPropertiesService.tsx",
+                    "packages/dev/inspector-v2/test/app/index.ts"
+                ],
+                "tags": [
+                    "inspector",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16995",
+                "title": "Inspector v2: Add activate and gizmo commands for cameras",
+                "description": "This change adds the \"Activate and Attach Controls\" and \"Enable/Disable Gizmo\" commands to Camera nodes in scene explorer.\r\n\r\n<img width=\"1054\" height=\"737\" alt=\"image\" src=\"https://github.com/user-attachments/assets/3e719425-2005-49cd-b713-a445fd18a800\" />\r\n\r\nThis includes a change that adds a `useObservableRenderer` hook, which builds on `useObservableState` and simply sets a number state to trigger a re-render. Arguably this is a React anti-pattern, but the alternative is to have a much more verbose useObservableState that replicates each property I care about on the command. I'm a bit torn on this and open to feedback.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/scene/sceneExplorer.tsx",
+                    "packages/dev/inspector-v2/src/extensibility/builtInsExtensionFeed.ts",
+                    "packages/dev/inspector-v2/src/hooks/observableHooks.ts",
+                    "packages/dev/inspector-v2/src/services/panes/scene/nodeExplorerService.tsx",
+                    "packages/dev/inspector-v2/test/app/index.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16798",
+                "title": "Inspector V2: Tools Pane Init",
+                "description": "Partial Tools pane implementation. Have left TODO comments for missing sections.\r\n\r\nThe idea is that the components of the Tools pane are lumped into three extensible categories, which can be installed via the Extensions Manager: Export, Capture, and Import tools.\r\n\r\nImages:\r\n<img width=\"974\" height=\"686\" alt=\"image\" src=\"https://github.com/user-attachments/assets/c9b9c23f-6ef4-407a-bb89-7c3e531cbb39\" />\r\n<img width=\"572\" height=\"1377\" alt=\"image\" src=\"https://github.com/user-attachments/assets/21d424a2-0759-42d7-9d87-9222199bbdd9\" />\r\n\r\n",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/package.json",
+                    "packages/dev/inspector-v2/src/components/tools/captureTools.tsx",
+                    "packages/dev/inspector-v2/src/components/tools/exportTools.tsx",
+                    "packages/dev/inspector-v2/src/components/tools/importTools.tsx",
+                    "packages/dev/inspector-v2/src/components/tools/toolsPane.tsx",
+                    "packages/dev/inspector-v2/src/extensibility/builtInsExtensionFeed.ts",
+                    "packages/dev/inspector-v2/src/services/panes/tools/captureService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/tools/exportService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/tools/importService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/toolsService.tsx",
+                    "packages/dev/inspector-v2/tsconfig.build.json",
+                    "packages/dev/inspector-v2/webpack.config.js",
+                    "packages/tools/playground/webpack.config.js"
+                ],
+                "tags": [
+                    "inspector",
+                    "skip changelog",
+                    "stale"
+                ]
+            },
+            {
+                "pr": "16966",
+                "title": "Add multimaterial support to inspector v2",
+                "description": "Material explorer:\r\n<img width=\"500\" height=\"246\" alt=\"image\" src=\"https://github.com/user-attachments/assets/63a4d536-22fd-447d-81d0-5a5c65d3b081\" />\r\n\r\nChildren section in material properties:\r\n<img width=\"520\" height=\"218\" alt=\"image\" src=\"https://github.com/user-attachments/assets/8a26aad1-8b39-4a6a-98b6-18340e1189e1\" />\r\n",
+                "author": {
+                    "name": "bghgary",
+                    "url": "https://github.com/bghgary"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/materials/multiMaterialProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/materialPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/materialExplorerService.tsx",
+                    "packages/dev/inspector-v2/test/app/index.ts"
+                ],
+                "tags": [
+                    "inspector",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16987",
+                "title": "Message bar reflow fix",
+                "description": "No more UX flicker between single line and mutliline! ",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/messageBar.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16973",
+                "title": "Inspector v2 - finish standard material properties port (except texture buttons)",
+                "description": "<img width=\"318\" height=\"391\" alt=\"image\" src=\"https://github.com/user-attachments/assets/d84be1d9-809c-4799-b7bc-858731e2b1ca\" />\r\n",
+                "author": {
+                    "name": "AmoebaChant",
+                    "url": "https://github.com/AmoebaChant"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/materials/normalMapProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/materials/standardMaterialLightingAndColorProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/materials/standardMaterialProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/materialPropertiesService.tsx",
+                    "packages/dev/inspector-v2/test/app/index.ts"
+                ],
+                "tags": [
+                    "inspector",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "16949",
+                "title": "spz v3 loader",
+                "description": "Update to Niantic .spz format : https://github.com/nianticlabs/spz/pull/41",
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "packages/dev/core/src/ShadersWGSL/gaussianSplatting.vertex.fx",
+                    "packages/dev/loaders/src/SPLAT/splatFileLoader.ts",
+                    "packages/tools/tests/test/visualization/ReferenceImages/gsplat-spz-v3.png",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": [
+                    "loaders",
+                    "new feature"
+                ]
+            },
+            {
+                "pr": "16985",
+                "title": "WebGPU: Sync with specification",
+                "description": null,
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Engines/WebGPU/webgpuConstants.ts",
+                    "packages/dev/core/src/Engines/WebGPU/webgpuTextureHelper.ts",
+                    "packages/dev/core/src/Engines/WebGPU/webgpuTextureManager.ts",
+                    "packages/dev/core/src/Engines/webgpuEngine.ts",
+                    "packages/dev/core/src/LibDeclarations/webgpu.d.ts"
+                ],
+                "tags": [
+                    "enhancement",
+                    "WebGPU"
+                ]
+            }
+        ],
         "8.22.0": [
             {
                 "pr": "16978",
