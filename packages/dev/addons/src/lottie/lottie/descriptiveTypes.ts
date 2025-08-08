@@ -182,7 +182,7 @@ type ConvertPropertyType<K, T> =
             : T
         : K extends "shapes" | "items" | "it"
           ? T extends RawGraphicElement[]
-              ? GraphicElement[]
+              ? LottieGraphicElement[]
               : T
           : // Handle different 'ks' properties based on their actual type
             K extends "ks"
@@ -275,12 +275,12 @@ type RenameProperties<T, M extends Record<string, string>> = {
 // Descriptive types using context-specific mappings
 export type LottieAnimation = RenameProperties<RawLottieAnimation, AnimationPropertyMap>;
 export type LottieLayer = RenameProperties<RawLottieLayer, LayerPropertyMap>;
-export type GraphicElement = RenameProperties<RawGraphicElement, GraphicElementPropertyMap>;
-export type GroupShape = RenameProperties<RawGroupShape, GroupShapePropertyMap>;
-export type RectangleShape = RenameProperties<RawRectangleShape, RectangleShapePropertyMap>;
-export type PathShape = RenameProperties<RawPathShape, PathShapePropertyMap>;
-export type FillShape = RenameProperties<RawFillShape, FillShapePropertyMap>;
-export type GradientFillShape = RenameProperties<RawGradientFillShape, GradientFillShapePropertyMap>;
+export type LottieGraphicElement = RenameProperties<RawGraphicElement, GraphicElementPropertyMap>;
+export type LottieGroupShape = RenameProperties<RawGroupShape, GroupShapePropertyMap>;
+export type LottieRectangleShape = RenameProperties<RawRectangleShape, RectangleShapePropertyMap>;
+export type LottiePathShape = RenameProperties<RawPathShape, PathShapePropertyMap>;
+export type LottieFillShape = RenameProperties<RawFillShape, FillShapePropertyMap>;
+export type LottieGradientFillShape = RenameProperties<RawGradientFillShape, GradientFillShapePropertyMap>;
 export type TransformShape = RenameProperties<RawTransformShape, TransformShapePropertyMap>;
 export type LottieTransform = RenameProperties<RawTransform, TransformPropertyMap>;
 export type LottieScalarProperty = RenameProperties<RawScalarProperty, PropertyPropertyMap>;
@@ -331,7 +331,7 @@ export function asLottieLayer(raw: RawLottieLayer): LottieLayer {
  * @param raw - The raw graphic element data
  * @returns The same data but with TypeScript types that use descriptive property names
  */
-export function asGraphicElement(raw: RawGraphicElement): GraphicElement {
+export function asGraphicElement(raw: RawGraphicElement): LottieGraphicElement {
     return raw as any;
 }
 

@@ -9,7 +9,7 @@ import type { BoundingBox } from "../maths/boundingBox";
 import { GetBoundingBox } from "../maths/boundingBox";
 
 import type { AnimationConfiguration } from "../lottiePlayer";
-import type { LottieBezier, FillShape, GradientFillShape, GroupShape, PathShape, RectangleShape } from "../lottie/descriptiveTypes";
+import type { LottieBezier, LottieFillShape, LottieGradientFillShape, LottieGroupShape, LottiePathShape, LottieRectangleShape } from "../lottie/descriptiveTypes";
 
 /**
  * Information about a sprite in the sprite atlas.
@@ -138,7 +138,7 @@ export class SpritePacker {
      * @param scalingFactor The scaling factor to apply to the shape.
      * @returns The information on how to find the sprite in the atlas.
      */
-    public addLottieShape(rawGroup: GroupShape, scalingFactor: IVector2Like): SpriteAtlasInfo {
+    public addLottieShape(rawGroup: LottieGroupShape, scalingFactor: IVector2Like): SpriteAtlasInfo {
         const boundingBox = GetBoundingBox(rawGroup);
         this._spriteAtlasInfo.cellWidth = boundingBox.width * scalingFactor.x;
         this._spriteAtlasInfo.cellHeight = boundingBox.height * scalingFactor.y;
@@ -191,7 +191,7 @@ export class SpritePacker {
         this._spritesCanvas = undefined as any; // Clear the canvas to allow garbage collection
     }
 
-    private _drawVectorShape(rawGroup: GroupShape, boundingBox: BoundingBox, scalingFactor: IVector2Like): void {
+    private _drawVectorShape(rawGroup: LottieGroupShape, boundingBox: BoundingBox, scalingFactor: IVector2Like): void {
         this._spritesCanvasContext.save();
 
         this._spritesCanvasContext.translate(this._currentX, this._currentY);
@@ -203,16 +203,16 @@ export class SpritePacker {
                 const shape = rawGroup.items[i];
                 switch (shape.type) {
                     case "rc":
-                        this._drawRectangle(shape as RectangleShape);
+                        this._drawRectangle(shape as LottieRectangleShape);
                         break;
                     case "sh":
-                        this._drawPath(shape as PathShape, boundingBox);
+                        this._drawPath(shape as LottiePathShape, boundingBox);
                         break;
                     case "fl":
-                        this._drawFill(shape as FillShape);
+                        this._drawFill(shape as LottieFillShape);
                         break;
                     case "gf":
-                        this._drawGradientFill(shape as GradientFillShape, boundingBox);
+                        this._drawGradientFill(shape as LottieGradientFillShape, boundingBox);
                         break;
                     default:
                         break;
@@ -223,7 +223,7 @@ export class SpritePacker {
         this._spritesCanvasContext.restore();
     }
 
-    private _drawRectangle(shape: RectangleShape): void {
+    private _drawRectangle(shape: LottieRectangleShape): void {
         // TODO assert number
         const size = shape.size.keyframes as number[];
         const radius = shape.roundness.keyframes as number;
@@ -235,7 +235,7 @@ export class SpritePacker {
         }
     }
 
-    private _drawPath(shape: PathShape, boundingBox: BoundingBox): void {
+    private _drawPath(shape: LottiePathShape, boundingBox: BoundingBox): void {
         const pathData = shape.shape.keyframes as LottieBezier;
         const xTranslate = boundingBox.width / 2 - boundingBox.centerX;
         const yTranslate = boundingBox.height / 2 - boundingBox.centerY;
@@ -284,14 +284,14 @@ export class SpritePacker {
         }
     }
 
-    private _drawFill(fill: FillShape): void {
+    private _drawFill(fill: LottieFillShape): void {
         const color = this._lottieColorToCSSColor(fill.color.keyframes as number[], (fill.opacity.keyframes as number) / 100);
         this._spritesCanvasContext.fillStyle = color;
 
         this._spritesCanvasContext.fill();
     }
 
-    private _drawGradientFill(fill: GradientFillShape, boundingBox: BoundingBox): void {
+    private _drawGradientFill(fill: LottieGradientFillShape, boundingBox: BoundingBox): void {
         switch (fill.type) {
             case 1: {
                 this._drawLinearGradientFill(fill, boundingBox);
@@ -304,7 +304,7 @@ export class SpritePacker {
         }
     }
 
-    private _drawLinearGradientFill(fill: GradientFillShape, boundingBox: BoundingBox): void {
+    private _drawLinearGradientFill(fill: LottieGradientFillShape, boundingBox: BoundingBox): void {
         const xTranslate = boundingBox.width / 2 - boundingBox.centerX;
         const yTranslate = boundingBox.height / 2 - boundingBox.centerY;
 
@@ -324,7 +324,7 @@ export class SpritePacker {
         this._spritesCanvasContext.fill();
     }
 
-    private _drawRadialGradientFill(fill: GradientFillShape, boundingBox: BoundingBox): void {
+    private _drawRadialGradientFill(fill: LottieGradientFillShape, boundingBox: BoundingBox): void {
         const xTranslate = boundingBox.width / 2 - boundingBox.centerX;
         const yTranslate = boundingBox.height / 2 - boundingBox.centerY;
 
@@ -347,7 +347,7 @@ export class SpritePacker {
         this._spritesCanvasContext.fill();
     }
 
-    private _addColorStops(gradient: CanvasGradient, fill: GradientFillShape): void {
+    private _addColorStops(gradient: CanvasGradient, fill: LottieGradientFillShape): void {
         const stops = fill.gradient.colorStopCount;
         const rawColors = fill.gradient.gradientProperty.keyframes as number[]; // Keyframes for the gradient colors
 

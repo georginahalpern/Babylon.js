@@ -1,4 +1,4 @@
-import type { LottieBezier, GroupShape, PathShape, RectangleShape } from "../lottie/descriptiveTypes";
+import type { LottieBezier, LottieGroupShape, LottiePathShape, LottieRectangleShape } from "../lottie/descriptiveTypes";
 
 /**
  * Represents a bounding box for a shape in the animation.
@@ -35,7 +35,7 @@ type Corners = {
  * @param groupShape The group shape to calculate the bounding box for
  * @returns The bounding box for the group shape
  */
-export function GetBoundingBox(groupShape: GroupShape): BoundingBox {
+export function GetBoundingBox(groupShape: LottieGroupShape): BoundingBox {
     const boxCorners: Corners = {
         minX: Infinity,
         minY: Infinity,
@@ -46,9 +46,9 @@ export function GetBoundingBox(groupShape: GroupShape): BoundingBox {
     if (groupShape.items !== undefined) {
         for (let i = 0; i < groupShape.items.length; i++) {
             if (groupShape.items[i].type === "rc") {
-                GetRectangleVertices(boxCorners, groupShape.items[i] as RectangleShape);
+                GetRectangleVertices(boxCorners, groupShape.items[i] as LottieRectangleShape);
             } else if (groupShape.items[i].type === "sh") {
-                GetPathVertices(boxCorners, groupShape.items[i] as PathShape);
+                GetPathVertices(boxCorners, groupShape.items[i] as LottiePathShape);
             }
         }
     }
@@ -61,7 +61,7 @@ export function GetBoundingBox(groupShape: GroupShape): BoundingBox {
     };
 }
 
-function GetRectangleVertices(boxCorners: Corners, rect: RectangleShape): void {
+function GetRectangleVertices(boxCorners: Corners, rect: LottieRectangleShape): void {
     const size = rect.size.keyframes as number[];
     const position = rect.position.keyframes as number[];
 
@@ -72,7 +72,7 @@ function GetRectangleVertices(boxCorners: Corners, rect: RectangleShape): void {
     UpdateBoxCorners(boxCorners, position[0] - size[0] / 2, position[1] + size[1] / 2);
 }
 
-function GetPathVertices(boxCorners: Corners, path: PathShape): void {
+function GetPathVertices(boxCorners: Corners, path: LottiePathShape): void {
     const bezier = path.shape.keyframes as LottieBezier;
     const vertices = bezier.vertices as number[][];
     const inTangents = bezier.inTangents;

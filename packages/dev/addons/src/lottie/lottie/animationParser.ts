@@ -3,15 +3,15 @@ import { ThinSprite } from "core/Sprites/thinSprite";
 
 import type {
     LottieLayer,
-    GroupShape,
+    LottieGroupShape,
     LottieAnimation,
     LottieTransform,
-    GraphicElement,
+    LottieGraphicElement,
     LottieVectorProperty,
-    RectangleShape,
-    PathShape,
-    FillShape,
-    GradientFillShape,
+    LottieRectangleShape,
+    LottiePathShape,
+    LottieFillShape,
+    LottieGradientFillShape,
     LottieVectorKeyframe,
     LottieScalarProperty,
 } from "./descriptiveTypes";
@@ -63,7 +63,7 @@ export class AnimationParser {
     private _rootNodes: Node[]; // Array of root-level nodes in the animation, in top-down z order
 
     // Loop variables to save allocations
-    private _shape: GraphicElement | undefined = undefined;
+    private _shape: LottieGraphicElement | undefined = undefined;
 
     /**
      * Get the animation information parsed from the Lottie file.
@@ -192,7 +192,7 @@ export class AnimationParser {
         }
     }
 
-    private _parseShapes(parent: Node, shapes: GraphicElement[], scalingFactor: IVector2Like): void {
+    private _parseShapes(parent: Node, shapes: LottieGraphicElement[], scalingFactor: IVector2Like): void {
         for (let i = 0; i < shapes.length; i++) {
             if (shapes[i].hidden === true) {
                 continue; // Ignore hidden shapes
@@ -207,7 +207,7 @@ export class AnimationParser {
         }
     }
 
-    private _parseGroupShape(parent: Node, group: GroupShape, scalingFactor: IVector2Like): void {
+    private _parseGroupShape(parent: Node, group: LottieGroupShape, scalingFactor: IVector2Like): void {
         if (!group.items || group.items.length === 0) {
             return;
         }
@@ -220,13 +220,13 @@ export class AnimationParser {
             } else if (this._shape?.type === "tr") {
                 transform = this._parseTransform(this._shape as LottieTransform);
             } else if (this._shape?.type === "sh") {
-                this._validatePathShape(this._shape as PathShape);
+                this._validatePathShape(this._shape as LottiePathShape);
             } else if (this._shape?.type === "rc") {
-                this._validateRectangleShape(this._shape as RectangleShape);
+                this._validateRectangleShape(this._shape as LottieRectangleShape);
             } else if (this._shape?.type === "fl") {
-                this._validateFillShape(this._shape as FillShape);
+                this._validateFillShape(this._shape as LottieFillShape);
             } else if (this._shape?.type === "gf") {
-                this._validateGradientFillShape(this._shape as GradientFillShape);
+                this._validateGradientFillShape(this._shape as LottieGradientFillShape);
             } else if (this._shape) {
                 this._unsupportedFeatures.push(`Unsupported shape type - Name: ${this._shape.name} Type: ${this._shape.type}`);
             }
@@ -489,13 +489,13 @@ export class AnimationParser {
         return scale;
     }
 
-    private _validatePathShape(pathShape: PathShape): void {
+    private _validatePathShape(pathShape: LottiePathShape): void {
         if (pathShape.shape.animated === 1) {
             this._unsupportedFeatures.push(`Path ${pathShape.name} has animated properties which are not supported`);
         }
     }
 
-    private _validateRectangleShape(rectShape: RectangleShape): void {
+    private _validateRectangleShape(rectShape: LottieRectangleShape): void {
         if (rectShape.position.animated === 1) {
             this._unsupportedFeatures.push(`Rectangle ${rectShape.name} has an position property that is animated which is not supported`);
         }
@@ -509,7 +509,7 @@ export class AnimationParser {
         }
     }
 
-    private _validateFillShape(fillShape: FillShape): void {
+    private _validateFillShape(fillShape: LottieFillShape): void {
         if (fillShape.opacity.animated === 1) {
             this._unsupportedFeatures.push(`Fill ${fillShape.name} has an opacity property that is animated which is not supported`);
         }
@@ -519,7 +519,7 @@ export class AnimationParser {
         }
     }
 
-    private _validateGradientFillShape(gradFillShape: GradientFillShape): void {
+    private _validateGradientFillShape(gradFillShape: LottieGradientFillShape): void {
         if (gradFillShape.opacity.animated === 1) {
             this._unsupportedFeatures.push(`Gradient fill ${gradFillShape.name} has an opacity property that is animated which is not supported`);
         }
