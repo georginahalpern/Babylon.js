@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import type {
     RawLottieAnimation,
     RawLottieLayer,
@@ -169,9 +168,6 @@ type BezierPropertyMap = {
     o: "outTangents";
     v: "vertices";
 };
-// ...existing code...
-
-// ...existing code...
 
 // Helper type for converting specific property types using both property name AND type
 type ConvertPropertyType<K, T> =
@@ -189,19 +185,19 @@ type ConvertPropertyType<K, T> =
             ? T extends RawTransform
                 ? LottieTransform
                 : T extends RawBezierShapeProperty
-                  ? BezierShapeProperty
+                  ? LottieBezierShapeProperty
                   : T
             : // Handle easing properties using RAW property names (i, o) - must come before scalar 'o'
               K extends "i" | "o"
               ? T extends RawKeyFrameEasing
-                  ? KeyFrameEasing
+                  ? LottieKeyFrameEasing
                   : T extends RawScalarProperty
                     ? LottieScalarProperty
                     : T
               : // Handle position properties using RAW property names (a, p)
                 K extends "a" | "p"
                 ? T extends RawPositionProperty
-                    ? PositionProperty
+                    ? LottiePositionProperty
                     : T extends RawVectorProperty
                       ? LottieVectorProperty
                       : T
@@ -218,31 +214,31 @@ type ConvertPropertyType<K, T> =
                     : // Handle color properties using RAW property names
                       K extends "c"
                       ? T extends RawColorProperty
-                          ? ColorProperty
+                          ? LottieColorProperty
                           : T
                       : // Handle gradient properties using RAW property names
                         K extends "g"
                         ? T extends RawGradientsProperty
-                            ? GradientsProperty
+                            ? LottieGradientsProperty
                             : T
                         : // Handle keyframes arrays using RAW property names
                           K extends "k" // keyframes
                           ? T extends RawVectorKeyframe[]
                               ? LottieVectorKeyframe[]
                               : T extends RawPositionKeyframe[]
-                                ? PositionKeyframe[]
+                                ? LottiePositionKeyframe[]
                                 : T extends RawColorKeyframe[]
-                                  ? ColorKeyframe[]
+                                  ? LottieColorKeyframe[]
                                   : T extends RawBezierShapeKeyframe[]
-                                    ? BezierShapeKeyframe[]
+                                    ? LottieBezierShapeKeyframe[]
                                     : T extends number | RawVectorKeyframe[]
                                       ? number | LottieVectorKeyframe[]
                                       : T extends number[] | RawVectorKeyframe[]
                                         ? number[] | LottieVectorKeyframe[]
                                         : T extends RawGradientProperty
-                                          ? GradientProperty
+                                          ? LottieGradientProperty
                                           : T extends RawBezier | RawBezierShapeKeyframe[]
-                                            ? LottieBezier | BezierShapeKeyframe[]
+                                            ? LottieBezier | LottieBezierShapeKeyframe[]
                                             : T extends RawBezier
                                               ? LottieBezier
                                               : T
@@ -261,11 +257,6 @@ type ConvertPropertyType<K, T> =
                                       : T
                                   : T
                               : T;
-// ...rest of the code remains the same...
-
-// ...rest of the code remains the same...
-
-// ...rest of the code remains the same...
 
 // Utility type to rename properties and convert nested types
 type RenameProperties<T, M extends Record<string, string>> = {
@@ -281,20 +272,20 @@ export type LottieRectangleShape = RenameProperties<RawRectangleShape, Rectangle
 export type LottiePathShape = RenameProperties<RawPathShape, PathShapePropertyMap>;
 export type LottieFillShape = RenameProperties<RawFillShape, FillShapePropertyMap>;
 export type LottieGradientFillShape = RenameProperties<RawGradientFillShape, GradientFillShapePropertyMap>;
-export type TransformShape = RenameProperties<RawTransformShape, TransformShapePropertyMap>;
+export type LottieTransformShape = RenameProperties<RawTransformShape, TransformShapePropertyMap>;
 export type LottieTransform = RenameProperties<RawTransform, TransformPropertyMap>;
 export type LottieScalarProperty = RenameProperties<RawScalarProperty, PropertyPropertyMap>;
 export type LottieVectorProperty = RenameProperties<RawVectorProperty, PropertyPropertyMap>;
 export type LottieVectorKeyframe = RenameProperties<RawVectorKeyframe, KeyframePropertyMap>;
-export type PositionProperty = RenameProperties<RawPositionProperty, PropertyPropertyMap>;
-export type PositionKeyframe = RenameProperties<RawPositionKeyframe, PositionKeyframePropertyMap>;
-export type BezierShapeProperty = RenameProperties<RawBezierShapeProperty, BezierShapePropertyMap>;
-export type BezierShapeKeyframe = RenameProperties<RawBezierShapeKeyframe, BezierShapeKeyframePropertyMap>;
-export type ColorProperty = RenameProperties<RawColorProperty, ColorPropertyMap>;
-export type ColorKeyframe = RenameProperties<RawColorKeyframe, KeyframePropertyMap>;
-export type GradientsProperty = RenameProperties<RawGradientsProperty, GradientsPropertyMap>;
-export type GradientProperty = RenameProperties<RawGradientProperty, GradientPropertyMap>;
-export type KeyFrameEasing = RenameProperties<RawKeyFrameEasing, KeyFrameEasingPropertyMap>;
+export type LottiePositionProperty = RenameProperties<RawPositionProperty, PropertyPropertyMap>;
+export type LottiePositionKeyframe = RenameProperties<RawPositionKeyframe, PositionKeyframePropertyMap>;
+export type LottieBezierShapeProperty = RenameProperties<RawBezierShapeProperty, BezierShapePropertyMap>;
+export type LottieBezierShapeKeyframe = RenameProperties<RawBezierShapeKeyframe, BezierShapeKeyframePropertyMap>;
+export type LottieColorProperty = RenameProperties<RawColorProperty, ColorPropertyMap>;
+export type LottieColorKeyframe = RenameProperties<RawColorKeyframe, KeyframePropertyMap>;
+export type LottieGradientsProperty = RenameProperties<RawGradientsProperty, GradientsPropertyMap>;
+export type LottieGradientProperty = RenameProperties<RawGradientProperty, GradientPropertyMap>;
+export type LottieKeyFrameEasing = RenameProperties<RawKeyFrameEasing, KeyFrameEasingPropertyMap>;
 export type LottieBezier = RenameProperties<RawBezier, BezierPropertyMap>;
 
 // Re-export the simple types
@@ -304,88 +295,3 @@ export type ShapeType = RawShapeType;
 export type ShapeDirection = RawShapeDirection;
 export type FillRule = RawFillRule;
 export type GradientType = RawGradientType;
-
-/**
- * Converts a raw Lottie animation to one with descriptive property names.
- * This is a zero-cost operation at runtime.
- * @param raw - The raw Lottie animation data
- * @returns The same data but with TypeScript types that use descriptive property names
- */
-export function asLottieAnimation(raw: RawLottieAnimation): LottieAnimation {
-    return raw as any;
-}
-
-/**
- * Converts a raw Lottie layer to one with descriptive property names.
- * This is a zero-cost operation at runtime.
- * @param raw - The raw Lottie layer data
- * @returns The same data but with TypeScript types that use descriptive property names
- */
-export function asLottieLayer(raw: RawLottieLayer): LottieLayer {
-    return raw as any;
-}
-
-/**
- * Converts a raw graphic element to one with descriptive property names.
- * This is a zero-cost operation at runtime.
- * @param raw - The raw graphic element data
- * @returns The same data but with TypeScript types that use descriptive property names
- */
-export function asGraphicElement(raw: RawGraphicElement): LottieGraphicElement {
-    return raw as any;
-}
-
-/**
- * Converts a raw transform to one with descriptive property names.
- * This is a zero-cost operation at runtime.
- * @param raw - The raw transform data
- * @returns The same data but with TypeScript types that use descriptive property names
- */
-export function asTransform(raw: RawTransform): LottieTransform {
-    return raw as any;
-}
-
-/**
- * Generic helper for converting any raw type to its descriptive counterpart.
- * This is a zero-cost operation at runtime.
- * @param raw - The raw data
- * @returns The same data but with TypeScript types that use descriptive property names
- */
-export function asDescriptive<TRaw, TDescriptive>(raw: TRaw): TDescriptive {
-    return raw as any;
-}
-
-/*
-Usage examples:
-
-// At the boundary where you receive raw data
-const rawAnimation: RawLottieAnimation = JSON.parse(lottieJsonString);
-const animation = asLottieAnimation(rawAnimation);
-
-// Now you can use descriptive property names AND proper nested types
-console.log(animation.version);     // instead of rawAnimation.v
-console.log(animation.frameRate);   // instead of rawAnimation.fr
-console.log(animation.width);       // instead of rawAnimation.w
-
-// The layers property is now properly typed as LottieLayer[]
-animation.layers.forEach(layer => {
-    console.log(layer.name);        // instead of layer.nm
-    console.log(layer.type);        // instead of layer.ty
-    console.log(layer.hidden);      // instead of layer.hd
-    
-    // The shapes property is properly typed as GraphicElement[]
-    if (layer.shapes) {
-        layer.shapes.forEach(shape => {
-            console.log(shape.name);    // instead of shape.nm
-            console.log(shape.type);    // instead of shape.ty
-        });
-    }
-});
-
-// For transforms
-const rawTransform: RawTransform = { a: {...}, p: {...}, r: {...} };
-const transform = asTransform(rawTransform);
-console.log(transform.anchorPoint); // instead of rawTransform.a
-console.log(transform.position);    // instead of rawTransform.p
-console.log(transform.rotation);    // instead of rawTransform.r
-*/
