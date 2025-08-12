@@ -1,5 +1,5 @@
 {
-    "fromTag": "8.22.1",
+    "fromTag": "8.22.2",
     "changelog": {
         "8.22.2": [
             {
@@ -49,6 +49,310 @@
                 ],
                 "tags": [
                     "skip changelog"
+                ]
+            }
+        ],
+        "8.22.3": [
+            {
+                "pr": "17007",
+                "title": "Updating gitignore for devhost public folder",
+                "description": "When using devhost it is useful to put data in the public folder to test (like textures or other data), but this should not be checked on the repo because it's something just useful for local testing. Right now to avoid checking the data you have to copy them to public and then delete them by hand, which is easy but annoying.\r\n\r\nAdding some lines to gitignore to allow this scenario.",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    ".gitignore"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17012",
+                "title": "Particle attractors",
+                "description": "This PR ports over the particle attractor functionality from inspector (previously in particleAttractorGridComponent, attractorGridComponents, and attracotrGridComponent) using a slightly different approach (the impostors are no longer stored in attractor_untypedImpostor, instead they are simply react components rendered as a ListItem for each attractor). Using the new useResource hooks and react state to keep the impostor color/scale/label/impostorPosition/afterRender observables in sync\r\n\r\nOther changes include\r\n- common component for ToggleButton, used by scene explorer toggle command as well \r\n- made list.tsx handel generic listitem more typesafe so that the type of item in teh renderItem function is the same type as the itemslist data passed in\r\n- new useAsyncResource hook , used to load the fontasset/textrenderer aync\r\n- \r\nThere is still some work to do (represented as TODOs in the code) - such as separating particleSystemPropertiesService into IParticleSystem/ParticleSystem properties,  as well as consolidating the icon strategy. \r\n\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/particles/attractor.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/particles/attractorList.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/particles/particleSystemProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/scene/sceneExplorer.tsx",
+                    "packages/dev/inspector-v2/src/hooks/resourceHooks.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/particleSystemPropertiesService.tsx",
+                    "packages/dev/inspector/src/components/actionTabs/tabs/propertyGrids/particleSystems/attractorsGridComponent.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/gradientList.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/propertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/list.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/toggleButton.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17006",
+                "title": "Additional feedback for Lottie",
+                "description": "Additional feedback that was not addressed in the initial lottie PR as it arrives at the time it got merged.",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "package-lock.json",
+                    "packages/dev/addons/src/lottie/lottiePlayer.ts",
+                    "packages/dev/addons/src/lottie/worker.ts"
+                ],
+                "tags": [
+                    "enhancement"
+                ]
+            },
+            {
+                "pr": "16989",
+                "title": "Update Fluent packages to the latest",
+                "description": "This PR just updates Fluent to the latest version. I did some quick testing in Inspector v2 and didn't see any issues.\r\n\r\n@georginahalpern do you want to test this in any of the other tools before we merge?",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "package-lock.json"
+                ],
+                "tags": [
+                    "tools",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "17013",
+                "title": "Project to Screen node, e.g. for particle direction",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/Update/alignAngleBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/index.ts",
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.ts",
+                    "packages/tools/nodeParticleEditor/src/blockTools.ts",
+                    "packages/tools/nodeParticleEditor/src/components/nodeList/nodeListComponent.tsx",
+                    "packages/tools/tests/test/visualization/ReferenceImages/npe-angle-align.png",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": [
+                    "new feature",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17011",
+                "title": "FrameGraph: Add support for bounding box renderer",
+                "description": "Support has been added to `ObjectRenderer`: It means the feature can also be used for custom render targets.",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Rendering/baseObjectRendererBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/nodeRenderGraph.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/objectRendererTask.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraph.ts",
+                    "packages/dev/core/src/Rendering/boundingBoxRenderer.ts",
+                    "packages/dev/core/src/Rendering/objectRenderer.ts",
+                    "packages/tools/tests/test/visualization/ReferenceImages/FrameGraph-nrge-bounding-boxes.png",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": [
+                    "enhancement",
+                    "frame graph"
+                ]
+            },
+            {
+                "pr": "17010",
+                "title": "Fix shader emission for NME",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/Node/nodeMaterial.ts",
+                    "packages/tools/nodeEditor/src/components/propertyTab/propertyTabComponent.tsx"
+                ],
+                "tags": [
+                    "bug",
+                    "nme"
+                ]
+            },
+            {
+                "pr": "17009",
+                "title": "Enable back gltf validation in Sandbox",
+                "description": "Follow up on https://issues.chromium.org/issues/419503126 resolution",
+                "author": {
+                    "name": "sebavan",
+                    "url": "https://github.com/sebavan"
+                },
+                "files": [
+                    "packages/tools/sandbox/src/components/renderingZone.tsx"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "17008",
+                "title": "Fix Legacy Specular Energy Conservation",
+                "description": null,
+                "author": {
+                    "name": "sebavan",
+                    "url": "https://github.com/sebavan"
+                },
+                "files": [
+                    "packages/dev/core/src/Shaders/ShadersInclude/pbrBlockFinalUnlitComponents.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/pbrBlockSubSurface.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/pbrBlockFinalUnlitComponents.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/pbrBlockSubSurface.fx",
+                    "packages/tools/tests/test/visualization/ReferenceImages/Conductor-Transmission.png"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17005",
+                "title": "Inspector v2: Add scene explorer command for playing/pausing animation groups",
+                "description": "This change adds a play/pause command for animation groups. There is already a button in the property grid, but this makes it easy to see at a glance in scene explorer which animation groups are playing and quickly toggle there state.\r\n\r\n<img width=\"477\" height=\"168\" alt=\"image\" src=\"https://github.com/user-attachments/assets/8d679a4b-86ec-4df9-a5b0-0e7b4df0ab48\" />\r\n",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/services/panes/scene/animationGroupExplorerService.tsx",
+                    "packages/dev/inspector-v2/test/app/index.ts"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "17004",
+                "title": "Inspector v2: Add scene explorer command for playing/stopping sprite animations",
+                "description": "This change adds a Play/Stop button to the property pane for sprites (for parity), and also adds a scene explorer command as a shortcut:\r\n\r\n<img width=\"504\" height=\"351\" alt=\"image\" src=\"https://github.com/user-attachments/assets/91e27bc2-07f3-4c43-a970-d3b93b49d6b6\" />\r\n",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/sprites/spriteAnimationProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/spriteManagerExplorerService.tsx",
+                    "packages/dev/inspector-v2/test/app/index.ts"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "17003",
+                "title": "Inspector v2: Add scene explorer command for making a frame graph active",
+                "description": "This is a small change that adds a scene explorer command to set the active frame graph. It's just a shortcut and lets you see at a glance which frame graph is the active one.\r\n\r\n<img width=\"493\" height=\"183\" alt=\"image\" src=\"https://github.com/user-attachments/assets/1459c687-33cc-4693-a867-5bd53b51c991\" />\r\n\r\nAlso update frame graph properties to use a switch instead of checkbox for consistency.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/frameGraph/frameGraphProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/frameGraphExplorerService.tsx",
+                    "packages/dev/inspector-v2/test/app/index.ts"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "16990",
+                "title": "Adding lottie playback using Babylon",
+                "description": "This PR adds support for Babylon to play a subset of lottie animations.\r\n\r\n- These animations will be played on an offscreen canvas and a worker thread.\r\n- The code takes a dependency only on ThinEngine and as few features as possible from Babylon to minimize package size.\r\n- Only certain features of lottie are supported currently.\r\n- This is a highly experimental feature, use it at your own risk :)\r\n\r\nTo use this feature, instantiate an object of the class LottiePlayer and just set it to play the animation you want:\r\n\r\n```\r\nconst player = new LottiePlayer(divHtmlElement, 'urltolottie.json');\r\nplayer.playAnimation();\r\n```\r\n\r\nThe player will create a canvas and set it to offscreen inside your div HTML element. By default, the animation will just play once, but you can control multiple parameters of the playback and the rendering by using the parameter of playAnimation, which takes an object of type AnimationConfiguration. Below is the default configuration that will be merged with the user configuration.\r\n\r\n```\r\n/**\r\n * Default configuration for lottie animations playback.\r\n */\r\nconst DefaultConfiguration: AnimationConfiguration = {\r\n    loopAnimation: false, // By default do not loop animations\r\n    spriteAtlasSize: 2048, // Size of the texture atlas\r\n    gapSize: 5, // Gap around the sprites in the atlas\r\n    spritesCapacity: 64, // Maximum number of sprites the renderer can handle at once\r\n    backgroundColor: { r: 1, g: 1, b: 1, a: 1 }, // Background color for the animation canvas\r\n    scaleMultiplier: 5, // Minimum scale factor to prevent too small sprites,\r\n    devicePixelRatio: 1, // Scale factor,\r\n    easingSteps: 4, // Number of steps to sample easing functions for animations - Less than 4 causes issues with some interpolations\r\n    ignoreOpacityAnimations: true, // Whether to ignore opacity animations for performance\r\n    supportDeviceLost: false, // Whether to support device lost events for WebGL contexts,\r\n};\r\n```",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/addons/src/lottie/index.ts",
+                    "packages/dev/addons/src/lottie/lottie/animationParser.ts",
+                    "packages/dev/addons/src/lottie/lottie/parsedTypes.ts",
+                    "packages/dev/addons/src/lottie/lottie/rawTypes.ts",
+                    "packages/dev/addons/src/lottie/lottiePlayer.ts",
+                    "packages/dev/addons/src/lottie/maths/bezier.ts",
+                    "packages/dev/addons/src/lottie/maths/boundingBox.ts",
+                    "packages/dev/addons/src/lottie/maths/matrix.ts",
+                    "packages/dev/addons/src/lottie/readme.md",
+                    "packages/dev/addons/src/lottie/rendering/animationController.ts",
+                    "packages/dev/addons/src/lottie/rendering/controlNode.ts",
+                    "packages/dev/addons/src/lottie/rendering/node.ts",
+                    "packages/dev/addons/src/lottie/rendering/renderingManager.ts",
+                    "packages/dev/addons/src/lottie/sprites/spriteNode.ts",
+                    "packages/dev/addons/src/lottie/sprites/spritePacker.ts",
+                    "packages/dev/addons/src/lottie/worker.ts",
+                    "packages/tools/devHost/package.json"
+                ],
+                "tags": [
+                    "new feature"
+                ]
+            },
+            {
+                "pr": "17002",
+                "title": "Add check for build errors before running CopyMinToMax Webpack plugin",
+                "description": "Previously if UMD failed the webpackPlugin would still try to copy minified.js file over (which wouldnt exist) so it would error out and that error would appear in build, hiding the actual underlying error. \r\n\r\nThis change skips the webpackPlugin copy if there is a build error, and logs to console to notify.",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/buildTools/src/webpackTools.ts"
+                ],
+                "tags": [
+                    "build"
+                ]
+            },
+            {
+                "pr": "17001",
+                "title": "Inspector v2: Pass on title case labels for properties",
+                "description": "This change is just a pass on all the labels of properties in the property pane to make them consistently \"Title Case\".",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/debug/debugPane.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/animation/animationGroupProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/animation/animationsProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/frameGraph/frameGraphProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/materials/materialProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/particles/particleSystemProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/skeleton/boneProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/skeleton/skeletonProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/textures/baseTextureProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/scene/sceneProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/settingsService.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "17000",
+                "title": "Inspector v2: Scene explorer light commands",
+                "description": "This change adds the enable/disable command and the gizmo command to lights in scene explorer.\r\n\r\n<img width=\"660\" height=\"377\" alt=\"image\" src=\"https://github.com/user-attachments/assets/a62e10a8-07ed-41dd-80f8-b00f1f9a87c1\" />\r\n\r\n- Remove the previously added `useObservableRenderer`. Using `useObservableState` avoids the anti-pattern and with returning a tuple, it's still compact and one less concept to understand.\r\n- Fixed an issue where action commands were not updating, though I ended up not using action commands in this PR.\r\n- Factored out a helper function to create gizmo commands.\r\n- Added a command for toggling light gizmos.\r\n- Added a command to toggle the enabled state of lights (e.g. turn light on/off).\r\n- Moved tooltips to the right instead of top so they aren't in the way when you hover over commands (since tree items are stacked vertically).",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/scene/sceneExplorer.tsx",
+                    "packages/dev/inspector-v2/src/hooks/observableHooks.ts",
+                    "packages/dev/inspector-v2/src/services/panes/scene/nodeExplorerService.tsx"
+                ],
+                "tags": [
+                    "inspector"
                 ]
             }
         ],
