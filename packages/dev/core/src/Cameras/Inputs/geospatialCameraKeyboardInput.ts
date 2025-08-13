@@ -4,9 +4,7 @@ import type { Nullable } from "core/types";
 import type { ICameraInput } from "../../Cameras/cameraInputsManager";
 import type { GeospatialCamera } from "../../Cameras/geospatialCamera";
 import type { KeyboardInfo } from "../../Events/keyboardEvents";
-import { KeyboardEventTypes } from "../../Events/keyboardEvents";
 import type { Scene } from "../../scene";
-import { Matrix, Vector3 } from "../../Maths/math.vector";
 import type { AbstractEngine } from "core/Engines";
 import { KeyboardEventHandler, KeyboardInputOptimized, RespondToInputs } from "./inputUtils";
 
@@ -75,7 +73,7 @@ export class GeospatialCameraKeyboardInput implements ICameraInput<GeospatialCam
     public rotationSpeed = 0.5;
 
     private _keys = new Array<number>();
-    private _ctrlPressed = false;
+    // private _ctrlPressed = false;
     private _onKeyboardObserver: Nullable<Observer<KeyboardInfo>> = null;
     private _scene: Scene;
     private _engine: AbstractEngine;
@@ -98,12 +96,7 @@ export class GeospatialCameraKeyboardInput implements ICameraInput<GeospatialCam
                 return;
             }
 
-            const onKeyDown = (info: KeyboardInfo) => {
-                this._ctrlPressed = info.event.ctrlKey;
-            };
-            this._onKeyboardObserver = this._scene.onKeyboardObservable.add((info) =>
-                KeyboardEventHandler(this._keys, info, this._keyboardInputLookup, !!noPreventDefault, onKeyDown)
-            );
+            this._onKeyboardObserver = this._scene.onKeyboardObservable.add((info) => KeyboardEventHandler(this._keys, info, this._keyboardInputLookup, !!noPreventDefault));
         }
     }
 

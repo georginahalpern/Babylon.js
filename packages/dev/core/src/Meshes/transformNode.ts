@@ -11,6 +11,7 @@ import type { Bone } from "../Bones/bone";
 import type { AbstractMesh } from "../Meshes/abstractMesh";
 import { Space } from "../Maths/math.axis";
 import { GetClass } from "../Misc/typeStore";
+import { GeospatialCamera } from "../Cameras";
 
 /**
  * A TransformNode is an object that is not rendered but can be used as a center of transformation. This can decrease memory usage and increase rendering speed compared to using an empty mesh as a parent and is less complicated than using a pivot matrix.
@@ -1113,6 +1114,13 @@ export class TransformNode extends Node {
                 translation = TransformNode._TmpTranslation;
                 translation.copyFromFloats(this._position.x + cameraGlobalPosition.x, this._position.y + cameraGlobalPosition.y, this._position.z + cameraGlobalPosition.z);
             }
+        }
+
+        const geoCam = this._scene.activeCamera;
+        if (geoCam instanceof GeospatialCamera && !this.parent) {
+            // Apply geospatial adjustments to root nodes
+            translation = TransformNode._TmpTranslation;
+            translation.copyFromFloats(this._position.x - geoCam._worldPosition.x, this._position.y - geoCam._worldPosition.y, this._position.z - geoCam._worldPosition.z);
         }
 
         // Scaling

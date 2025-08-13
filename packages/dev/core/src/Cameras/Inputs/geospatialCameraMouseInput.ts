@@ -42,7 +42,7 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
     public touchEnabled = true;
 
     private _pointerInput?: (p: PointerInfo, s: EventState) => void;
-    private _onMouseMove?: (evt: IPointerEvent) => void;
+    // private _onMouseMove?: (evt: IPointerEvent) => void;
     private _observer: Nullable<Observer<PointerInfo>> = null;
     private _previousPosition: Nullable<{ x: number; y: number }> = null;
 

@@ -12,7 +12,7 @@
 // // - No entity concept - uses Babylon.js built-in node system
 // // ===========================-===--======- -    -
 
-import { Epsilon, Matrix, Vector3 } from "core/Maths";
+import { Matrix, Vector3 } from "core/Maths";
 import { UniversalCamera } from "./universalCamera";
 import type { IDisposable, Scene } from "../scene";
 // import { TransformNode } from "core/Meshes";
@@ -112,32 +112,32 @@ export class GeospatialCameraUniversal extends UniversalCamera {
         return this._viewMatrix;
     }
     // /** @internal */
-    // public override _checkInputs(): void {
-    //     // Get the movement inputs before they're applied to camera
-    //     if (!this.cameraDirection) {
-    //         this.cameraDirection = Vector3.Zero();
-    //     }
-    //     if (!this._localDirection) {
-    //         this._localDirection = Vector3.Zero();
-    //         this._transformedDirection = Vector3.Zero();
-    //     }
+    public override _checkInputs(): void {
+        // Get the movement inputs before they're applied to camera
+        if (!this.cameraDirection) {
+            this.cameraDirection = Vector3.Zero();
+        }
+        if (!this._localDirection) {
+            this._localDirection = Vector3.Zero();
+            this._transformedDirection = Vector3.Zero();
+        }
 
-    //     this.inputs.checkInputs();
+        this.inputs.checkInputs();
 
-    //     const needToMove = this._decideIfNeedsToMove();
-    //     const cameraDirection = this.cameraDirection.clone();
+        const needToMove = this._decideIfNeedsToMove();
+        const cameraDirection = this.cameraDirection.clone();
 
-    //     if (needToMove && cameraDirection.lengthSquared() > 0.001) {
-    //         // Instead of moving camera, move all tracked meshes in opposite direction
-    //         this._moveMeshesInsteadOfCamera(cameraDirection);
+        if (needToMove && cameraDirection.lengthSquared() > 0.001) {
+            // Instead of moving camera, move all tracked meshes in opposite direction
+            this._moveMeshesInsteadOfCamera(cameraDirection);
 
-    //         // Clear camera movement to prevent actual camera movement
-    //         this.cameraDirection.copyFromFloats(0, 0, 0);
-    //     }
+            // Clear camera movement to prevent actual camera movement
+            this.cameraDirection.copyFromFloats(0, 0, 0);
+        }
 
-    //     // Let parent handle rotation (or override that too if needed)
-    //     super._checkInputs();
-    // }
+        // Let parent handle rotation (or override that too if needed)
+        // super._checkInputs();
+    }
     /** @internal */
     // public override _checkInputs(): void {
     //     // Ensure cameraDirection is initialized (should be done by parent, but safety check)

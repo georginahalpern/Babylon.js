@@ -10,7 +10,11 @@ import type { Scene } from "core/index";
 import { Texture } from "core/Materials/Textures";
 
 import { GeospatialCamera } from "../../../core/src/Cameras/geospatialCamera";
-const RADIUS = 50;
+// Earth ellipsoid parameters (scaled down to radius ~50)
+const EQUATORIAL_RADIUS = 50;
+const POLAR_RADIUS = EQUATORIAL_RADIUS * (6356.752 / 6378.137); // ~49.83
+// const FLATTENING = 1 - POLAR_RADIUS / EQUATORIAL_RADIUS; // ~0.00335
+
 export class TestApp {
     constructor() {}
 
@@ -32,7 +36,17 @@ export class TestApp {
         directionalLight.intensity = 0.5;
 
         // Create a textured sphere at the origin
-        const referenceSphere = CreateSphere("referenceSphere", { diameter: RADIUS * 2 }, scene);
+        // const referenceSphere = CreateSphere("referenceSphere", { diameter: RADIUS * 2 }, scene);
+        const referenceSphere = CreateSphere(
+            "referenceSphere",
+            {
+                diameter: EQUATORIAL_RADIUS * 2,
+                diameterY: POLAR_RADIUS * 2, // This makes it an ellipsoid
+                segments: 64,
+            },
+            scene
+        );
+
         referenceSphere.position = Vector3.Zero(); // Simple positioning at origin
 
         // Apply the world texture from the 3dTile directory

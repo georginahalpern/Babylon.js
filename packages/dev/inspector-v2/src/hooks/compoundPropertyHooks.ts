@@ -41,6 +41,11 @@ export function useVector3Property<TargetT extends object, PropertyKeyT extends 
     useProperty(vector as Vector3 | null | undefined, "x");
     useProperty(vector as Vector3 | null | undefined, "y");
     useProperty(vector as Vector3 | null | undefined, "z");
+    useObservableState(
+        useCallback(() => (target ? target[propertyKey] : undefined), [target, propertyKey]),
+        useInterceptObservable("function", vector as Vector3 | null | undefined, "addInPlace"),
+        useInterceptObservable("function", vector as Vector3 | null | undefined, "subtractInPlace")
+    );
     return vector;
 }
 
