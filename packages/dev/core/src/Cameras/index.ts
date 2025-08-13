@@ -19,5 +19,6 @@ export * from "./universalCamera";
 export * from "./virtualJoysticksCamera";
 export * from "./VR/index";
 export * from "./RigModes/index";
-export * from "./geospatialCamera";
+export * from "./geospatialCameraUniversal";
 export * from "./geospatialArcRotateCamera";
+export * from "./geospatialCamera";

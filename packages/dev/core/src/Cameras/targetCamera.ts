@@ -311,14 +311,9 @@ export class TargetCamera extends Camera {
             this.parent.getWorldMatrix().invertToRef(TmpVectors.Matrix[0]);
             Vector3.TransformNormalToRef(this.cameraDirection, TmpVectors.Matrix[0], TmpVectors.Vector3[0]);
             this._deferredPositionUpdate.addInPlace(TmpVectors.Vector3[0]);
-            if (!this._deferOnly) {
-                this.position.copyFrom(this._deferredPositionUpdate);
-            } else {
-                this._deferredUpdated = true;
-            }
-            return;
+        } else {
+            this._deferredPositionUpdate.addInPlace(this.cameraDirection);
         }
-        this._deferredPositionUpdate.addInPlace(this.cameraDirection);
         if (!this._deferOnly) {
             this.position.copyFrom(this._deferredPositionUpdate);
         } else {
@@ -461,7 +456,7 @@ export class TargetCamera extends Camera {
         Vector3.TransformCoordinatesToRef(this._referencePoint, this._cameraRotationMatrix, this._transformedReferencePoint);
 
         // Computing target and final matrix
-        this.position.addToRef(this._transformedReferencePoint, this._currentTarget);
+        this.position.addToRef(this._transformedReferencePoint, this._currentTarget); // add cameras position to the currenttarget based on the transformed reference pt?
         if (this.updateUpVectorFromRotation) {
             if (this.rotationQuaternion) {
                 Axis.Y.rotateByQuaternionToRef(this.rotationQuaternion, this.upVector);

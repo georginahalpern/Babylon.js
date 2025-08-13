@@ -1,13 +1,15 @@
 import { RegisterClass } from "core/Misc";
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports, @typescript-eslint/consistent-type-imports
-import { Vector3, Scene, GeospatialArcRotateCamera } from "core/index";
 import { CreateSphere } from "core/Meshes/Builders/sphereBuilder";
 import { StandardMaterial } from "core/Materials/standardMaterial";
 import { Color3 } from "core/Maths/math.color";
 import { SceneLoader } from "core/Loading";
 import { HemisphericLight } from "core/Lights/hemisphericLight";
 import { DirectionalLight } from "core/Lights/directionalLight";
-import { Texture } from "core/Materials/Textures/texture";
+import { Vector3 } from "core/Maths/math.vector";
+import type { Scene } from "core/index";
+import { Texture } from "core/Materials/Textures";
+
+import { GeospatialCamera } from "../../../core/src/Cameras/geospatialCamera";
 const RADIUS = 50;
 export class TestApp {
     constructor() {}
@@ -16,11 +18,11 @@ export class TestApp {
         // Create a simple UniversalCamera - no floating origin complexity
         // const camera = new FreeCamera("camera", new Vector3(0, 0, -100), scene);
 
-        // const camera = new ArcRotateCamera("camera", 0, 1, 10, Vector3.Zero(), scene);
-        // const camera = new UniversalCamera("geo", new Vector3(0, 0, -RADIUS * 2), scene);
-        const camera = new GeospatialArcRotateCamera("geo", scene, true);
-
-        camera.attachControl(canvas, true);
+        // const camera = new GeospatialArcRotateCamera("camera", scene);
+        // const camera = new UniversalCamera("geo", new Vector3(0, 0, 200), scene);
+        // const camera = new GeospatialCameraUniversal("geo", new Vector3(0, 0, 200), scene);
+        const camera = new GeospatialCamera("geo", new Vector3(0, 0, -200), scene);
+        camera.attachControl();
 
         // Add lighting
         const ambientLight = new HemisphericLight("ambientLight", new Vector3(0, 1, 0), scene);
@@ -37,18 +39,19 @@ export class TestApp {
         const sphereMaterial = new StandardMaterial("sphereMaterial", scene);
 
         // Load texture from the same server as the tileset and GLTF files
-        const textureUrl = "http://localhost:8003/world.topo.bathy.200412.3x21600x10800.png";
+        // const textureUrl = "http://localhost:8003/world.topo.bathy.200412.3x21600x10800.png";
 
-        // const textureUrl = "http://localhost:8003/3_no_ice_clouds_16k.jpg";
-        sphereMaterial.diffuseTexture = new Texture(textureUrl, scene);
+        const textureUrl = "http://localhost:8003/3_no_ice_clouds_16k.jpg";
+        sphereMaterial.diffuseTexture = new Texture(textureUrl, scene, undefined, false);
         sphereMaterial.emissiveColor = new Color3(0.1, 0.1, 0.1); // Slight glow to enhance visibility
+
         referenceSphere.material = sphereMaterial;
 
         // Load GLTF models positioned on the sphere surface
         const loader = new TileLoader(scene);
         await loader.loadModelAsync();
 
-        global.console.log("Simple 3D tiles scene created with blue sphere and GLTF boxes on surface");
+        // global.console.log("Simple 3D tiles scene created with blue sphere and GLTF boxes on surface");
     }
 }
 export class TileLoader {
@@ -71,6 +74,7 @@ export class TileLoader {
             tilesetJson = await response.json();
             baseUrl = tilesetUrl.substring(0, tilesetUrl.lastIndexOf("/") + 1);
         } else {
+            //            http-server -a localhost -p 8003 --cors=http://localhost:8080/
             // Load the default sampleTileset.json
             const defaultTilesetUrl = "http://localhost:8003/tileset.json";
 
