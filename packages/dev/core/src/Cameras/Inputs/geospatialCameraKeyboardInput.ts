@@ -6,8 +6,6 @@ import type { GeospatialCamera } from "../../Cameras/geospatialCamera";
 import { KeyboardEventTypes, type KeyboardInfo } from "../../Events/keyboardEvents";
 import type { Scene } from "../../scene";
 import type { AbstractEngine } from "core/Engines";
-// import {  KeyboardInputOptimized  } from "./inputUtils";
-import { Vector3 } from "core/Maths/math.vector";
 
 /**
  * Keyboard input for GeospatialCamera
@@ -179,39 +177,28 @@ export class GeospatialCameraKeyboardInput implements ICameraInput<GeospatialCam
                 const speed = camera._computeLocalCameraSpeed();
 
                 if (this.keysLeft.indexOf(keyCode) !== -1) {
-                    camera._localDirection.copyFromFloats(-speed, 0, 0);
+                    camera._localTranslation.copyFromFloats(-speed, 0, 0);
                 } else if (this.keysUp.indexOf(keyCode) !== -1) {
-                    camera._localDirection.copyFromFloats(0, 0, speed);
+                    camera._localTranslation.copyFromFloats(0, 0, speed);
                 } else if (this.keysRight.indexOf(keyCode) !== -1) {
-                    camera._localDirection.copyFromFloats(speed, 0, 0);
+                    camera._localTranslation.copyFromFloats(speed, 0, 0);
                 } else if (this.keysDown.indexOf(keyCode) !== -1) {
-                    camera._localDirection.copyFromFloats(0, 0, -speed);
+                    camera._localTranslation.copyFromFloats(0, 0, -speed);
                 } else if (this.keysUpward.indexOf(keyCode) !== -1) {
-                    camera._localDirection.copyFromFloats(0, speed, 0);
+                    camera._localTranslation.copyFromFloats(0, speed, 0);
                 } else if (this.keysDownward.indexOf(keyCode) !== -1) {
-                    camera._localDirection.copyFromFloats(0, -speed, 0);
+                    camera._localTranslation.copyFromFloats(0, -speed, 0);
                 } else if (this.keysRotateLeft.indexOf(keyCode) !== -1) {
-                    camera._localDirection.copyFromFloats(0, 0, 0);
-                    camera.cameraRotation.y -= this._getLocalRotation();
+                    camera._localTranslation.copyFromFloats(0, 0, 0);
+                    camera._localRotation.y -= this._getLocalRotation();
                 } else if (this.keysRotateRight.indexOf(keyCode) !== -1) {
-                    camera._localDirection.copyFromFloats(0, 0, 0);
-                    camera.cameraRotation.y += this._getLocalRotation();
+                    camera._localTranslation.copyFromFloats(0, 0, 0);
+                    camera._localRotation.y += this._getLocalRotation();
                 }
-                // } else if (this.keysRotateUp.indexOf(keyCode) !== -1) {
-                //     camera._localDirection.copyFromFloats(0, 0, 0);
-                //     camera.cameraRotation.x -= this._getLocalRotation();
-                // } else if (this.keysRotateDown.indexOf(keyCode) !== -1) {
-                //     camera._localDirection.copyFromFloats(0, 0, 0);
-                //     camera.cameraRotation.x += this._getLocalRotation();
-                // }
 
                 if (camera.getScene().useRightHandedSystem) {
-                    camera._localDirection.z *= -1;
+                    camera._localTranslation.z *= -1;
                 }
-
-                camera.getViewMatrix().invertToRef(camera._cameraTransformMatrix);
-                Vector3.TransformCoordinatesToRef(camera._localDirection, camera._cameraTransformMatrix, camera._transformedDirection);
-                camera.cameraDirection.addInPlace(camera._localDirection);
             }
         }
     }

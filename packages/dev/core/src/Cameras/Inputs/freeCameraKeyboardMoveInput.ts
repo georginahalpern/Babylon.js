@@ -5,10 +5,11 @@ import type { ICameraInput } from "../../Cameras/cameraInputsManager";
 import { CameraInputTypes } from "../../Cameras/cameraInputsManager";
 import type { FreeCamera } from "../../Cameras/freeCamera";
 import type { KeyboardInfo } from "../../Events/keyboardEvents";
+import { KeyboardEventTypes } from "../../Events/keyboardEvents";
 import type { Scene } from "../../scene";
+import { Vector3 } from "../../Maths/math.vector";
 import { Tools } from "../../Misc/tools";
 import type { AbstractEngine } from "../../Engines/abstractEngine";
-import { RespondToInputs, KeyboardEventHandler, KeyboardInputOptimized } from "./inputUtils";
 /**
  * Manage the keyboard inputs to control the movement of a free camera.
  * @see https://doc.babylonjs.com/features/featuresDeepDive/cameras/customizingCameraInputs
@@ -86,18 +87,6 @@ export class FreeCameraKeyboardMoveInput implements ICameraInput<FreeCamera> {
     public keysRotateDown: number[] = [];
 
     private _keys = new Array<number>();
-    private _keyboardInputLookup = new KeyboardInputOptimized({
-        keysUp: this.keysUp,
-        keysUpward: this.keysUpward,
-        keysDown: this.keysDown,
-        keysDownward: this.keysDownward,
-        keysLeft: this.keysLeft,
-        keysRight: this.keysRight,
-        keysRotateLeft: this.keysRotateLeft,
-        keysRotateRight: this.keysRotateRight,
-        keysRotateUp: this.keysRotateUp,
-        keysRotateDown: this.keysRotateDown,
-    });
     private _onCanvasBlurObserver: Nullable<Observer<AbstractEngine>>;
     private _onKeyboardObserver: Nullable<Observer<KeyboardInfo>>;
     private _engine: AbstractEngine;
@@ -121,7 +110,54 @@ export class FreeCameraKeyboardMoveInput implements ICameraInput<FreeCamera> {
         });
 
         this._onKeyboardObserver = this._scene.onKeyboardObservable.add((info) => {
-            KeyboardEventHandler(this._keys, info, this._keyboardInputLookup, noPreventDefault);
+            const evt = info.event;
+            if (!evt.metaKey) {
+                if (info.type === KeyboardEventTypes.KEYDOWN) {
+                    if (
+                        this.keysUp.indexOf(evt.keyCode) !== -1 ||
+                        this.keysDown.indexOf(evt.keyCode) !== -1 ||
+                        this.keysLeft.indexOf(evt.keyCode) !== -1 ||
+                        this.keysRight.indexOf(evt.keyCode) !== -1 ||
+                        this.keysUpward.indexOf(evt.keyCode) !== -1 ||
+                        this.keysDownward.indexOf(evt.keyCode) !== -1 ||
+                        this.keysRotateLeft.indexOf(evt.keyCode) !== -1 ||
+                        this.keysRotateRight.indexOf(evt.keyCode) !== -1 ||
+                        this.keysRotateUp.indexOf(evt.keyCode) !== -1 ||
+                        this.keysRotateDown.indexOf(evt.keyCode) !== -1
+                    ) {
+                        const index = this._keys.indexOf(evt.keyCode);
+
+                        if (index === -1) {
+                            this._keys.push(evt.keyCode);
+                        }
+                        if (!noPreventDefault) {
+                            evt.preventDefault();
+                        }
+                    }
+                } else {
+                    if (
+                        this.keysUp.indexOf(evt.keyCode) !== -1 ||
+                        this.keysDown.indexOf(evt.keyCode) !== -1 ||
+                        this.keysLeft.indexOf(evt.keyCode) !== -1 ||
+                        this.keysRight.indexOf(evt.keyCode) !== -1 ||
+                        this.keysUpward.indexOf(evt.keyCode) !== -1 ||
+                        this.keysDownward.indexOf(evt.keyCode) !== -1 ||
+                        this.keysRotateLeft.indexOf(evt.keyCode) !== -1 ||
+                        this.keysRotateRight.indexOf(evt.keyCode) !== -1 ||
+                        this.keysRotateUp.indexOf(evt.keyCode) !== -1 ||
+                        this.keysRotateDown.indexOf(evt.keyCode) !== -1
+                    ) {
+                        const index = this._keys.indexOf(evt.keyCode);
+
+                        if (index >= 0) {
+                            this._keys.splice(index, 1);
+                        }
+                        if (!noPreventDefault) {
+                            evt.preventDefault();
+                        }
+                    }
+                }
+            }
         });
     }
     /**
@@ -149,7 +185,45 @@ export class FreeCameraKeyboardMoveInput implements ICameraInput<FreeCamera> {
     public checkInputs(): void {
         if (this._onKeyboardObserver) {
             const camera = this.camera;
-            RespondToInputs(this._keys, camera, this._getLocalRotation.bind(this), this._keyboardInputLookup);
+            // Keyboard
+            for (let index = 0; index < this._keys.length; index++) {
+                const keyCode = this._keys[index];
+                const speed = camera._computeLocalCameraSpeed();
+
+                if (this.keysLeft.indexOf(keyCode) !== -1) {
+                    camera._localDirection.copyFromFloats(-speed, 0, 0);
+                } else if (this.keysUp.indexOf(keyCode) !== -1) {
+                    camera._localDirection.copyFromFloats(0, 0, speed);
+                } else if (this.keysRight.indexOf(keyCode) !== -1) {
+                    camera._localDirection.copyFromFloats(speed, 0, 0);
+                } else if (this.keysDown.indexOf(keyCode) !== -1) {
+                    camera._localDirection.copyFromFloats(0, 0, -speed);
+                } else if (this.keysUpward.indexOf(keyCode) !== -1) {
+                    camera._localDirection.copyFromFloats(0, speed, 0);
+                } else if (this.keysDownward.indexOf(keyCode) !== -1) {
+                    camera._localDirection.copyFromFloats(0, -speed, 0);
+                } else if (this.keysRotateLeft.indexOf(keyCode) !== -1) {
+                    camera._localDirection.copyFromFloats(0, 0, 0);
+                    camera.cameraRotation.y -= this._getLocalRotation();
+                } else if (this.keysRotateRight.indexOf(keyCode) !== -1) {
+                    camera._localDirection.copyFromFloats(0, 0, 0);
+                    camera.cameraRotation.y += this._getLocalRotation();
+                } else if (this.keysRotateUp.indexOf(keyCode) !== -1) {
+                    camera._localDirection.copyFromFloats(0, 0, 0);
+                    camera.cameraRotation.x -= this._getLocalRotation();
+                } else if (this.keysRotateDown.indexOf(keyCode) !== -1) {
+                    camera._localDirection.copyFromFloats(0, 0, 0);
+                    camera.cameraRotation.x += this._getLocalRotation();
+                }
+
+                if (camera.getScene().useRightHandedSystem) {
+                    camera._localDirection.z *= -1;
+                }
+
+                camera.getViewMatrix().invertToRef(camera._cameraTransformMatrix);
+                Vector3.TransformNormalToRef(camera._localDirection, camera._cameraTransformMatrix, camera._transformedDirection);
+                camera.cameraDirection.addInPlace(camera._transformedDirection);
+            }
         }
     }
 

@@ -87,8 +87,8 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
                     const offsetY = evt.clientY - this._previousPosition.y;
 
                     // Inverted rotation (drag left rotates camera right)
-                    this.camera.cameraRotation.x = -offsetY / this.angularSensibilityY;
-                    this.camera.cameraRotation.y = -offsetX / this.angularSensibilityX;
+                    this.camera._localRotation.x = -offsetY / this.angularSensibilityY;
+                    this.camera._localRotation.y = -offsetX / this.angularSensibilityX;
 
                     this._previousPosition = {
                         x: evt.clientX,
