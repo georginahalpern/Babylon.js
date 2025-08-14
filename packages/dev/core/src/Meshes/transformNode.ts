@@ -11,7 +11,7 @@ import type { Bone } from "../Bones/bone";
 import type { AbstractMesh } from "../Meshes/abstractMesh";
 import { Space } from "../Maths/math.axis";
 import { GetClass } from "../Misc/typeStore";
-import { GeospatialCamera } from "../Cameras";
+import { GeospatialCamera } from "../Cameras/geospatialCamera";
 
 /**
  * A TransformNode is an object that is not rendered but can be used as a center of transformation. This can decrease memory usage and increase rendering speed compared to using an empty mesh as a parent and is less complicated than using a pivot matrix.
@@ -503,7 +503,7 @@ export class TransformNode extends Node {
      * @returns a Vector3.
      */
     public getAbsolutePosition(): Vector3 {
-        this.computeWorldMatrix();
+        this.computeWorldMatrix(); // What about this? Should this return the absolute position or should it return what the caller thinks is absolute position?
         return this._absolutePosition;
     }
 
@@ -551,7 +551,7 @@ export class TransformNode extends Node {
      * @returns the TransformNode.
      */
     public setPositionWithLocalVector(vector3: Vector3): TransformNode {
-        this.computeWorldMatrix();
+        this.computeWorldMatrix(); // Same with these? what do we want to return for all of these fns? If we are using the computerworldmatrix
         this.position = Vector3.TransformNormal(vector3, this._localMatrix);
         return this;
     }
@@ -1074,6 +1074,17 @@ export class TransformNode extends Node {
      * @returns the world matrix
      */
     public override computeWorldMatrix(force: boolean = false, camera: Nullable<Camera> = null): Matrix {
+        const activeCam = this._scene.activeCamera;
+        let translation: Vector3 = this._position;
+        // Would it be more performant to keep this info stored in geospatial cam?
+        if (activeCam instanceof GeospatialCamera && activeCam.hasMoved && !this.parent) {
+            translation = TransformNode._TmpTranslation;
+            translation.copyFromFloats(this._position.x - activeCam._worldPosition.x, this._position.y - activeCam._worldPosition.y, this._position.z - activeCam._worldPosition.z);
+            if (!this._worldMatrix.getTranslation().equalsToFloats(translation.x, translation.y, translation.z)) {
+                // If the translation is not the same as the cached translation, we need to update world matrix so mark isDirty to true
+                this._isDirty = true;
+            }
+        }
         if (this._isWorldMatrixFrozen && !this._isDirty) {
             return this._worldMatrix;
         }
@@ -1093,7 +1104,7 @@ export class TransformNode extends Node {
         cache.infiniteDistance = this.infiniteDistance;
         cache.parent = this._parentNode;
 
-        this._currentRenderId = currentRenderId;
+        // this._currentRenderId = currentRenderId;
         this._childUpdateId += 1;
         this._isDirty = false;
         this._position._isDirty = false;
@@ -1103,7 +1114,6 @@ export class TransformNode extends Node {
 
         // Scaling
         const scaling: Vector3 = TransformNode._TmpScaling;
-        let translation: Vector3 = this._position;
 
         // Translation
         if (this._infiniteDistance) {
@@ -1116,12 +1126,12 @@ export class TransformNode extends Node {
             }
         }
 
-        const geoCam = this._scene.activeCamera;
-        if (geoCam instanceof GeospatialCamera && !this.parent) {
-            // Apply geospatial adjustments to root nodes
-            translation = TransformNode._TmpTranslation;
-            translation.copyFromFloats(this._position.x - geoCam._worldPosition.x, this._position.y - geoCam._worldPosition.y, this._position.z - geoCam._worldPosition.z);
-        }
+        // if (activeCam instanceof GeospatialCamera && !this.parent) {
+        //     // When in geospatial mode, the camera is placed at world origin and all meshes are moved to be relative to the camera to avoid floating point precision issues trying to render at large coordinates.
+        //     // To move the meshes towards the camera, we offset the mesh position by the camera's original distance from the origin.
+        //     translation = TransformNode._TmpTranslation;
+        //     translation.copyFromFloats(this._position.x - activeCam._worldPosition.x, this._position.y - activeCam._worldPosition.y, this._position.z - activeCam._worldPosition.z);
+        // }
 
         // Scaling
         scaling.copyFromFloats(this._scaling.x * this.scalingDeterminant, this._scaling.y * this.scalingDeterminant, this._scaling.z * this.scalingDeterminant);
@@ -1163,7 +1173,7 @@ export class TransformNode extends Node {
 
             this._localMatrix.addTranslationFromFloats(translation.x, translation.y, translation.z);
         } else {
-            Matrix.ComposeToRef(scaling, rotation, translation, this._localMatrix);
+            Matrix.ComposeToRef(scaling, rotation, translation, this._localMatrix); // If we're using the scaling / rotation / translation here why is this _localMatrix and not worldMatrix? Is this because we may not be parent node?
         }
 
         // Parent
@@ -1202,12 +1212,12 @@ export class TransformNode extends Node {
                     this._localMatrix.multiplyToRef(bone.getFinalMatrix(), TmpVectors.Matrix[6]);
                     TmpVectors.Matrix[6].multiplyToRef(this._transformToBoneReferal.getWorldMatrix(), this._worldMatrix);
                 } else {
-                    this._localMatrix.multiplyToRef(parent.getWorldMatrix(), this._worldMatrix);
+                    this._localMatrix.multiplyToRef(parent.getWorldMatrix(), this._worldMatrix); // Take localmatrix and multiply with parent worldMatrix to get this node's worldmatrix
                 }
             }
             this._markSyncedWithParent();
         } else {
-            this._worldMatrix.copyFrom(this._localMatrix);
+            this._worldMatrix.copyFrom(this._localMatrix); // If we are root, then our localmatrix is our world matrix
         }
 
         if (camera && this.billboardMode) {
@@ -1327,7 +1337,7 @@ export class TransformNode extends Node {
         this._afterComputeWorldMatrix();
 
         // Absolute position
-        this._absolutePosition.copyFromFloats(this._worldMatrix.m[12], this._worldMatrix.m[13], this._worldMatrix.m[14]);
+        this._absolutePosition.copyFromFloats(this._worldMatrix.m[12], this._worldMatrix.m[13], this._worldMatrix.m[14]); // absoluteposition is the node's position in the world
         this._isAbsoluteSynced = false;
 
         // Callbacks

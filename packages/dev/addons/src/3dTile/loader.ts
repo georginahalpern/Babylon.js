@@ -9,7 +9,7 @@ import { Vector3 } from "core/Maths/math.vector";
 import type { Scene } from "core/index";
 import { Texture } from "core/Materials/Textures";
 
-import { GeospatialCamera } from "../../../core/src/Cameras/geospatialCamera";
+import { GeospatialCamera } from "core/Cameras/geospatialCamera";
 // Earth ellipsoid parameters (scaled down to radius ~50)
 const EQUATORIAL_RADIUS = 50;
 const POLAR_RADIUS = EQUATORIAL_RADIUS * (6356.752 / 6378.137); // ~49.83
@@ -25,7 +25,7 @@ export class TestApp {
         // const camera = new GeospatialArcRotateCamera("camera", scene);
         // const camera = new UniversalCamera("geo", new Vector3(0, 0, 200), scene);
         // const camera = new GeospatialCameraUniversal("geo", new Vector3(0, 0, 200), scene);
-        const camera = new GeospatialCamera("geo", new Vector3(0, 0, -200), scene);
+        const camera = new GeospatialCamera("geo", scene);
         camera.attachControl();
 
         // Add lighting

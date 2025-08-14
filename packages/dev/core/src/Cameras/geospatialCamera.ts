@@ -17,9 +17,9 @@ export class GeospatialCamera extends Camera {
     public override inertia = 0.9;
 
     // World tracking
-    public _worldPosition: Vector3;
-    private _worldTarget: Vector3;
-    private _viewMatrix = Matrix.Zero();
+    public _worldPosition: Vector3; // This would be offset from the target by a factor of
+    private _worldTarget: Vector3; // This would be wherever the input is on the globe (or geospatial object)
+    private _relativeTarget: Vector3;
 
     public _localDirection: Vector3;
     public _transformedDirection: Vector3;
@@ -29,14 +29,20 @@ export class GeospatialCamera extends Camera {
     /** @internal */
     public readonly _cameraRotationMatrix = Matrix.Zero();
 
-    constructor(name: string, position: Vector3, scene: Scene) {
+    constructor(name: string, scene: Scene) {
         if (scene.activeCamera != null) {
             throw new Error("Geospatial camera must be the only active camera on a scene");
         }
         super("geospatial", Vector3.Zero(), scene); // Camera always at origin
 
+        // Will update constructor to take in target/radius/position depending on what I decide
+        const position = new Vector3(0, 0, -200);
+        const target = new Vector3(0, 0, -50);
         this._worldPosition = position.clone();
-        this._worldTarget = position.add(new Vector3(0, 0, 150));
+        this._worldTarget = target.clone();
+        this._relativeTarget = this._worldTarget.subtract(this._worldPosition);
+
+        //position.add(new Vector3(0, 0, 150));
 
         // Set up inputs
         this.inputs = new GeospatialCameraInputsManager(this);
@@ -77,10 +83,6 @@ export class GeospatialCamera extends Camera {
             // Update world position
             this._worldPosition.addInPlace(this.cameraDirection);
 
-            // Move world instead of camera
-            const inverseMove = this.cameraDirection.negate();
-            this._activeMeshes.forEach((mesh) => mesh.position.addInPlace(inverseMove));
-
             // After moving meshes, apply inertia to cameraDirection
             if (this.inertia !== 0) {
                 if (Math.abs(this.cameraDirection.x) < this.speed * 0.001) {
@@ -104,13 +106,20 @@ export class GeospatialCamera extends Camera {
         }
 
         // super._checkInputs();
+
+        // super._checkInputs();
     }
 
     public override _getViewMatrix(): Matrix {
         // Camera always at origin, looking at relative target
-        const relativeTarget = this._worldTarget.subtract(this._worldPosition);
-        Matrix.LookAtLHToRef(Vector3.Zero(), relativeTarget, this.upVector, this._viewMatrix);
-        return this._viewMatrix;
+        this._relativeTarget = this._worldTarget.subtract(this._worldPosition);
+        // global.console.log(this._relativeTarget);
+        if (!this._localDirection) {
+            global.console.log(this._relativeTarget);
+        }
+        return super._getViewMatrix();
+        // Matrix.LookAtLHToRef(Vector3.Zero(), this._relativeTarget, this.upVector, this._viewMatrix);
+        // return this._viewMatrix;
     }
 
     // Methods

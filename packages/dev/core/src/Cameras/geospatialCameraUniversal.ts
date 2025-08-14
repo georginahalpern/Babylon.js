@@ -12,12 +12,12 @@
 // // - No entity concept - uses Babylon.js built-in node system
 // // ===========================-===--======- -    -
 
-import { Matrix, Vector3 } from "core/Maths";
+import { Matrix, Vector3 } from "core/Maths/math.vector";
 import { UniversalCamera } from "./universalCamera";
 import type { IDisposable, Scene } from "../scene";
 // import { TransformNode } from "core/Meshes";
 import { RegisterClass } from "core/Misc";
-import type { AbstractMesh } from "core/Meshes";
+import type { AbstractMesh } from "core/Meshes/abstractMesh";
 import type { Nullable } from "core/types";
 import { InterceptProperty } from "./hooks";
 
