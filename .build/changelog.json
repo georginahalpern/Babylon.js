@@ -1,35 +1,114 @@
 {
-    "fromTag": "8.22.2",
+    "fromTag": "8.22.3",
     "changelog": {
-        "8.22.2": [
+        "8.23.0": [
             {
-                "pr": "16997",
-                "title": "Update GUI control to be forgiving of text resizeToFit layout calculations",
-                "description": "Control.ts expects less than 3 layouts to occur but textBlock.ts will layout 3 times when resizeToFit is true -- this is because isDirty is set to true causing a recreation of fontOffset (even if font offset has the proper height) and thus fontOffset.height is getting recalculated to the old value We should fix the logic so that fontOffset retains the updated height value. Until then, upping the layout cycle detection error threshold\r\n\r\nRelayout 1: NewHeight 106, InternalHeight 187 --> updates internal height to be new height unnecessarily since the internalheight is valid \r\nRelayout 2: NewHeight 187, InternalHeight 106 \r\nRelayout 3: Both 187 --> exit loop (but at this point we're already at 3) \r\n<img width=\"236\" height=\"39\" alt=\"image\" src=\"https://github.com/user-attachments/assets/2e2508c5-377e-42d1-be79-0a3d15d50529\" />\r\n\r\nSee https://forum.babylonjs.com/t/jumping-text-with-resizetofit-false/59949 for more details\r\n",
+                "pr": "17020",
+                "title": "enable bvhFileLoader",
+                "description": "Please help to enable bvhFileLoader.\r\n\r\nIn latest version of babylonjs, the built babylon.loaders.js didnot contains hvhFileLoader. And there is no way to get bvhFileLoader from cdnSnapshot. So the bvhFileLooader is disabled. Please help to enable it.\r\n\r\nThe second party is change frameRate from 0.025 to 40 (1 / 0.025)",
                 "author": {
-                    "name": "georginahalpern",
-                    "url": "https://github.com/georginahalpern"
+                    "name": "xuhuisheng",
+                    "url": "https://github.com/xuhuisheng"
                 },
                 "files": [
-                    "packages/dev/gui/src/2D/controls/control.ts"
+                    "packages/dev/loaders/src/BVH/bvhFileLoader.ts",
+                    "packages/dev/loaders/src/BVH/bvhLoader.ts",
+                    "packages/dev/loaders/src/BVH/index.ts",
+                    "packages/dev/loaders/src/index.ts",
+                    "packages/lts/loaders/src/legacy/legacy-bvhFileLoader.ts",
+                    "packages/lts/loaders/src/legacy/legacy.ts",
+                    "packages/public/umd/babylonjs-loaders/src/bvhFileLoader.ts",
+                    "packages/public/umd/babylonjs-loaders/webpack.config.js"
                 ],
                 "tags": []
             },
             {
-                "pr": "16999",
-                "title": "Npe update age",
+                "pr": "17017",
+                "title": "SFE: Add undo/redo stack",
                 "description": null,
                 "author": {
                     "name": "deltakosh",
                     "url": "https://github.com/deltakosh"
                 },
                 "files": [
-                    ".build/config.json",
-                    "packages/dev/core/src/Particles/Node/Blocks/Update/updateAgeBlock.ts",
-                    "packages/dev/core/src/Particles/Node/Blocks/index.ts",
-                    "packages/tools/nodeParticleEditor/src/blockTools.ts",
-                    "packages/tools/nodeParticleEditor/src/components/nodeList/nodeListComponent.tsx",
-                    "packages/tools/nodeParticleEditor/src/graphSystem/registerToDisplayLedger.ts"
+                    "packages/dev/sharedUiComponents/src/historyStack.ts",
+                    "packages/tools/nodeEditor/src/graphEditor.tsx",
+                    "packages/tools/nodeGeometryEditor/src/graphEditor.tsx",
+                    "packages/tools/nodeParticleEditor/src/graphEditor.tsx",
+                    "packages/tools/nodeRenderGraphEditor/src/graphEditor.tsx",
+                    "packages/tools/smartFiltersEditor/src/app.ts",
+                    "packages/tools/smartFiltersEditor/src/smartFilterLoadSave/copySmartFilter.ts",
+                    "packages/tools/smartFiltersEditor/src/smartFilterLoadSave/pasteSmartFilter.ts",
+                    "packages/tools/smartFiltersEditorControl/src/components/propertyTab/propertyTabComponent.tsx",
+                    "packages/tools/smartFiltersEditorControl/src/globalState.ts",
+                    "packages/tools/smartFiltersEditorControl/src/graphEditor.tsx",
+                    "packages/tools/smartFiltersEditorControl/src/smartFilterEditorControl.ts"
+                ],
+                "tags": [
+                    "new feature",
+                    "sfe"
+                ]
+            },
+            {
+                "pr": "17018",
+                "title": "GUI: Image nine-patch",
+                "description": "Fix nine-patch rendering for BABYLON.GUI.Image when width/height are percentages and ADT has idealWidth/idealHeight. The old code used ValueAndUnit.getValue(this.host) (raw %) for idealRatio; the fix uses resolved pixels from _currentMeasure.\r\n\r\nRoot cause\r\n\r\n_renderNinePatch used this._width.getValue(this.host)/idealWidth (and height variant). For percentage sizes, getValue(host) is normalized, not pixels, collapsing slice scaling when ideal* is set.\r\nFix (2 lines)\r\n\r\nCompute idealRatio from resolved measure:\r\n\r\nconst idealRatio = this.host.idealWidth\r\n\r\n? this._currentMeasure.width / this.host.idealWidth\r\n\r\n: this.host.idealHeight ? this._currentMeasure.height / this.host.idealHeight : 1;\r\n\r\nSafety\r\n\r\n_currentMeasure is the resolved pixel size post-layout, so pixel-sized images are unchanged; nine-patch math/draw remains identical otherwise.\r\nRepro (before fix)\r\n\r\nADT with idealWidth or idealHeight\r\n\r\nImage: stretch = Image.STRETCH_NINE_PATCH, width = \"100%\", height = \"100%\", slice props or populateNinePatchSlicesFromImage = true\r\n\r\nBorders disappear/crop with % sizing; OK with px.\r\n\r\nAfter fix\r\n\r\nBorders render correctly with % sizing and ADT ideal*.\r\n\r\nhttps://forum.babylonjs.com/t/render-nine-patch-bug-fix/60043\r\n",
+                "author": {
+                    "name": "MackeyK24",
+                    "url": "https://github.com/MackeyK24"
+                },
+                "files": [
+                    "packages/dev/gui/src/2D/controls/image.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "gui"
+                ]
+            },
+            {
+                "pr": "17023",
+                "title": "SFE: Add support for loading from a snapshot",
+                "description": null,
+                "author": {
+                    "name": "AmoebaChant",
+                    "url": "https://github.com/AmoebaChant"
+                },
+                "files": [
+                    "packages/tools/smartFiltersEditor/public/babylon.smartFilterEditor.loader.js",
+                    "packages/tools/smartFiltersEditor/public/index.html"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16975",
+                "title": "Add metadata properties",
+                "description": null,
+                "author": {
+                    "name": "docEdub",
+                    "url": "https://github.com/docEdub"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/metadataProperties.tsx",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/metadataPropertiesService.tsx",
+                    "packages/dev/inspector-v2/test/app/index.ts",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/textarea.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "17022",
+                "title": "Add missing API to NPE",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.ts"
                 ],
                 "tags": [
                     "skip changelog",
@@ -37,17 +116,50 @@
                 ]
             },
             {
-                "pr": "16996",
-                "title": "Remove unnecessary BBox computation",
-                "description": "Discussion:\r\nhttps://forum.babylonjs.com/t/instancedmesh-duplicated-call-to-refreshboundinginfo-in-clone/59939\r\n\r\nMy analysis:\r\n- The createInstance already calls the bbox computation\r\n- The DeepClone does not affect properties related to BBox\r\n",
+                "pr": "17015",
+                "title": "DumpTools: Add bitmaprenderer fallback when ThinEngine is unavailable",
+                "description": "This PR updates DumpTools to fall back to a BitmapRenderingContext from a canvas when ThinEngine isn’t available, instead of relying solely on ThinEngine. It also fixes issues that were first resolved in #13251 but regressed after #13803.\r\n\r\nTo make DumpData Native-friendly, we need to avoid ThinEngine. While it might be possible to swap ThinEngine with [insert platform compatible engine], in practice it’s much simpler— at least for Native —to extend the existing 2D Canvas polyfill with bitmaprenderer support, rather than extending its graphics infrastructure to handle rendering and reading from a separate context or canvas.\r\n\r\nWe can safely remove the engine dependency entirely if/when Webkit and Gecko respect the `premultiplyAlpha` flag when reading ImageBitmap. Or we can remove it now, if we're OK with breaking those (quite edge) cases. Thoughts?\r\n\r\n<details>\r\n<summary>More details</summary>\r\nFor reference, below is a table showing observed results for whether unassociated alpha is preserved when reading pixel data, across different rendering contexts and browsers.\r\n\r\nPlatform | WebGL + Canvas | WebGL + OffscreenCanvas | Bitmap + Canvas | Bitmap + OffscreenCanvas\r\n-- | -- | -- | -- | --\r\nBlink (Chromium) | ✅| ❌| ✅| ✅\r\nWebKit | ✅| ❌| ❌| ❌\r\nGecko | ✅| ✅| ❌| ❌\r\n\r\n</details>",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/core/src/Misc/dumpTools.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17019",
+                "title": "Adding missing serialization for alignAngleBlock",
+                "description": null,
                 "author": {
                     "name": "deltakosh",
                     "url": "https://github.com/deltakosh"
                 },
                 "files": [
-                    "packages/dev/core/src/Meshes/instancedMesh.ts"
+                    "packages/dev/core/src/Particles/Node/Blocks/Update/alignAngleBlock.ts"
                 ],
                 "tags": [
+                    "skip changelog",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17014",
+                "title": "Particle attractor PR comments",
+                "description": "Addressing comments from https://github.com/BabylonJS/Babylon.js/pull/17012 after it merged",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/particles/attractor.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/particles/attractorList.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/particles/particleSystemProperties.tsx",
+                    "packages/dev/inspector-v2/src/hooks/resourceHooks.ts"
+                ],
+                "tags": [
+                    "inspector",
                     "skip changelog"
                 ]
             }
@@ -353,6 +465,57 @@
                 ],
                 "tags": [
                     "inspector"
+                ]
+            }
+        ],
+        "8.22.2": [
+            {
+                "pr": "16997",
+                "title": "Update GUI control to be forgiving of text resizeToFit layout calculations",
+                "description": "Control.ts expects less than 3 layouts to occur but textBlock.ts will layout 3 times when resizeToFit is true -- this is because isDirty is set to true causing a recreation of fontOffset (even if font offset has the proper height) and thus fontOffset.height is getting recalculated to the old value We should fix the logic so that fontOffset retains the updated height value. Until then, upping the layout cycle detection error threshold\r\n\r\nRelayout 1: NewHeight 106, InternalHeight 187 --> updates internal height to be new height unnecessarily since the internalheight is valid \r\nRelayout 2: NewHeight 187, InternalHeight 106 \r\nRelayout 3: Both 187 --> exit loop (but at this point we're already at 3) \r\n<img width=\"236\" height=\"39\" alt=\"image\" src=\"https://github.com/user-attachments/assets/2e2508c5-377e-42d1-be79-0a3d15d50529\" />\r\n\r\nSee https://forum.babylonjs.com/t/jumping-text-with-resizetofit-false/59949 for more details\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/gui/src/2D/controls/control.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16999",
+                "title": "Npe update age",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    ".build/config.json",
+                    "packages/dev/core/src/Particles/Node/Blocks/Update/updateAgeBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/index.ts",
+                    "packages/tools/nodeParticleEditor/src/blockTools.ts",
+                    "packages/tools/nodeParticleEditor/src/components/nodeList/nodeListComponent.tsx",
+                    "packages/tools/nodeParticleEditor/src/graphSystem/registerToDisplayLedger.ts"
+                ],
+                "tags": [
+                    "skip changelog",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "16996",
+                "title": "Remove unnecessary BBox computation",
+                "description": "Discussion:\r\nhttps://forum.babylonjs.com/t/instancedmesh-duplicated-call-to-refreshboundinginfo-in-clone/59939\r\n\r\nMy analysis:\r\n- The createInstance already calls the bbox computation\r\n- The DeepClone does not affect properties related to BBox\r\n",
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Meshes/instancedMesh.ts"
+                ],
+                "tags": [
+                    "skip changelog"
                 ]
             }
         ],
