@@ -46,14 +46,6 @@ export const GeospatialCameraTransformProperties: FunctionComponent<{ camera: Ge
                 target={camera}
                 propertyKey={"_rotationChanged" as any}
             />
-            <BoundProperty
-                ignoreNullable
-                defaultValue={false}
-                component={BooleanBadgePropertyLine}
-                label="_positionChanged"
-                target={camera}
-                propertyKey={"_positionChanged" as any}
-            />
 
             <ButtonLine label="Look Nadir (at earth surface)" onClick={() => camera.lookNadir()} />
             <SyncedSliderPropertyLine

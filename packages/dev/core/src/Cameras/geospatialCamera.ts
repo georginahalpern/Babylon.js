@@ -20,7 +20,6 @@ export class GeospatialCamera extends Camera {
     public _worldPosition: Vector3;
     public _worldTarget: Vector3; // This would be wherever the input is on the globe (or geospatial object)
     private _rotationChanged: boolean = false;
-    public _positionChanged: boolean = true;
     private _rotation: Vector3 = Vector3.Zero();
     private _viewMatrix: Matrix = Matrix.Identity();
 
@@ -149,7 +148,6 @@ export class GeospatialCamera extends Camera {
         if (this._localTranslation.lengthSquared() > 0) {
             // Update world position
             this._worldPosition.addInPlace(this._localTranslation);
-            this._positionChanged = true;
             // After moving meshes, apply inertia to camera local translation
             if (this.inertia !== 0) {
                 if (Math.abs(this._localTranslation.x) < this.speed * Epsilon) {

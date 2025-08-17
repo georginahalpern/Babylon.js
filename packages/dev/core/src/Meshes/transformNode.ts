@@ -1076,9 +1076,12 @@ export class TransformNode extends Node {
     public override computeWorldMatrix(force: boolean = false, camera: Nullable<Camera> = null): Matrix {
         const activeCam = this._scene.activeCamera;
         let translation: Vector3 = this._position;
-        // Would it be more performant to keep this info stored in geospatial cam?
-        if (activeCam instanceof GeospatialCamera && activeCam.hasMoved && !this.parent) {
-            activeCam._positionChanged = false;
+
+        // The geospatial camera works by positioning the camera at world origin and offsetting the positions of all other
+        // nodes in the scene via world matrix transform. We thus need to calculate the offset between mesh position and camera position
+        // to offset the mesh by the appropriate amount. This must be done before the isDirty check so that we can recalculate worldMatrix if
+        // either the camera position or mesh position has changed since the last frame and if so, mark the node as dirty
+        if (activeCam instanceof GeospatialCamera && !this.parent) {
             translation = TransformNode._TmpTranslation;
             translation.copyFromFloats(this._position.x - activeCam._worldPosition.x, this._position.y - activeCam._worldPosition.y, this._position.z - activeCam._worldPosition.z);
             if (!this._worldMatrix.getTranslation().equalsToFloats(translation.x, translation.y, translation.z)) {
@@ -1126,13 +1129,6 @@ export class TransformNode extends Node {
                 translation.copyFromFloats(this._position.x + cameraGlobalPosition.x, this._position.y + cameraGlobalPosition.y, this._position.z + cameraGlobalPosition.z);
             }
         }
-
-        // if (activeCam instanceof GeospatialCamera && !this.parent) {
-        //     // When in geospatial mode, the camera is placed at world origin and all meshes are moved to be relative to the camera to avoid floating point precision issues trying to render at large coordinates.
-        //     // To move the meshes towards the camera, we offset the mesh position by the camera's original distance from the origin.
-        //     translation = TransformNode._TmpTranslation;
-        //     translation.copyFromFloats(this._position.x - activeCam._worldPosition.x, this._position.y - activeCam._worldPosition.y, this._position.z - activeCam._worldPosition.z);
-        // }
 
         // Scaling
         scaling.copyFromFloats(this._scaling.x * this.scalingDeterminant, this._scaling.y * this.scalingDeterminant, this._scaling.z * this.scalingDeterminant);
