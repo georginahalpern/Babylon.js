@@ -19,12 +19,6 @@ export class TestApp {
     constructor() {}
 
     public async render3DTiles(scene: Scene, canvas: HTMLCanvasElement) {
-        // Create a simple UniversalCamera - no floating origin complexity
-        // const camera = new FreeCamera("camera", new Vector3(0, 0, -100), scene);
-
-        // const camera = new GeospatialArcRotateCamera("camera", scene);
-        // const camera = new UniversalCamera("geo", new Vector3(0, 0, 200), scene);
-        // const camera = new GeospatialCameraUniversal("geo", new Vector3(0, 0, 200), scene);
         const camera = new GeospatialCamera("geo", scene);
         camera.attachControl();
 
@@ -53,19 +47,14 @@ export class TestApp {
         const sphereMaterial = new StandardMaterial("sphereMaterial", scene);
 
         // Load texture from the same server as the tileset and GLTF files
-        // const textureUrl = "http://localhost:8003/world.topo.bathy.200412.3x21600x10800.png";
-
         const textureUrl = "http://localhost:8003/3_no_ice_clouds_16k.jpg";
         sphereMaterial.diffuseTexture = new Texture(textureUrl, scene, undefined, false);
         sphereMaterial.emissiveColor = new Color3(0.1, 0.1, 0.1); // Slight glow to enhance visibility
-
         referenceSphere.material = sphereMaterial;
 
         // Load GLTF models positioned on the sphere surface
         const loader = new TileLoader(scene);
         await loader.loadModelAsync();
-
-        // global.console.log("Simple 3D tiles scene created with blue sphere and GLTF boxes on surface");
     }
 }
 export class TileLoader {

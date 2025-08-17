@@ -211,7 +211,6 @@ function _ShowInspector(scene: Nullable<Scene>, options: Partial<IInspectorOptio
             TexturePropertiesServiceDefinition,
             CommonPropertiesServiceDefinition,
             TransformPropertiesServiceDefinition,
-            AnimationPropertiesServiceDefinition,
             NodePropertiesServiceDefinition,
             PhysicsPropertiesServiceDefinition,
             SkeletonPropertiesServiceDefinition,
@@ -224,6 +223,7 @@ function _ShowInspector(scene: Nullable<Scene>, options: Partial<IInspectorOptio
             RenderingPipelinePropertiesServiceDefinition,
             EffectLayerPropertiesServiceDefinition,
             FrameGraphPropertiesServiceDefinition,
+            AnimationPropertiesServiceDefinition,
             AnimationGroupPropertiesServiceDefinition,
             MetadataPropertiesServiceDefinition,
 

@@ -1064,7 +1064,7 @@ export class TransformNode extends Node {
      * @returns true if the world matrix computation needs the camera information to be computed
      */
     public isWorldMatrixCameraDependent(): boolean {
-        return (this._infiniteDistance && !this.parent) || this._billboardMode !== TransformNode.BILLBOARDMODE_NONE;
+        return (this._infiniteDistance && !this.parent) || this._billboardMode !== TransformNode.BILLBOARDMODE_NONE; // TODO georgie shold this return if geospatial?
     }
 
     /**
@@ -1078,6 +1078,7 @@ export class TransformNode extends Node {
         let translation: Vector3 = this._position;
         // Would it be more performant to keep this info stored in geospatial cam?
         if (activeCam instanceof GeospatialCamera && activeCam.hasMoved && !this.parent) {
+            activeCam._positionChanged = false;
             translation = TransformNode._TmpTranslation;
             translation.copyFromFloats(this._position.x - activeCam._worldPosition.x, this._position.y - activeCam._worldPosition.y, this._position.z - activeCam._worldPosition.z);
             if (!this._worldMatrix.getTranslation().equalsToFloats(translation.x, translation.y, translation.z)) {

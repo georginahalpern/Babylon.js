@@ -1,5 +1,7 @@
 import type { KeyboardInfo } from "core/Events";
 import { KeyboardEventTypes } from "core/Events";
+import { Epsilon } from "../../Maths";
+import type { Vector3 } from "../../Maths/math.vector";
 
 export type KeyboardInputTypes =
     | "keysUp"
@@ -58,7 +60,6 @@ export const KeyboardEventHandler = (
         }
 
         if (info.type === KeyboardEventTypes.KEYDOWN) {
-            onKeyDown?.(info);
             const index = keys.indexOf(evt.keyCode);
             if (index === -1) {
                 keys.push(evt.keyCode);
@@ -75,5 +76,41 @@ export const KeyboardEventHandler = (
                 evt.preventDefault();
             }
         }
+    }
+};
+
+export const IsKey = (keys: number[], keyCode: number) => {
+    return keys.indexOf(keyCode) !== -1;
+};
+
+export const ApplyIntertia = (needToMove: boolean, translation: Vector3, needToRotate: boolean, rotation: Vector3, speed: number, inertia: number) => {
+    // Inertia
+    if (inertia == 0) {
+        return;
+    }
+    if (needToMove) {
+        if (Math.abs(translation.x) < speed * Epsilon) {
+            translation.x = 0;
+        }
+
+        if (Math.abs(translation.y) < speed * Epsilon) {
+            translation.y = 0;
+        }
+
+        if (Math.abs(translation.z) < speed * Epsilon) {
+            translation.z = 0;
+        }
+
+        translation.scaleInPlace(inertia);
+    }
+    if (needToRotate) {
+        if (Math.abs(rotation.x) < speed * Epsilon) {
+            rotation.x = 0;
+        }
+        if (Math.abs(rotation.y) < speed * Epsilon) {
+            rotation.y = 0;
+        }
+
+        rotation.scaleInPlace(inertia);
     }
 };

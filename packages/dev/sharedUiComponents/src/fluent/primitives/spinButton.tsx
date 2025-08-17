@@ -29,7 +29,7 @@ export const SpinButton: FunctionComponent<SpinButtonProps> = (props) => {
     const [value, setValue] = useState(props.value);
     const lastCommittedValue = useRef(props.value);
     // step and forceInt are not mutually exclusive since there could be cases where you want to forceInt but have spinButton jump >1 int per spin
-    const step = props.step != undefined ? props.step : props.forceInt ? 1 : 2;
+    const step = props.step != undefined ? props.step : props.forceInt ? 1 : 1;
 
     useEffect(() => {
         if (props.value != lastCommittedValue.current) {
@@ -98,7 +98,7 @@ export const SpinButton: FunctionComponent<SpinButtonProps> = (props) => {
                 step={step}
                 id={id}
                 size="small"
-                displayValue={props.unit ? `${step !== undefined ? value.toPrecision(step) : value} ${props.unit}` : undefined}
+                displayValue={props.unit ? `${step !== undefined ? value.toFixed(GetDecimalPlaces(step) > 0 ? GetDecimalPlaces(step) : 1) : value} ${props.unit}` : undefined}
                 value={value}
                 onChange={handleChange}
                 onKeyUp={handleKeyUp}
@@ -109,3 +109,8 @@ export const SpinButton: FunctionComponent<SpinButtonProps> = (props) => {
         </div>
     );
 };
+function GetDecimalPlaces(num: number): number {
+    const str = num.toString();
+    const decimalIndex = str.indexOf(".");
+    return decimalIndex === -1 ? 0 : str.length - decimalIndex - 1;
+}

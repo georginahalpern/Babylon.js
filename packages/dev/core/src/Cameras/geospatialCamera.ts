@@ -2,6 +2,7 @@ import { Camera } from "./camera";
 import { Vector3, Matrix } from "../Maths/math.vector";
 import type { Scene } from "../scene";
 import { GeospatialCameraInputsManager } from "./geospatialCameraInputsManager";
+import { Epsilon, Scalar } from "../Maths";
 
 export class GeospatialCamera extends Camera {
     // Input handling
@@ -18,11 +19,10 @@ export class GeospatialCamera extends Camera {
     // World tracking
     public _worldPosition: Vector3;
     public _worldTarget: Vector3; // This would be wherever the input is on the globe (or geospatial object)
-
-    /** @internal */
-    public readonly _cameraTransformMatrix = Matrix.Zero();
-    /** @internal */
-    public readonly _cameraRotationMatrix = Matrix.Zero();
+    private _rotationChanged: boolean = false;
+    public _positionChanged: boolean = true;
+    private _rotation: Vector3 = Vector3.Zero();
+    private _viewMatrix: Matrix = Matrix.Identity();
 
     constructor(name: string, scene: Scene) {
         if (scene.activeCamera != null) {
@@ -36,7 +36,7 @@ export class GeospatialCamera extends Camera {
         this._worldPosition = position.clone();
         this._worldTarget = target.clone();
 
-        //position.add(new Vector3(0, 0, 150));
+        this._rotation = Vector3.Zero();
 
         // Set up inputs
         this.inputs = new GeospatialCameraInputsManager(this);
@@ -58,11 +58,84 @@ export class GeospatialCamera extends Camera {
             this._worldPosition = Vector3.Zero(); // Initialize if not set
         }
         this._worldPosition.copyFrom(value);
-        this.position.scaleInPlace(1); // temporary to trigger inspector
+    }
+
+    public get rotation(): Vector3 {
+        if (!this._rotation) {
+            this._rotation = Vector3.Zero();
+        }
+        return this._rotation;
+    }
+
+    public set rotation(rotation: Vector3) {
+        this._rotation.copyFrom(rotation);
+        if (!this._rotation) {
+            this._rotation = Vector3.Zero();
+        }
+        this._rotationChanged = true;
     }
 
     public setTarget(target: Vector3): void {
         this._worldTarget.copyFrom(target);
+    }
+
+    /**
+     * This is a geospatial term which means to look directly downward towards the surface/center of the earth
+     */
+    public lookNadir() {
+        this._rotation = Vector3.Zero();
+        this._rotationChanged = true;
+    }
+
+    /**
+     * Geospatial terminology for rotating along the x axis. Think of it as moving head/camera up/down towards sky/ground
+     * Also known as pitch/tilt/inclination
+     * @param tilt
+     */
+    public setTilt(tilt: number): void {
+        this._rotation.x = tilt;
+        this._rotationChanged = true;
+    }
+    /**
+     * Geospatial terminology for rotating along the y axis. Think of it as moving head/camera left/right.
+     * Also known as yaw/bearing/rotation/azimuth/orientation
+     * @param heading
+     */
+    public setHeading(heading: number): void {
+        this._rotation.y = heading;
+        this._rotationChanged = true;
+    }
+
+    /**
+     * Geospatial terminology for height above surface.
+     * Increasing radius will increase elevation
+     * Increasing zoomLevel will decrease elevation
+     * @param elevation
+     */
+    public setElevation(elevation: number): void {
+        this._worldPosition.z = elevation;
+    }
+
+    public override _getViewMatrix() {
+        if (!this._rotationChanged) {
+            return this._viewMatrix;
+        }
+        // Reset rotation change flag when we recalculate
+        this._rotationChanged = false;
+        // Reset local rotation (this prevents it from returning to center!)
+        // Use accumulated rotation to calculate new rotationMatrix
+        const rotationMatrix = Matrix.RotationYawPitchRoll(
+            this._rotation.y, // Use rotation, not _localRotation!
+            this._rotation.x,
+            this._rotation.z
+        );
+
+        const forward = Vector3.TransformCoordinates(new Vector3(0, 0, 1), rotationMatrix);
+        const up = Vector3.TransformCoordinates(Vector3.Up(), rotationMatrix);
+
+        Matrix.LookAtLHToRef(Vector3.Zero(), forward, up, this._viewMatrix);
+
+        return this._viewMatrix;
     }
 
     public override _checkInputs(): void {
@@ -76,16 +149,16 @@ export class GeospatialCamera extends Camera {
         if (this._localTranslation.lengthSquared() > 0) {
             // Update world position
             this._worldPosition.addInPlace(this._localTranslation);
-
+            this._positionChanged = true;
             // After moving meshes, apply inertia to camera local translation
             if (this.inertia !== 0) {
-                if (Math.abs(this._localTranslation.x) < this.speed * 0.001) {
+                if (Math.abs(this._localTranslation.x) < this.speed * Epsilon) {
                     this._localTranslation.x = 0;
                 }
-                if (Math.abs(this._localTranslation.y) < this.speed * 0.001) {
+                if (Math.abs(this._localTranslation.y) < this.speed * Epsilon) {
                     this._localTranslation.y = 0;
                 }
-                if (Math.abs(this._localTranslation.z) < this.speed * 0.001) {
+                if (Math.abs(this._localTranslation.z) < this.speed * Epsilon) {
                     this._localTranslation.z = 0;
                 }
                 this._localTranslation.scaleInPlace(this.inertia);
@@ -94,8 +167,25 @@ export class GeospatialCamera extends Camera {
 
         // Handle rotation
         if (this._localRotation.lengthSquared() > 0) {
-            this._localRotation.scaleInPlace(this.inertia);
+            // Accumulate rotation
+            this._rotation.addInPlace(this._localRotation);
+
+            // Clamp pitch to avoid flipping
+            this._rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, this._rotation.x));
+            this._rotation.y = Scalar.NormalizeRadians(this._rotation.y); // Yaw wrapped to -π to π
+            this._rotation.z = Scalar.NormalizeRadians(this._rotation.z); // Roll wrapped to -π to π
+
+            // Mark as changed
+            this._rotationChanged = true;
+            this._localRotation.copyFromFloats(0, 0, 0); // or should this live in viewmatrix calc
         }
+    }
+
+    public override _isSynchronizedViewMatrix(): boolean {
+        if (!super._isSynchronizedViewMatrix() || this._rotationChanged) {
+            return false;
+        }
+        return true;
     }
 
     /** @internal */

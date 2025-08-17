@@ -72,7 +72,7 @@ export class GeospatialCameraKeyboardInput implements ICameraInput<GeospatialCam
     public rotationSpeed = 0.5;
 
     private _keys = new Array<number>();
-    // private _ctrlPressed = false;
+    private _modifierPressed = false;
     private _onKeyboardObserver: Nullable<Observer<KeyboardInfo>> = null;
     private _scene: Scene;
     private _engine: AbstractEngine;
@@ -101,6 +101,7 @@ export class GeospatialCameraKeyboardInput implements ICameraInput<GeospatialCam
                     const evt = info.event;
                     if (!evt.metaKey) {
                         if (info.type === KeyboardEventTypes.KEYDOWN) {
+                            this._modifierPressed = info.event.ctrlKey || info.event.altKey;
                             if (
                                 this.keysUp.indexOf(evt.keyCode) !== -1 ||
                                 this.keysDown.indexOf(evt.keyCode) !== -1 ||
@@ -169,31 +170,42 @@ export class GeospatialCameraKeyboardInput implements ICameraInput<GeospatialCam
      */
     public checkInputs(): void {
         if (this._onKeyboardObserver) {
-            //RespondToInputs(this._keys, this.camera, this._getLocalRotation.bind(this), this._keyboardInputLookup);
-            const camera = this.camera;
             // Keyboard
-            for (let index = 0; index < this._keys.length; index++) {
-                const keyCode = this._keys[index];
-                const speed = camera._computeLocalCameraSpeed();
+            if (!this._keys.length) {
+                return;
+            }
 
-                if (this.keysLeft.indexOf(keyCode) !== -1) {
-                    camera._localTranslation.copyFromFloats(-speed, 0, 0);
-                } else if (this.keysUp.indexOf(keyCode) !== -1) {
-                    camera._localTranslation.copyFromFloats(0, 0, speed);
-                } else if (this.keysRight.indexOf(keyCode) !== -1) {
-                    camera._localTranslation.copyFromFloats(speed, 0, 0);
-                } else if (this.keysDown.indexOf(keyCode) !== -1) {
-                    camera._localTranslation.copyFromFloats(0, 0, -speed);
-                } else if (this.keysUpward.indexOf(keyCode) !== -1) {
-                    camera._localTranslation.copyFromFloats(0, speed, 0);
-                } else if (this.keysDownward.indexOf(keyCode) !== -1) {
-                    camera._localTranslation.copyFromFloats(0, -speed, 0);
-                } else if (this.keysRotateLeft.indexOf(keyCode) !== -1) {
-                    camera._localTranslation.copyFromFloats(0, 0, 0);
-                    camera._localRotation.y -= this._getLocalRotation();
-                } else if (this.keysRotateRight.indexOf(keyCode) !== -1) {
-                    camera._localTranslation.copyFromFloats(0, 0, 0);
-                    camera._localRotation.y += this._getLocalRotation();
+            const camera = this.camera;
+            const panSpeed = camera._computeLocalCameraSpeed();
+            const rotationSpeed = this._getLocalRotation();
+
+            for (const keyCode of this._keys) {
+                if (this._modifierPressed) {
+                    // With Ctrl: Change rotation
+                    if (this.keysUp.includes(keyCode)) {
+                        camera._localRotation.x -= rotationSpeed;
+                    } else if (this.keysDown.includes(keyCode)) {
+                        camera._localRotation.x += rotationSpeed;
+                    } else if (this.keysLeft.includes(keyCode)) {
+                        camera._localRotation.y -= rotationSpeed;
+                    } else if (this.keysRight.includes(keyCode)) {
+                        camera._localRotation.y += rotationSpeed;
+                    }
+                } else {
+                    // Without Ctrl: Movement
+                    if (this.keysUp.includes(keyCode)) {
+                        camera._localTranslation.z += panSpeed;
+                    } else if (this.keysDown.includes(keyCode)) {
+                        camera._localTranslation.z -= panSpeed;
+                    } else if (this.keysLeft.includes(keyCode)) {
+                        camera._localTranslation.x -= panSpeed;
+                    } else if (this.keysRight.includes(keyCode)) {
+                        camera._localTranslation.x += panSpeed;
+                    } else if (this.keysUpward.includes(keyCode)) {
+                        camera._localTranslation.y -= panSpeed;
+                    } else if (this.keysDownward.includes(keyCode)) {
+                        camera._localTranslation.y += panSpeed;
+                    }
                 }
 
                 if (camera.getScene().useRightHandedSystem) {
