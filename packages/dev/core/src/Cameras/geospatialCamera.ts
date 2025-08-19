@@ -10,15 +10,15 @@ export class GeospatialCamera extends Camera {
     // Movement state (set via inputs)
     public _localTranslation = Vector3.Zero();
     public _localRotation = Vector3.Zero();
-    private _rotationChanged: boolean = false;
+    private _isViewMatrixDirty: boolean = false;
     private _viewMatrix: Matrix = Matrix.Identity();
+    public _lookAtVector: Vector3 = new Vector3(0, 0, 1);
 
     public _relativeTarget: Vector3 = Vector3.Zero();
 
     // What caller sees when retrieving position/target/rotation
     public _worldPosition: Vector3 = Vector3.Zero();
     public _worldTarget: Vector3 = Vector3.Zero();
-    public _rotateTarget: Vector3 = Vector3.Zero();
     private _rotation: Vector3 = Vector3.Zero();
     public _localTarget: Vector3 = Vector3.Zero();
 
@@ -111,7 +111,7 @@ export class GeospatialCamera extends Camera {
         if (!this._rotation) {
             this._rotation = Vector3.Zero();
         }
-        this._rotationChanged = true;
+        this._isViewMatrixDirty = true;
     }
 
     public setTarget(target: Vector3): void {
@@ -123,7 +123,7 @@ export class GeospatialCamera extends Camera {
      */
     public lookNadir() {
         this._rotation = Vector3.Zero();
-        this._rotationChanged = true;
+        this._isViewMatrixDirty = true;
     }
 
     /**
@@ -133,7 +133,7 @@ export class GeospatialCamera extends Camera {
      */
     public setTilt(tilt: number): void {
         this._rotation.x = tilt;
-        this._rotationChanged = true;
+        this._isViewMatrixDirty = true;
     }
     /**
      * Geospatial terminology for rotating along the y axis. Think of it as moving head/camera left/right.
@@ -142,7 +142,7 @@ export class GeospatialCamera extends Camera {
      */
     public setHeading(heading: number): void {
         this._rotation.y = heading;
-        this._rotationChanged = true;
+        this._isViewMatrixDirty = true;
     }
 
     /**
@@ -159,16 +159,16 @@ export class GeospatialCamera extends Camera {
         // Lookat direction
         // Up direction
         // Position of camera
-        if (!this._rotationChanged) {
+        if (!this._isViewMatrixDirty) {
             return this._viewMatrix;
         }
         // Reset rotation change flag when we recalculate
-        this._rotationChanged = false;
+        this._isViewMatrixDirty = false;
 
         if (this.getScene().useRightHandedSystem) {
-            Matrix.LookAtRHToRef(this._worldPosition, this._worldTarget, this.upVector, this._viewMatrix);
+            Matrix.LookAtRHToRef(this._worldPosition, this._lookAtVector, this.upVector, this._viewMatrix);
         } else {
-            Matrix.LookAtLHToRef(this._worldPosition, this._worldTarget, this.upVector, this._viewMatrix);
+            Matrix.LookAtLHToRef(this._worldPosition, this._lookAtVector, this.upVector, this._viewMatrix);
         }
 
         return this._viewMatrix;
@@ -224,6 +224,8 @@ export class GeospatialCamera extends Camera {
         this._checkInputsSpherical();
         this._checkInputsCartesian();
 
+        this._recalculateWorldPositionFromSpherical();
+
         super._checkInputs();
     }
 
@@ -233,19 +235,30 @@ export class GeospatialCamera extends Camera {
      */
     private _recalculateWorldPositionFromSpherical(): void {
         // Spherical to Cartesian conversion
-        const x = this.radius * Math.cos(this.alpha) * Math.sin(this.beta);
+        const x = this.radius * Math.sin(this.beta) * Math.sin(this.alpha);
         const y = this.radius * Math.cos(this.beta);
-        const z = this.radius * Math.sin(this.alpha) * Math.sin(this.beta);
+        const z = this.radius * Math.sin(this.beta) * Math.cos(this.alpha);
 
         // // Rotate according to up vector -- add back!
         // if (this._upVector.x !== 0 || this._upVector.y !== 1.0 || this._upVector.z !== 0) {
         //     Vector3.TransformCoordinatesToRef(this._computationVector, this._yToUpMatrix, this._computationVector);
         // }
 
-        // Camera's world position is offset from the target
+        // Spherical to Cartesian conversion
         this._worldPosition = this._worldTarget.add(new Vector3(x, y, z));
+
+        // Direction to target
+        this._lookAtVector = this._worldTarget.subtract(this._worldPosition).normalize();
+
+        // Recalculate up vector based on accumulated rotation (pitch/yaw/roll)
+        if (this._rotation.lengthSquared() > 0) {
+            const rotationMatrix = Matrix.RotationYawPitchRoll(this._rotation.y, this._rotation.x, this._rotation.z);
+            Vector3.TransformNormalToRef(Vector3.UpReadOnly, rotationMatrix, this.upVector);
+        } else {
+            this.upVector.copyFrom(Vector3.UpReadOnly);
+        }
         // Ensure viewmatrix is recalculated due to the rotation change caused by spherical coordinate change
-        this._rotationChanged = true;
+        this._isViewMatrixDirty = true;
     }
 
     private _checkInputsSpherical(): void {
@@ -278,11 +291,6 @@ export class GeospatialCamera extends Camera {
                 this.inertialRadiusOffset = 0;
             }
         }
-        if (this._localTarget !== null && this._localTarget.length() > 0) {
-            this._worldTarget.addInPlace(this._localTarget);
-            this._localTarget = Vector3.Zero(); // Reset after applying
-        }
-        this._recalculateWorldPositionFromSpherical();
 
         // Panning inertia -- come back to this
 
@@ -296,14 +304,14 @@ export class GeospatialCamera extends Camera {
         this._worldPosition = position.clone();
         this._worldTarget = target.clone();
         this._relativeTarget = this._worldTarget.subtract(this._worldPosition);
-
+        this._lookAtVector = this._worldTarget.subtract(this._worldPosition).normalize();
         this._rotation = Vector3.Zero();
 
         // Initialize spherical coordinates from position
         this.radius = position.length();
         this.alpha = Math.atan2(position.x, position.z);
         this.beta = Math.acos(position.y / this.radius);
-        this._rotationChanged = true;
+        this._isViewMatrixDirty = true;
     }
 
     private _checkInputsCartesian() {
@@ -337,13 +345,13 @@ export class GeospatialCamera extends Camera {
             this._rotation.z = Scalar.NormalizeRadians(this._rotation.z); // Roll wrapped to -π to π
 
             // Mark as changed
-            this._rotationChanged = true;
+            this._isViewMatrixDirty = true;
             this._localRotation.copyFromFloats(0, 0, 0); // or should this live in viewmatrix calc
         }
     }
 
     public override _isSynchronizedViewMatrix(): boolean {
-        if (!super._isSynchronizedViewMatrix() || this._rotationChanged) {
+        if (!super._isSynchronizedViewMatrix() || this._isViewMatrixDirty) {
             return false;
         }
         return true;

@@ -35,6 +35,11 @@ export const GeospatialCameraTransformProperties: FunctionComponent<{ camera: Ge
             <BoundProperty label="Position" component={Vector3PropertyLine} target={camera} propertyKey="_worldPosition" />
             <BoundProperty label="Target" component={Vector3PropertyLine} target={camera} propertyKey="_worldTarget" />
             <BoundProperty label="Relative Target" component={Vector3PropertyLine} target={camera} propertyKey="_relativeTarget" />
+
+            <BoundProperty label="Look At Vector" component={Vector3PropertyLine} target={camera} propertyKey="_lookAtVector" />
+            <BoundProperty label="Up vector" component={Vector3PropertyLine} target={camera} propertyKey="upVector" />
+            <BoundProperty label="Relative Target" component={Vector3PropertyLine} target={camera} propertyKey="_relativeTarget" />
+
             <BoundProperty label="Rotation" component={RotationVectorPropertyLine} target={camera} propertyKey="rotation" useDegrees={useDegrees} />
             <SyncedSliderPropertyLine
                 label={`Alpha`}
