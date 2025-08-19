@@ -34,7 +34,29 @@ export const GeospatialCameraTransformProperties: FunctionComponent<{ camera: Ge
             />
             <BoundProperty label="Position" component={Vector3PropertyLine} target={camera} propertyKey="_worldPosition" />
             <BoundProperty label="Target" component={Vector3PropertyLine} target={camera} propertyKey="_worldTarget" />
+            <BoundProperty label="Relative Target" component={Vector3PropertyLine} target={camera} propertyKey="_relativeTarget" />
             <BoundProperty label="Rotation" component={RotationVectorPropertyLine} target={camera} propertyKey="rotation" useDegrees={useDegrees} />
+            <SyncedSliderPropertyLine
+                label={`Alpha`}
+                value={toDisplayAngle(camera.alpha, true)}
+                onChange={(val) => (camera.alpha = fromDisplayAngle(val, true))}
+                min={toDisplayAngle(0)}
+                max={toDisplayAngle(2 * Math.PI)}
+                step={toDisplayAngle(0.01)}
+                unit={useDegrees ? "deg" : "rad"} // TODO, also make sure that the camera is resilient to updating camera rotation vector directly make sure converting okay
+            />
+            <SyncedSliderPropertyLine
+                label={`Beta`}
+                value={toDisplayAngle(camera.beta, true)}
+                onChange={(val) => (camera.beta = fromDisplayAngle(val, true))}
+                min={0}
+                max={toDisplayAngle(Math.PI)}
+                step={toDisplayAngle(0.01)}
+                unit={useDegrees ? "deg" : "rad"} // TODO, also make sure that the camera is resilient to updating camera rotation vector directly make sure converting okay
+            />
+
+            <BoundProperty label="Radius" component={NumberInputPropertyLine} target={camera} propertyKey="radius" />
+
             <BoundProperty label="_localTranslation" component={Vector3PropertyLine} target={camera} propertyKey="_localTranslation" />
             <BoundProperty label="_localRotation" component={Vector3PropertyLine} target={camera} propertyKey="_localRotation" />
 
@@ -48,6 +70,7 @@ export const GeospatialCameraTransformProperties: FunctionComponent<{ camera: Ge
             />
 
             <ButtonLine label="Look Nadir (at earth surface)" onClick={() => camera.lookNadir()} />
+            <ButtonLine label="Reset to default" onClick={() => camera.resetToDefault()} />
             <SyncedSliderPropertyLine
                 label={`Set tilt (pitch, rotation along X) `}
                 value={toDisplayAngle(cameraRotation.x, true)}

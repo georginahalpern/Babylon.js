@@ -1,130 +1,180 @@
-import { serialize } from "core/Misc/decorators";
-import type { EventState, Observer } from "core/Misc/observable";
-import type { Nullable } from "core/types";
+import type { Nullable } from "../../types";
+import type { Observer } from "../../Misc/observable";
 import type { ICameraInput } from "../../Cameras/cameraInputsManager";
 import type { GeospatialCamera } from "../../Cameras/geospatialCamera";
 import type { PointerInfo } from "../../Events/pointerEvents";
 import { PointerEventTypes } from "../../Events/pointerEvents";
-import type { IPointerEvent } from "../../Events/deviceInputEvents";
+import { Vector2, Vector3 } from "../../Maths/math.vector";
 
-/**
- * Mouse input for GeospatialCamera
- * Dragging rotates the camera (inverted)
- */
 export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera> {
-    /**
-     * Defines the camera the input is attached to.
-     */
-    public camera: Nullable<GeospatialCamera> = null;
+    public camera: GeospatialCamera;
 
     /**
-     * Defines the mouse angular sensitivity along the X axis (default: 2000)
+     * Mouse sensitivity for rotation (lower = more sensitive)
      */
-    @serialize()
-    public angularSensibilityX = 2000.0;
+    public angularSensibility = 2000.0;
 
     /**
-     * Defines the mouse angular sensitivity along the Y axis (default: 2000)
+     * Mouse button to use for camera control
+     * 0 = left, 1 = middle, 2 = right
      */
-    @serialize()
-    public angularSensibilityY = 2000.0;
+    public buttons = [0, 1, 2];
 
-    /**
-     * Defines which mouse buttons activate camera rotation (default: left button)
-     */
-    @serialize()
-    public buttons = [0];
-
-    /**
-     * Defines whether touch is enabled (default: true)
-     */
-    @serialize()
-    public touchEnabled = true;
-
-    private _pointerInput?: (p: PointerInfo, s: EventState) => void;
-    // private _onMouseMove?: (evt: IPointerEvent) => void;
-    private _observer: Nullable<Observer<PointerInfo>> = null;
-    private _previousPosition: Nullable<{ x: number; y: number }> = null;
+    private _observer: Nullable<Observer<PointerInfo>>;
+    private _previousPosition: Nullable<Vector2> = null;
+    private _isDragging = false;
+    private _button: number = -1;
 
     public attachControl(noPreventDefault?: boolean): void {
-        const engine = this.camera?.getEngine();
-        const element = engine?.getInputElement();
-
-        if (!element || !this.camera) {
-            return;
-        }
-
         const scene = this.camera.getScene();
 
-        if (!this._pointerInput) {
-            this._pointerInput = (p) => {
-                const evt = p.event as IPointerEvent;
+        this._observer = scene.onPointerObservable.add((pointerInfo) => {
+            const evt = pointerInfo.event as PointerEvent;
 
-                if (!this.touchEnabled && evt.pointerType === "touch") {
-                    return;
-                }
+            switch (pointerInfo.type) {
+                case PointerEventTypes.POINTERDOWN:
+                    if (this.buttons.includes(evt.button)) {
+                        this._isDragging = true;
+                        this._button = evt.button;
+                        this._previousPosition = new Vector2(evt.clientX, evt.clientY);
+                        if (!noPreventDefault) {
+                            evt.preventDefault();
+                        }
+                    }
+                    break;
 
-                if (p.type === PointerEventTypes.POINTERDOWN) {
-                    if (this.buttons.indexOf(evt.button) !== -1) {
-                        this._previousPosition = {
-                            x: evt.clientX,
-                            y: evt.clientY,
-                        };
+                case PointerEventTypes.POINTERUP:
+                    this._isDragging = false;
+                    this._previousPosition = null;
+                    this._button = -1;
+                    break;
+
+                case PointerEventTypes.POINTERMOVE:
+                    if (this._isDragging && this._previousPosition) {
+                        const currentPosition = new Vector2(evt.clientX, evt.clientY);
+                        const deltaX = currentPosition.x - this._previousPosition.x;
+                        const deltaY = currentPosition.y - this._previousPosition.y;
+
+                        // Different actions based on button
+                        switch (this._button) {
+                            case 0: // Left button - rotate globe
+                                this._handleRotation(deltaX, deltaY, evt);
+                                break;
+                            case 1: // Middle button - pan
+                                this._handlePan(deltaX, deltaY);
+                                break;
+                            case 2: // Right button - tilt camera
+                                this._handleTilt(deltaX, deltaY);
+                                break;
+                        }
+
+                        this._previousPosition = currentPosition;
 
                         if (!noPreventDefault) {
                             evt.preventDefault();
-                            element!.focus();
                         }
                     }
-                } else if (p.type === PointerEventTypes.POINTERUP) {
-                    this._previousPosition = null;
-                } else if (p.type === PointerEventTypes.POINTERMOVE) {
-                    if (!this._previousPosition || !this.camera) {
-                        return;
-                    }
-
-                    const offsetX = evt.clientX - this._previousPosition.x;
-                    const offsetY = evt.clientY - this._previousPosition.y;
-
-                    // Inverted rotation (drag left rotates camera right)
-                    this.camera._localRotation.x = -offsetY / this.angularSensibilityY;
-                    this.camera._localRotation.y = -offsetX / this.angularSensibilityX;
-
-                    this._previousPosition = {
-                        x: evt.clientX,
-                        y: evt.clientY,
-                    };
-                }
-            };
-        }
-
-        this._observer = scene.onPointerObservable.add(this._pointerInput, PointerEventTypes.POINTERDOWN | PointerEventTypes.POINTERUP | PointerEventTypes.POINTERMOVE);
+                    break;
+            }
+        });
     }
 
     /**
-     * Detach the current controls from the specified dom element.
+     * Handle rotation (orbit around globe)
      */
+    private _handleRotation(deltaX: number, deltaY: number, evt: PointerEvent): void {
+        // Convert pixel movement to rotation angles
+        const deltaAlpha = -deltaX / this.angularSensibility;
+        const deltaBeta = deltaY / this.angularSensibility;
+
+        // Accumulate into inertial offsets (ArcRotateCamera style)
+        this.camera.inertialAlphaOffset += deltaAlpha;
+        this.camera.inertialBetaOffset += deltaBeta;
+    }
+
+    public _orbitCamera(deltaAlpha: number, deltaBeta: number): void {
+        const camera = this.camera;
+
+        // Update spherical coordinates
+        camera.alpha += deltaAlpha;
+        camera.beta += deltaBeta;
+
+        // Apply limits
+        if (camera.lowerBetaLimit !== null) {
+            camera.beta = Math.max(camera.beta, camera.lowerBetaLimit);
+        }
+        if (camera.upperBetaLimit !== null) {
+            camera.beta = Math.min(camera.beta, camera.upperBetaLimit);
+        }
+
+        // Convert spherical to Cartesian (this is the TARGET position)
+        const targetX = camera.radius * Math.sin(camera.beta) * Math.sin(camera.alpha);
+        const targetY = camera.radius * Math.cos(camera.beta);
+        const targetZ = camera.radius * Math.sin(camera.beta) * Math.cos(camera.alpha);
+
+        // Set the new world position directly (don't accumulate)
+        camera._worldPosition.copyFromFloats(targetX, targetY, targetZ);
+
+        // Look at origin from the new position
+        const direction = Vector3.Zero().subtract(camera._worldPosition).normalize();
+
+        // Convert direction to rotation angles
+        const newRotationY = Math.atan2(direction.x, direction.z);
+        const newRotationX = Math.asin(-direction.y);
+
+        // Set rotation directly (not as delta)
+        camera.rotation.copyFromFloats(newRotationX, newRotationY, 0);
+    }
+
+    /**
+     * Handle panning (middle mouse)
+     */
+    private _handlePan(deltaX: number, deltaY: number): void {
+        const camera = this.camera;
+        const speed = camera.radius * 0.001; // Scale with distance
+
+        // Calculate right and up vectors
+        const forward = Vector3.Zero().subtract(camera.position).normalize();
+        const right = Vector3.Cross(Vector3.Up(), forward).normalize();
+        const up = Vector3.Cross(forward, right);
+
+        // Pan in camera's local space
+        const panX = right.scale(deltaX * speed);
+        const panY = up.scale(-deltaY * speed);
+
+        camera._localTranslation.addInPlace(panX);
+        camera._localTranslation.addInPlace(panY);
+    }
+
+    /**
+     * Handle camera tilt (right mouse)
+     */
+    private _handleTilt(deltaX: number, deltaY: number): void {
+        // Just rotate the view without moving
+        this.camera._localRotation.y += -deltaX / this.angularSensibility;
+        this.camera._localRotation.x += deltaY / this.angularSensibility;
+    }
+
     public detachControl(): void {
         if (this._observer) {
-            this.camera?.getScene().onPointerObservable.remove(this._observer);
+            this.camera.getScene().onPointerObservable.remove(this._observer);
             this._observer = null;
-            this._previousPosition = null;
         }
+
+        this._isDragging = false;
+        this._previousPosition = null;
+        this._button = -1;
     }
 
-    /**
-     * Gets the class name of the current input.
-     * @returns the class name
-     */
     public getClassName(): string {
         return "GeospatialCameraMouseInput";
     }
 
-    /**
-     * Get the friendly name associated with the input class.
-     * @returns the input friendly name
-     */
     public getSimpleName(): string {
         return "mouse";
+    }
+
+    public checkInputs(): void {
+        // Mouse input is event-based, no per-frame updates needed
     }
 }
