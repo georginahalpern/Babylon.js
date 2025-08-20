@@ -32,15 +32,19 @@ export const GeospatialCameraTransformProperties: FunctionComponent<{ camera: Ge
                 ignoreNullable
                 defaultValue={Vector3.Zero()}
             />
-            <BoundProperty label="Position" component={Vector3PropertyLine} target={camera} propertyKey="_worldPosition" />
-            <BoundProperty label="Target" component={Vector3PropertyLine} target={camera} propertyKey="_worldTarget" />
-            <BoundProperty label="Relative Target" component={Vector3PropertyLine} target={camera} propertyKey="_relativeTarget" />
+            <BoundProperty label="Position" component={Vector3PropertyLine} target={camera} propertyKey="_worldPosition" step={0.001} />
+            <BoundProperty label="Target" component={Vector3PropertyLine} target={camera} propertyKey="_worldTarget" step={0.001} />
+            <BoundProperty label="Relative Target" component={Vector3PropertyLine} target={camera} propertyKey="_relativeTarget" step={0.001} />
 
-            <BoundProperty label="Look At Vector" component={Vector3PropertyLine} target={camera} propertyKey="_lookAtVector" />
-            <BoundProperty label="Up vector" component={Vector3PropertyLine} target={camera} propertyKey="upVector" />
-            <BoundProperty label="Relative Target" component={Vector3PropertyLine} target={camera} propertyKey="_relativeTarget" />
+            <BoundProperty label="Look At Vector" component={Vector3PropertyLine} target={camera} propertyKey="_lookAtVector" step={0.001} />
+            <BoundProperty label="Up vector" component={Vector3PropertyLine} target={camera} propertyKey="upVector" step={0.001} />
 
-            <BoundProperty label="Rotation" component={RotationVectorPropertyLine} target={camera} propertyKey="rotation" useDegrees={useDegrees} />
+            <BoundProperty label="Rotation" component={RotationVectorPropertyLine} target={camera} propertyKey="rotation" useDegrees={useDegrees} step={0.001} />
+            <BoundProperty label="Rotation Axis" component={Vector3PropertyLine} target={camera} propertyKey="rotationAxis" step={0.001} />
+
+            <BoundProperty label="hitPosition" component={Vector3PropertyLine} target={camera} propertyKey="hitPosition" step={0.001} />
+            <BoundProperty label="Geocentric normal of hit point" component={Vector3PropertyLine} target={camera} propertyKey="_geocentricNormal" step={0.001} />
+
             <SyncedSliderPropertyLine
                 label={`Alpha`}
                 value={toDisplayAngle(camera.alpha, true)}

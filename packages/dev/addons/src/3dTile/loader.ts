@@ -12,7 +12,7 @@ import { Texture } from "core/Materials/Textures";
 import { GeospatialCamera } from "core/Cameras/geospatialCamera";
 // Earth ellipsoid parameters (scaled down to radius ~50)
 const EQUATORIAL_RADIUS = 50;
-const POLAR_RADIUS = EQUATORIAL_RADIUS * (6356.752 / 6378.137); // ~49.83
+// const POLAR_RADIUS = EQUATORIAL_RADIUS * (6356.752 / 6378.137); // ~49.83
 // const FLATTENING = 1 - POLAR_RADIUS / EQUATORIAL_RADIUS; // ~0.00335
 
 export class TestApp {
@@ -35,8 +35,8 @@ export class TestApp {
             "referenceSphere",
             {
                 diameter: EQUATORIAL_RADIUS * 2,
-                diameterY: POLAR_RADIUS * 2, // This makes it an ellipsoid
-                segments: 64,
+                // diameterY: POLAR_RADIUS * 2, // This makes it an ellipsoid
+                // segments: 64,
             },
             scene
         );
@@ -53,8 +53,8 @@ export class TestApp {
         referenceSphere.material = sphereMaterial;
 
         // Load GLTF models positioned on the sphere surface
-        const loader = new TileLoader(scene);
-        await loader.loadModelAsync();
+        // const loader = new TileLoader(scene);
+        // await loader.loadModelAsync();
     }
 }
 export class TileLoader {

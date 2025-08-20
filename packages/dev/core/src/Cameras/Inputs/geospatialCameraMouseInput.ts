@@ -4,7 +4,8 @@ import type { ICameraInput } from "../../Cameras/cameraInputsManager";
 import type { GeospatialCamera } from "../../Cameras/geospatialCamera";
 import type { PointerInfo } from "../../Events/pointerEvents";
 import { PointerEventTypes } from "../../Events/pointerEvents";
-import { Vector2, Vector3 } from "../../Maths/math.vector";
+import { Matrix, Vector2 } from "../../Maths/math.vector";
+// import { Epsilon } from "../../Maths";
 
 export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera> {
     public camera: GeospatialCamera;
@@ -34,6 +35,35 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
             switch (pointerInfo.type) {
                 case PointerEventTypes.POINTERDOWN:
                     if (this.buttons.includes(evt.button)) {
+                        if (evt.button == 2) {
+                            // Get engine and screen size
+                            const engine = scene.getEngine();
+                            const width = engine.getRenderWidth();
+                            const height = engine.getRenderHeight();
+
+                            // Center of the screen
+                            const screenX = width / 2;
+                            const screenY = height / 2;
+
+                            // Create a picking ray from the camera's world position through the center of the screen
+                            const ray = scene.createPickingRay(
+                                screenX,
+                                screenY,
+                                Matrix.Identity(), // world matrix, usually identity for screen picking
+                                this.camera,
+                                false // cameraViewSpace
+                            );
+
+                            // Pick with the ray
+                            const pickResult = scene.pickWithRay(ray);
+                            if (pickResult?.pickedPoint) {
+                                // what if no hit?
+                                this.camera.hitPosition.copyFrom(pickResult.pickedPoint);
+                                this.camera.hitPosition.addInPlace(this.camera._worldPosition); // this returns in geospatial world coordinates which ensures the geocentric normal is actually coming from geoworld origin
+                                this.camera.hitPosition.normalizeToRef(this.camera._geocentricNormal);
+                            }
+                        }
+
                         this._isDragging = true;
                         this._button = evt.button;
                         this._previousPosition = new Vector2(evt.clientX, evt.clientY);
@@ -47,6 +77,8 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
                     this._isDragging = false;
                     this._previousPosition = null;
                     this._button = -1;
+                    // this.camera.rotationAxis.copyFromFloats(0, 0, 0); // Reset rotation axis
+                    // this.camera.hitPosition.copyFromFloats(0, 0, 0);
                     break;
 
                 case PointerEventTypes.POINTERMOVE:
@@ -61,7 +93,7 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
                                 this._handleRotation(deltaX, deltaY, evt);
                                 break;
                             case 1: // Middle button - pan
-                                this._handlePan(deltaX, deltaY);
+                                //  this._handlePan(deltaX, deltaY);
                                 break;
                             case 2: // Right button - tilt camera
                                 this._handleTilt(deltaX, deltaY);
@@ -79,9 +111,6 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
         });
     }
 
-    /**
-     * Handle rotation (orbit around globe)
-     */
     private _handleRotation(deltaX: number, deltaY: number, evt: PointerEvent): void {
         // Convert pixel movement to rotation angles
         const deltaAlpha = -deltaX / this.angularSensibility;
@@ -92,66 +121,10 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
         this.camera.inertialBetaOffset += deltaBeta;
     }
 
-    public _orbitCamera(deltaAlpha: number, deltaBeta: number): void {
-        const camera = this.camera;
-
-        // Update spherical coordinates
-        camera.alpha += deltaAlpha;
-        camera.beta += deltaBeta;
-
-        // Apply limits
-        if (camera.lowerBetaLimit !== null) {
-            camera.beta = Math.max(camera.beta, camera.lowerBetaLimit);
-        }
-        if (camera.upperBetaLimit !== null) {
-            camera.beta = Math.min(camera.beta, camera.upperBetaLimit);
-        }
-
-        // Convert spherical to Cartesian (this is the TARGET position)
-        const targetX = camera.radius * Math.sin(camera.beta) * Math.sin(camera.alpha);
-        const targetY = camera.radius * Math.cos(camera.beta);
-        const targetZ = camera.radius * Math.sin(camera.beta) * Math.cos(camera.alpha);
-
-        // Set the new world position directly (don't accumulate)
-        camera._worldPosition.copyFromFloats(targetX, targetY, targetZ);
-
-        // Look at origin from the new position
-        const direction = Vector3.Zero().subtract(camera._worldPosition).normalize();
-
-        // Convert direction to rotation angles
-        const newRotationY = Math.atan2(direction.x, direction.z);
-        const newRotationX = Math.asin(-direction.y);
-
-        // Set rotation directly (not as delta)
-        camera.rotation.copyFromFloats(newRotationX, newRotationY, 0);
-    }
-
-    /**
-     * Handle panning (middle mouse)
-     */
-    private _handlePan(deltaX: number, deltaY: number): void {
-        const camera = this.camera;
-        const speed = camera.radius * 0.001; // Scale with distance
-
-        // Calculate right and up vectors
-        const forward = Vector3.Zero().subtract(camera.position).normalize();
-        const right = Vector3.Cross(Vector3.Up(), forward).normalize();
-        const up = Vector3.Cross(forward, right);
-
-        // Pan in camera's local space
-        const panX = right.scale(deltaX * speed);
-        const panY = up.scale(-deltaY * speed);
-
-        camera._localTranslation.addInPlace(panX);
-        camera._localTranslation.addInPlace(panY);
-    }
-
-    /**
-     * Handle camera tilt (right mouse)
-     */
     private _handleTilt(deltaX: number, deltaY: number): void {
         // Just rotate the view without moving
-        this.camera._localRotation.y += -deltaX / this.angularSensibility;
+        // this.camera._localRotation.y += -deltaX / this.angularSensibility;
+        global.console.log("delt", deltaY);
         this.camera._localRotation.x += deltaY / this.angularSensibility;
     }
 
