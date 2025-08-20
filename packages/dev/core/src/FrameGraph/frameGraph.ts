@@ -218,13 +218,6 @@ export class FrameGraph {
                 this._currentProcessedTask = null;
             }
 
-            // The user expects bouding boxes to render for the main object renderer
-            // It also lets the "show bounding box" option in the inspector work
-            const mainObjectRenderer = FindMainObjectRenderer(this);
-            if (mainObjectRenderer) {
-                mainObjectRenderer.objectRenderer.enableBoundingBoxRendering = true;
-            }
-
             this.textureManager._allocateTextures(this.optimizeTextureAllocation ? this._tasks : undefined);
 
             for (const task of this._tasks) {

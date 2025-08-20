@@ -685,10 +685,6 @@ export class ObjectRenderer {
 
         boundingBoxRenderer && boundingBoxRenderer.reset();
 
-        const boundingBoxRenderer = scene.getBoundingBoxRenderer?.();
-
-        boundingBoxRenderer && boundingBoxRenderer.reset();
-
         const sceneRenderId = scene.getRenderId();
         const currentFrameId = scene.getFrameId();
         for (let meshIndex = 0; meshIndex < currentRenderListLength; meshIndex++) {
