@@ -9,7 +9,6 @@ import { Observable } from "core/Misc/observable";
 import { _RetryWithInterval } from "core/Misc/timingTools";
 import { Logger } from "core/Misc/logger";
 import { UniqueIdGenerator } from "core/Misc/uniqueIdGenerator";
-import { FindMainObjectRenderer } from "./frameGraphUtils";
 
 import "core/Engines/Extensions/engine.multiRender";
 import "core/Engines/WebGPU/Extensions/engine.multiRender";

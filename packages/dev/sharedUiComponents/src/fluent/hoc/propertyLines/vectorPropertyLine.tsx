@@ -95,8 +95,8 @@ type RotationVectorPropertyLineProps = TensorPropertyLineProps<Vector3> & {
 
 const ToDegreesConverter = { from: Tools.ToDegrees, to: Tools.ToRadians };
 export const RotationVectorPropertyLine: FunctionComponent<RotationVectorPropertyLineProps> = (props) => {
-    const min = 0;
-    const max = props.useDegrees ? 360 : Math.PI * 2;
+    const min = props.useDegrees ? 0 : undefined;
+    const max = props.useDegrees ? 360 : undefined;
     return <Vector3PropertyLine {...props} unit={props.useDegrees ? "deg" : "rad"} valueConverter={props.useDegrees ? ToDegreesConverter : undefined} min={min} max={max} />;
 };
 
