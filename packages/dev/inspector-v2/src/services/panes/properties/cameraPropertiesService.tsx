@@ -21,6 +21,8 @@ import { FreeCameraCollisionProperties, FreeCameraControlProperties, FreeCameraT
 import { TargetCameraControlProperties, TargetCameraTransformProperties } from "../../../components/properties/cameras/targetCameraProperties";
 import { SettingsContextIdentity } from "../../../services/settingsContext";
 import { PropertiesServiceIdentity } from "./propertiesService";
+import { GeospatialCameraTransformProperties } from "../../../components/properties/cameras/geospatialCameraProperties";
+import { GeospatialCamera } from "core/Cameras";
 
 export const ControlPropertiesSectionIdentity = Symbol("Control");
 export const CollisionPropertiesSectionIdentity = Symbol("Collision");
@@ -118,6 +120,17 @@ export const CameraPropertiesServiceDefinition: ServiceDefinition<[], [IProperti
             ],
         });
 
+        const geospatialCameraContentRegistration = propertiesService.addSectionContent({
+            key: "Geospatial Camera Properties",
+            predicate: (entity: unknown) => entity instanceof GeospatialCamera,
+            content: [
+                {
+                    section: "Transform",
+                    component: ({ context }) => <GeospatialCameraTransformProperties camera={context} settings={settingsContext} />,
+                },
+            ],
+        });
+
         return {
             dispose: () => {
                 cameraContentRegistration.dispose();
@@ -125,6 +138,7 @@ export const CameraPropertiesServiceDefinition: ServiceDefinition<[], [IProperti
                 arcRotateCameraContentRegistration.dispose();
                 freeCameraContentRegistration.dispose();
                 followCameraContentRegistration.dispose();
+                geospatialCameraContentRegistration.dispose();
             },
         };
     },
