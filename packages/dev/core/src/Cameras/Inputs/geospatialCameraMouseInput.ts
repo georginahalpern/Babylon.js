@@ -13,7 +13,7 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
     /**
      * Mouse sensitivity for rotation (lower = more sensitive)
      */
-    public angularSensibility = 2000.0;
+    public angularSensibility = 200.0;
 
     /**
      * Mouse button to use for camera control
@@ -35,20 +35,27 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
             switch (pointerInfo.type) {
                 case PointerEventTypes.POINTERDOWN:
                     if (this.buttons.includes(evt.button)) {
-                        if (evt.button == 2) {
-                            // Get engine and screen size
-                            const engine = scene.getEngine();
-                            const width = engine.getRenderWidth();
-                            const height = engine.getRenderHeight();
+                        if (evt.button == 1 || evt.button == 2) {
+                            const rayOrigin = new Vector2();
+                            if (evt.button == 1) {
+                                const rect = scene.getEngine().getRenderingCanvas()?.getBoundingClientRect();
+                                const x = evt.clientX - (rect ? rect.left : 0);
+                                const y = evt.clientY - (rect ? rect.top : 0);
+                                rayOrigin.copyFromFloats(x, y);
+                            } else {
+                                // Get engine and screen size
+                                const engine = scene.getEngine();
+                                const width = engine.getRenderWidth();
+                                const height = engine.getRenderHeight();
 
-                            // Center of the screen
-                            const screenX = width / 2;
-                            const screenY = height / 2;
+                                // Shoot ray from center of screen
+                                rayOrigin.copyFromFloats(width / 2, height / 2);
+                            }
 
                             // Create a picking ray from the camera's world position through the center of the screen
                             const ray = scene.createPickingRay(
-                                screenX,
-                                screenY,
+                                rayOrigin.x,
+                                rayOrigin.y,
                                 Matrix.Identity(), // world matrix, usually identity for screen picking
                                 this.camera,
                                 false // cameraViewSpace
@@ -77,8 +84,6 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
                     this._isDragging = false;
                     this._previousPosition = null;
                     this._button = -1;
-                    // this.camera.rotationAxis.copyFromFloats(0, 0, 0); // Reset rotation axis
-                    // this.camera.hitPosition.copyFromFloats(0, 0, 0);
                     break;
 
                 case PointerEventTypes.POINTERMOVE:
@@ -89,11 +94,11 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
 
                         // Different actions based on button
                         switch (this._button) {
-                            case 0: // Left button - rotate globe
+                            case 0: // Left button - rotate globe around its center (drag/move, pan)
                                 this._handleRotation(deltaX, deltaY, evt);
                                 break;
-                            case 1: // Middle button - pan
-                                //  this._handlePan(deltaX, deltaY);
+                            case 1: // Middle button - tilt camera around cursor
+                                this._handleTilt(deltaX, deltaY);
                                 break;
                             case 2: // Right button - tilt camera
                                 this._handleTilt(deltaX, deltaY);
@@ -113,19 +118,19 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
 
     private _handleRotation(deltaX: number, deltaY: number, evt: PointerEvent): void {
         // Convert pixel movement to rotation angles
-        const deltaAlpha = -deltaX / this.angularSensibility;
-        const deltaBeta = deltaY / this.angularSensibility;
+        const deltaAlpha = deltaX / this.angularSensibility;
+        const deltaBeta = -deltaY / this.angularSensibility;
 
         // Accumulate into inertial offsets (ArcRotateCamera style)
         this.camera.inertialAlphaOffset += deltaAlpha;
         this.camera.inertialBetaOffset += deltaBeta;
+        //        this.camera._localRotation.z += -deltaX / this.angularSensibility; // yaw
     }
 
     private _handleTilt(deltaX: number, deltaY: number): void {
         // Just rotate the view without moving
-        // this.camera._localRotation.y += -deltaX / this.angularSensibility;
-        global.console.log("delt", deltaY);
-        this.camera._localRotation.x += deltaY / this.angularSensibility;
+        // this.camera._localRotation.y += -deltaX / this.angularSensibility; // yaw
+        this.camera._localRotation.x += deltaY / this.angularSensibility; // pitch
     }
 
     public detachControl(): void {

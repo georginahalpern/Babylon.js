@@ -42,6 +42,7 @@ export class TestApp {
         );
 
         referenceSphere.position = Vector3.Zero(); // Simple positioning at origin
+        referenceSphere.isPickable = true;
 
         // Apply the world texture from the 3dTile directory
         const sphereMaterial = new StandardMaterial("sphereMaterial", scene);

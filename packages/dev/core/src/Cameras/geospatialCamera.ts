@@ -2,7 +2,7 @@ import { Camera } from "./camera";
 import { Vector3, Matrix } from "../Maths/math.vector";
 import type { Scene } from "../scene";
 import { GeospatialCameraInputsManager } from "./geospatialCameraInputsManager";
-import { Epsilon, Vector2 } from "../Maths";
+import { Epsilon, Vector2, Scalar } from "../Maths";
 import type { Quaternion } from "../Maths";
 import type { Nullable } from "../types";
 
@@ -240,8 +240,8 @@ export class GeospatialCamera extends Camera {
         // Direction to target
         this._lookAtVector = this._worldTarget.subtract(this._worldPosition).normalize();
         // Recalculate up vector based on accumulated rotation (pitch/yaw/roll)
-        if (this._rotation.lengthSquared() > 0) {
-            const rotationMatrix = Matrix.RotationYawPitchRoll(this._rotation.y, this._rotation.x, this._rotation.z);
+        if (this._localRotation.lengthSquared() > 0) {
+            const rotationMatrix = Matrix.RotationYawPitchRoll(this._localRotation.y, this._localRotation.x, this._localRotation.z);
             Vector3.TransformNormalToRef(Vector3.Up(), rotationMatrix, this.upVector);
         } else {
             this.upVector.copyFrom(Vector3.Up());
@@ -252,43 +252,50 @@ export class GeospatialCamera extends Camera {
 
     private _calcViewMatrixInputsOffCartesianRotation(): void {
         // Compute axis
+        this._geocentricNormal.normalize();
+        this.upVector.normalize();
+        this._lookAtVector.normalize();
+
         Vector3.CrossToRef(this.upVector, this._geocentricNormal, this.rotationAxis);
+        // If geoCentric normal and upVector are parallel, pick perpendicular to geocentricNormal
         if (this.rotationAxis.lengthSquared() <= Epsilon) {
             Vector3.CrossToRef(this._lookAtVector, this._geocentricNormal, this.rotationAxis);
         }
 
-        // If geoCentric normal and upVector are parallel, pick perpendicular to geocentricNormal
-        if (this.rotationAxis.lengthSquared() <= Epsilon) {
-            Vector3.CrossToRef(Vector3.Right(), this._geocentricNormal, this.rotationAxis);
-        }
+        // Calculate the pitch angle, clamping as necessary (negating dot product because the vectors are facing opposite direction)
+        const currentPitch = Math.acos(Scalar.Clamp(-Vector3.Dot(this._lookAtVector, this._geocentricNormal), -1, 1));
+        const newPitch = Math.min(0.5 * Math.PI, Math.max(0, currentPitch + this._localRotation.x));
+        const actualLocationRotationX = newPitch - currentPitch;
 
-        // Rotate the relative camera position.
-        const worldPosOffsetFromTarget = this._worldPosition.subtract(this.hitPosition);
-        const normalizedRotAxis = this.rotationAxis.normalizeToNew();
+        const pitchRotationMatrix = Matrix.RotationAxis(this.rotationAxis.normalize(), actualLocationRotationX);
 
-        const rotationMatrix = Matrix.RotationAxis(normalizedRotAxis, this._localRotation.x);
-
+        // Calculate the yaw rotation
+        // const yawRotationMatrix = Matrix.RotationAxis(this._geocentricNormal, this._localRotation.y);
+        // const finalRotationMatrix = yawRotationMatrix.multiply(pitchRotationMatrix);
         global.console.log(
+            "currentPitch",
+            currentPitch,
+            "\n",
+            "newPitch",
+            newPitch,
+            "\n",
+            "actualLocationRotationX",
+            actualLocationRotationX,
+            "\n",
             "worldPos",
             this._worldPosition,
             "\n",
             "hitPosition",
             this.hitPosition,
             "\n",
-            "worldPosOffset",
-            worldPosOffsetFromTarget,
-            "\n",
             "axis",
             this.rotationAxis,
-            "\n",
-            "normalizedRotAxis",
-            normalizedRotAxis,
             "\n",
             "rot",
             this._rotation,
             "\n",
             "mat",
-            rotationMatrix,
+            pitchRotationMatrix,
             "\n",
             "up",
             this.upVector,
@@ -303,23 +310,23 @@ export class GeospatialCamera extends Camera {
             this._geocentricNormal,
             "background: #222; color: #bada55"
         );
-        const rotatedRelativePosition = new Vector3();
 
-        Vector3.TransformCoordinatesToRef(worldPosOffsetFromTarget, rotationMatrix, rotatedRelativePosition);
-        Vector3.TransformCoordinatesToRef(this.upVector, rotationMatrix, this.upVector); // can src/result be same vector?
-        Vector3.TransformCoordinatesToRef(this._lookAtVector, rotationMatrix, this._lookAtVector);
-        // Ensure viewmatrix is recalculated due to the rotation change caused by spherical coordinate change
+        // Move camera to be geocentric, rotate position/up/look vectors, then move back
+        const camDistanceFromHitPoint = this._worldPosition.subtract(this.hitPosition);
 
-        this._worldPosition = this.hitPosition.add(rotatedRelativePosition);
+        const tempOffset = new Vector3();
+        Vector3.TransformCoordinatesToRef(camDistanceFromHitPoint, pitchRotationMatrix, tempOffset);
+        Vector3.TransformNormalToRef(this.upVector, pitchRotationMatrix, this.upVector);
+        Vector3.TransformNormalToRef(this._lookAtVector, pitchRotationMatrix, this._lookAtVector);
+
+        this._worldPosition = this.hitPosition.add(tempOffset);
+
         global.console.log(
             "after-- worldPos",
             this._worldPosition,
             "\n",
-            "rotatedRelPos",
-            rotatedRelativePosition,
-            "\n",
-            "worldPosOffset",
-            worldPosOffsetFromTarget,
+            "camDistanceFromHitPoint",
+            camDistanceFromHitPoint,
             "\n",
             "up",
             this.upVector,
@@ -381,9 +388,22 @@ export class GeospatialCamera extends Camera {
         this._lookAtVector = this._worldTarget.subtract(this._worldPosition).normalize();
         this._rotation = Vector3.Zero();
         this.rotationAxis = new Vector3(1, 0, 0);
-        this.hitPosition = Vector3.Zero();
+        this.hitPosition = new Vector3(1, 0, 0);
         this.upVector = Vector3.Up();
         Vector3.NormalizeToRef(this.hitPosition, this._geocentricNormal);
+        global.console.log(
+            "in reset to default",
+            "world",
+            this._worldPosition,
+            "target",
+            this._worldTarget,
+            "lookAt",
+            this._lookAtVector,
+            "hitPOsition",
+            this.hitPosition,
+            "_geocentricNormal",
+            this._geocentricNormal
+        );
 
         // Initialize spherical coordinates from position
         this.radius = position.length();
@@ -416,8 +436,9 @@ export class GeospatialCamera extends Camera {
         if (this._localRotation.lengthSquared() > 0) {
             // // Accumulate rotation
             // global.console.log("loc", this._localRotation);
-            // this._rotation.addInPlace(this._localRotation);
             // global.console.log("rot before clamp", this._rotation);
+
+            this._rotation.addInPlace(this._localRotation); // Accumulate rotation to be used for spherical coordinates ?
 
             // // Clamp pitch to avoid flipping
             // this._rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, this._rotation.x));
