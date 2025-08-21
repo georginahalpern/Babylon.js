@@ -183,7 +183,7 @@ export class GeospatialCameraMouseWheelInput implements ICameraInput<GeospatialC
             // Note we cannot  use GeospatialCamera.inertialPlanning here because GeospatialCamera panning
             // uses a different panningInertia which could cause this panning to get out of sync with
             // the zooming, and for this to work they must be exactly in sync.
-            camera._worldTarget.addInPlace(this._inertialPanning);
+            camera.geoworldOrigin.addInPlace(this._inertialPanning);
             this._inertialPanning.scaleInPlace(camera.inertia);
             this._zeroIfClose(this._inertialPanning);
         }
@@ -207,8 +207,8 @@ export class GeospatialCameraMouseWheelInput implements ICameraInput<GeospatialC
 
     private _updateHitPlane() {
         const camera = this.camera;
-        const direction = camera._worldTarget.subtract(camera.position);
-        this._hitPlane = Plane.FromPositionAndNormal(camera._worldTarget, direction);
+        const direction = camera.geoworldOrigin.subtract(camera.position);
+        this._hitPlane = Plane.FromPositionAndNormal(camera.geoworldOrigin, direction);
     }
 
     // Get position on the hit plane
@@ -266,7 +266,7 @@ export class GeospatialCameraMouseWheelInput implements ICameraInput<GeospatialC
         // so the targeted mouse location becomes the center of zooming.
 
         const directionToZoomLocation = TmpVectors.Vector3[6];
-        vec.subtractToRef(camera._worldTarget, directionToZoomLocation);
+        vec.subtractToRef(camera.geoworldOrigin, directionToZoomLocation);
         directionToZoomLocation.scaleInPlace(ratio);
         directionToZoomLocation.scaleInPlace(inertiaComp);
         this._inertialPanning.addInPlace(directionToZoomLocation);

@@ -35,7 +35,7 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
             switch (pointerInfo.type) {
                 case PointerEventTypes.POINTERDOWN:
                     if (this.buttons.includes(evt.button)) {
-                        if (evt.button == 1 || evt.button == 2) {
+                        if (evt.button == 1 || evt.button == 2 || evt.button == 0) {
                             const rayOrigin = new Vector2();
                             if (evt.button == 1) {
                                 const rect = scene.getEngine().getRenderingCanvas()?.getBoundingClientRect();
@@ -61,13 +61,13 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
                                 false // cameraViewSpace
                             );
 
-                            // Pick with the ray
+                            // Pick with the ray. This point will be returned in camera world space
                             const pickResult = scene.pickWithRay(ray);
                             if (pickResult?.pickedPoint) {
                                 // what if no hit?
-                                this.camera.hitPosition.copyFrom(pickResult.pickedPoint);
-                                this.camera.hitPosition.addInPlace(this.camera._worldPosition); // this returns in geospatial world coordinates which ensures the geocentric normal is actually coming from geoworld origin
-                                this.camera.hitPosition.normalizeToRef(this.camera._geocentricNormal);
+                                this.camera.geoworldHitPoint.copyFrom(pickResult.pickedPoint);
+                                this.camera.geoworldHitPoint.addInPlace(this.camera.geoworldPosition); // this returns in geospatial world coordinates which ensures the geocentric normal is actually coming from geoworld origin
+                                this.camera.geoworldHitPoint.normalizeToRef(this.camera.geocentricNormal);
                             }
                         }
 
@@ -130,7 +130,7 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
     private _handleTilt(deltaX: number, deltaY: number): void {
         // Just rotate the view without moving
         // this.camera._localRotation.y += -deltaX / this.angularSensibility; // yaw
-        this.camera._localRotation.x += deltaY / this.angularSensibility; // pitch
+        this.camera._localRotation.x += -deltaY / this.angularSensibility; // pitch - dragging up look towards sky
     }
 
     public detachControl(): void {

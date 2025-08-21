@@ -1083,7 +1083,11 @@ export class TransformNode extends Node {
         // either the camera position or mesh position has changed since the last frame and if so, mark the node as dirty
         if (activeCam instanceof GeospatialCamera && !this.parent) {
             translation = TransformNode._TmpTranslation;
-            translation.copyFromFloats(this._position.x - activeCam._worldPosition.x, this._position.y - activeCam._worldPosition.y, this._position.z - activeCam._worldPosition.z);
+            translation.copyFromFloats(
+                this._position.x - activeCam.geoworldPosition.x,
+                this._position.y - activeCam.geoworldPosition.y,
+                this._position.z - activeCam.geoworldPosition.z
+            );
             if (!this._worldMatrix.getTranslation().equalsToFloats(translation.x, translation.y, translation.z)) {
                 // If the translation is not the same as the cached translation, we need to update world matrix so mark isDirty to true
                 this._isDirty = true;
