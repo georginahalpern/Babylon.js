@@ -4,26 +4,25 @@ import type { GeospatialCamera } from "core/index";
 import type { ISettingsContext } from "../../../services/settingsContext";
 
 import { NumberInputPropertyLine } from "shared-ui-components/fluent/hoc/propertyLines/inputPropertyLine";
-import { RotationVectorPropertyLine, Vector3PropertyLine } from "shared-ui-components/fluent/hoc/propertyLines/vectorPropertyLine";
-import { useVector3Property } from "../../../hooks/compoundPropertyHooks";
+import { Vector3PropertyLine } from "shared-ui-components/fluent/hoc/propertyLines/vectorPropertyLine";
+// import { useVector3Property } from "../../../hooks/compoundPropertyHooks";
 import { BoundProperty } from "../boundProperty";
 import { BooleanBadgePropertyLine } from "shared-ui-components/fluent/hoc/propertyLines/booleanBadgePropertyLine";
 import { ButtonLine } from "shared-ui-components/fluent/hoc/buttonLine";
 import { Vector3 } from "core/Maths/math.vector";
-import { useObservableState } from "../../../hooks/observableHooks";
-import { SyncedSliderPropertyLine } from "shared-ui-components/fluent/hoc/propertyLines/syncedSliderPropertyLine";
-import { useAngleConverters } from "../../../hooks/settingsHooks";
+// import { useObservableState } from "../../../hooks/observableHooks";
+// import { SyncedSliderPropertyLine } from "shared-ui-components/fluent/hoc/propertyLines/syncedSliderPropertyLine";
+// import { useAngleConverters } from "../../../hooks/settingsHooks";
 
 export const GeospatialCameraTransformProperties: FunctionComponent<{ camera: GeospatialCamera; settings: ISettingsContext }> = (props) => {
-    const { camera, settings } = props;
-    const cameraRotation = useVector3Property(camera, "rotation");
-    const [toDisplayAngle, fromDisplayAngle] = useAngleConverters(settings);
+    const { camera } = props;
+    // const cameraRotation = useVector3Property(camera, "rotation");
+    // const [toDisplayAngle, fromDisplayAngle] = useAngleConverters(settings);
 
-    const useDegrees = useObservableState(() => settings.useDegrees, settings.settingsChangedObservable);
+    // const useDegrees = useObservableState(() => settings.useDegrees, settings.settingsChangedObservable);
 
     return (
         <>
-            <BoundProperty component={NumberInputPropertyLine} target={camera} propertyKey="speed" label="Speed" step={0.1} />
             <BoundProperty
                 label="(Internal _position)"
                 component={Vector3PropertyLine}
@@ -32,18 +31,18 @@ export const GeospatialCameraTransformProperties: FunctionComponent<{ camera: Ge
                 ignoreNullable
                 defaultValue={Vector3.Zero()}
             />
-            <BoundProperty label="geoworldPosition" component={Vector3PropertyLine} target={camera} propertyKey="geoworldPosition" step={0.001} />
+            <BoundProperty label="position" component={Vector3PropertyLine} target={camera} propertyKey="position" step={0.001} />
             <BoundProperty label="geoworldOrigin" component={Vector3PropertyLine} target={camera} propertyKey="geoworldOrigin" step={0.001} />
             <BoundProperty label="geoworldHit" component={Vector3PropertyLine} target={camera} propertyKey="geoworldHitPoint" step={0.001} />
             <BoundProperty label="geocentricNormal" component={Vector3PropertyLine} target={camera} propertyKey="geocentricNormal" step={0.001} />
 
-            <BoundProperty label="Look At Vector" component={Vector3PropertyLine} target={camera} propertyKey="lookAtVector" step={0.001} />
+            {/* <BoundProperty label="Look At Vector" component={Vector3PropertyLine} target={camera} propertyKey="_lookAtVector" step={0.001} /> */}
             <BoundProperty label="Up vector" component={Vector3PropertyLine} target={camera} propertyKey="upVector" step={0.001} />
 
-            <BoundProperty label="Rotation" component={RotationVectorPropertyLine} target={camera} propertyKey="rotation" useDegrees={useDegrees} step={0.001} />
+            {/* <BoundProperty label="Rotation" component={RotationVectorPropertyLine} target={camera} propertyKey="rotation" useDegrees={useDegrees} step={0.001} /> */}
             <BoundProperty label="Pitch Rotation Axis" component={Vector3PropertyLine} target={camera} propertyKey="pitchRotationAxis" step={0.001} />
 
-            <SyncedSliderPropertyLine
+            {/* <SyncedSliderPropertyLine
                 label={`Alpha`}
                 value={toDisplayAngle(camera.alpha, true)}
                 onChange={(val) => (camera.alpha = fromDisplayAngle(val, true))}
@@ -60,7 +59,7 @@ export const GeospatialCameraTransformProperties: FunctionComponent<{ camera: Ge
                 max={toDisplayAngle(Math.PI)}
                 step={toDisplayAngle(0.01)}
                 unit={useDegrees ? "deg" : "rad"} // TODO, also make sure that the camera is resilient to updating camera rotation vector directly make sure converting okay
-            />
+            /> */}
 
             <BoundProperty label="Radius" component={NumberInputPropertyLine} target={camera} propertyKey="radius" />
 
@@ -78,7 +77,7 @@ export const GeospatialCameraTransformProperties: FunctionComponent<{ camera: Ge
 
             <ButtonLine label="Look Nadir (at earth surface)" onClick={() => camera.lookNadir()} />
             <ButtonLine label="Reset to default" onClick={() => camera.resetToDefault()} />
-            <SyncedSliderPropertyLine
+            {/* <SyncedSliderPropertyLine
                 label={`Set tilt (pitch, rotation along X) `}
                 value={toDisplayAngle(cameraRotation.x, true)}
                 onChange={(val) => camera.setTilt(fromDisplayAngle(val, true))}
@@ -95,7 +94,7 @@ export const GeospatialCameraTransformProperties: FunctionComponent<{ camera: Ge
                 step={toDisplayAngle(0.01)}
                 onChange={(val) => camera.setHeading(fromDisplayAngle(val, true))}
                 unit={useDegrees ? "deg" : "rad"}
-            />
+            /> */}
         </>
     );
 };

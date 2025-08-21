@@ -11,7 +11,7 @@ import type { Bone } from "../Bones/bone";
 import type { AbstractMesh } from "../Meshes/abstractMesh";
 import { Space } from "../Maths/math.axis";
 import { GetClass } from "../Misc/typeStore";
-import { GeospatialCamera } from "../Cameras/geospatialCamera";
+import { FloatingOriginCamera } from "../Cameras/geospatialCamera";
 
 /**
  * A TransformNode is an object that is not rendered but can be used as a center of transformation. This can decrease memory usage and increase rendering speed compared to using an empty mesh as a parent and is less complicated than using a pivot matrix.
@@ -1077,17 +1077,13 @@ export class TransformNode extends Node {
         const activeCam = this._scene.activeCamera;
         let translation: Vector3 = this._position;
 
-        // The geospatial camera works by positioning the camera at world origin and offsetting the positions of all other
+        // The FloatingOriginCamera camera works by positioning the camera at world origin and offsetting the positions of all other
         // nodes in the scene via world matrix transform. We thus need to calculate the offset between mesh position and camera position
         // to offset the mesh by the appropriate amount. This must be done before the isDirty check so that we can recalculate worldMatrix if
         // either the camera position or mesh position has changed since the last frame and if so, mark the node as dirty
-        if (activeCam instanceof GeospatialCamera && !this.parent) {
+        if (activeCam instanceof FloatingOriginCamera && !this.parent) {
             translation = TransformNode._TmpTranslation;
-            translation.copyFromFloats(
-                this._position.x - activeCam.geoworldPosition.x,
-                this._position.y - activeCam.geoworldPosition.y,
-                this._position.z - activeCam.geoworldPosition.z
-            );
+            translation.copyFromFloats(this._position.x - activeCam.position.x, this._position.y - activeCam.position.y, this._position.z - activeCam.position.z);
             if (!this._worldMatrix.getTranslation().equalsToFloats(translation.x, translation.y, translation.z)) {
                 // If the translation is not the same as the cached translation, we need to update world matrix so mark isDirty to true
                 this._isDirty = true;

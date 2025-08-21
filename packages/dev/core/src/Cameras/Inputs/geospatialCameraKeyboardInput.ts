@@ -176,7 +176,7 @@ export class GeospatialCameraKeyboardInput implements ICameraInput<GeospatialCam
             }
 
             const camera = this.camera;
-            const panSpeed = camera._computeLocalCameraSpeed();
+            // const panSpeed = camera._computeLocalCameraSpeed();
             const rotationSpeed = this._getLocalRotation();
 
             for (const keyCode of this._keys) {
@@ -194,17 +194,17 @@ export class GeospatialCameraKeyboardInput implements ICameraInput<GeospatialCam
                 } else {
                     // Without Ctrl: Movement
                     if (this.keysUp.includes(keyCode)) {
-                        camera._localTranslation.z += panSpeed;
+                        camera._localTranslation.z += rotationSpeed;
                     } else if (this.keysDown.includes(keyCode)) {
-                        camera._localTranslation.z -= panSpeed;
+                        camera._localTranslation.z -= rotationSpeed;
                     } else if (this.keysLeft.includes(keyCode)) {
-                        camera._localTranslation.x -= panSpeed;
+                        camera._localTranslation.x -= rotationSpeed;
                     } else if (this.keysRight.includes(keyCode)) {
-                        camera._localTranslation.x += panSpeed;
+                        camera._localTranslation.x += rotationSpeed;
                     } else if (this.keysUpward.includes(keyCode)) {
-                        camera._localTranslation.y -= panSpeed;
+                        camera._localTranslation.y -= rotationSpeed;
                     } else if (this.keysDownward.includes(keyCode)) {
-                        camera._localTranslation.y += panSpeed;
+                        camera._localTranslation.y += rotationSpeed;
                     }
                 }
 

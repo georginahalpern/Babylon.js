@@ -11,7 +11,6 @@ import { Vector3, Matrix, TmpVectors } from "../../Maths/math.vector";
 import { Epsilon } from "../../Maths/math.constants";
 import type { IWheelEvent } from "../../Events/deviceInputEvents";
 import { EventConstants } from "../../Events/deviceInputEvents";
-import { Clamp } from "../../Maths/math.scalar.functions";
 import { Tools } from "../../Misc/tools";
 
 /**
@@ -40,13 +39,6 @@ export class GeospatialCameraMouseWheelInput implements ICameraInput<GeospatialC
     public wheelPrecision = 3.0;
 
     /**
-     * Gets or Set the boolean value that controls whether or not the mouse wheel
-     * zooms to the location of the mouse pointer or not.  The default is false.
-     */
-    @serialize()
-    public zoomToMouseLocation = false;
-
-    /**
      * wheelDeltaPercentage will be used instead of wheelPrecision if different from 0.
      * It defines the percentage of current camera.radius to use as delta when wheel is used.
      */
@@ -61,10 +53,8 @@ export class GeospatialCameraMouseWheelInput implements ICameraInput<GeospatialC
     private _wheel: Nullable<(p: PointerInfo, s: EventState) => void>;
     private _observer: Nullable<Observer<PointerInfo>>;
     private _hitPlane: Nullable<Plane>;
-    // private _viewOffset: Vector3 = new Vector3(0, 0, 0);
-    // private _globalOffset: Vector3 = new Vector3(0, 0, 0);
 
-    protected _computeDeltaFromMouseWheelLegacyEvent(mouseWheelDelta: number, radius: number) {
+    protected _computeDeltaFromMouseWheelDefault(mouseWheelDelta: number, radius: number) {
         let delta = 0;
         const wheelDelta = mouseWheelDelta * 0.01 * this.wheelDeltaPercentage * radius;
         if (mouseWheelDelta > 0) {
@@ -96,47 +86,21 @@ export class GeospatialCameraMouseWheelInput implements ICameraInput<GeospatialC
                 delta = this.customComputeDeltaFromMouseWheel(wheelDelta, this, event);
             } else {
                 if (this.wheelDeltaPercentage) {
-                    delta = this._computeDeltaFromMouseWheelLegacyEvent(wheelDelta, this.camera.radius);
-
-                    // If zooming in, estimate the target radius and use that to compute the delta for inertia
-                    // this will stop multiple scroll events zooming in from adding too much inertia
-                    if (delta > 0) {
-                        let estimatedTargetRadius = this.camera.radius;
-                        let targetInertia = this.camera.inertialRadiusOffset + delta;
-                        for (let i = 0; i < 20; i++) {
-                            // 20 iterations should be enough to converge
-                            if (estimatedTargetRadius <= targetInertia) {
-                                // We do not want a negative radius, so we break out of the loop
-                                break;
-                            }
-                            if (Math.abs(targetInertia * this.camera.inertia) < 0.001) {
-                                // We do not want to go below a certain threshold, so we break out of the loop
-                                break;
-                            }
-                            estimatedTargetRadius -= targetInertia;
-                            targetInertia *= this.camera.inertia;
-                        }
-                        estimatedTargetRadius = Clamp(estimatedTargetRadius, 0, Number.MAX_VALUE);
-                        delta = this._computeDeltaFromMouseWheelLegacyEvent(wheelDelta, estimatedTargetRadius);
-                    }
+                    delta = this._computeDeltaFromMouseWheelDefault(wheelDelta, this.camera.radius);
                 } else {
                     delta = wheelDelta / (this.wheelPrecision * 40);
                 }
             }
 
             if (delta) {
-                if (this.zoomToMouseLocation) {
-                    // If we are zooming to the mouse location, then we need to get the hit plane at the start of the zoom gesture if it doesn't exist
-                    // The hit plane is normally calculated after the first motion and each time there's motion so if we don't do this first,
-                    // the first zoom will be to the center of the screen
-                    if (!this._hitPlane) {
-                        this._updateHitPlane();
-                    }
-
-                    this._zoomToMouse(delta);
-                } else {
-                    this.camera.inertialRadiusOffset += delta;
+                // If we are zooming to the mouse location, then we need to get the hit plane at the start of the zoom gesture if it doesn't exist
+                // The hit plane is normally calculated after the first motion and each time there's motion so if we don't do this first,
+                // the first zoom will be to the center of the screen
+                if (!this._hitPlane) {
+                    this._updateHitPlane();
                 }
+
+                this._zoomToMouse(delta);
             }
 
             if (event.preventDefault) {
@@ -147,10 +111,7 @@ export class GeospatialCameraMouseWheelInput implements ICameraInput<GeospatialC
         };
 
         this._observer = this.camera.getScene()._inputManager._addCameraPointerObserver(this._wheel, PointerEventTypes.POINTERWHEEL);
-
-        if (this.zoomToMouseLocation) {
-            this._inertialPanning.setAll(0);
-        }
+        this._inertialPanning.setAll(0);
     }
 
     /**
@@ -169,17 +130,13 @@ export class GeospatialCameraMouseWheelInput implements ICameraInput<GeospatialC
      * This is a dynamically created lambda to avoid the performance penalty of looping for inputs in the render loop.
      */
     public checkInputs(): void {
-        if (!this.zoomToMouseLocation) {
-            return;
-        }
-
         const camera = this.camera;
-        const motion = 0.0 + camera.inertialAlphaOffset + camera.inertialBetaOffset + camera.inertialRadiusOffset;
+        const motion = 0.0;
+        //  + camera._localTranslation + camera.inertialBetaOffset + camera.inertialRadiusOffset;
         if (motion) {
             // if zooming is still happening as a result of inertia, then we also need to update
             // the hit plane.
             this._updateHitPlane();
-
             // Note we cannot  use GeospatialCamera.inertialPlanning here because GeospatialCamera panning
             // uses a different panningInertia which could cause this panning to get out of sync with
             // the zooming, and for this to work they must be exactly in sync.
@@ -245,25 +202,25 @@ export class GeospatialCameraMouseWheelInput implements ICameraInput<GeospatialC
     private _zoomToMouse(delta: number) {
         const camera = this.camera;
         const inertiaComp = 1 - camera.inertia;
-        if (camera.lowerRadiusLimit) {
-            const lowerLimit = camera.lowerRadiusLimit ?? 0;
-            if (camera.radius - (camera.inertialRadiusOffset + delta) / inertiaComp < lowerLimit) {
-                delta = (camera.radius - lowerLimit) * inertiaComp - camera.inertialRadiusOffset;
-            }
-        }
-        if (camera.upperRadiusLimit) {
-            const upperLimit = camera.upperRadiusLimit ?? 0;
-            if (camera.radius - (camera.inertialRadiusOffset + delta) / inertiaComp > upperLimit) {
-                delta = (camera.radius - upperLimit) * inertiaComp - camera.inertialRadiusOffset;
-            }
-        }
+        // if (camera.lowerRadiusLimit) {
+        //     const lowerLimit = camera.lowerRadiusLimit ?? 0;
+        //     if (camera.radius - (camera.inertialRadiusOffset + delta) / inertiaComp < lowerLimit) {
+        //         delta = (camera.radius - lowerLimit) * inertiaComp - camera.inertialRadiusOffset;
+        //     }
+        // }
+        // if (camera.upperRadiusLimit) {
+        //     const upperLimit = camera.upperRadiusLimit ?? 0;
+        //     if (camera.radius - (camera.inertialRadiusOffset + delta) / inertiaComp > upperLimit) {
+        //         delta = (camera.radius - upperLimit) * inertiaComp - camera.inertialRadiusOffset;
+        //     }
+        // }
 
         const zoomDistance = delta / inertiaComp;
         const ratio = zoomDistance / camera.radius;
         const vec = this._getPosition();
 
-        // Now this vector tells us how much we also need to pan the camera
-        // so the targeted mouse location becomes the center of zooming.
+        // // Now this vector tells us how much we also need to pan the camera
+        // // so the targeted mouse location becomes the center of zooming.
 
         const directionToZoomLocation = TmpVectors.Vector3[6];
         vec.subtractToRef(camera.geoworldOrigin, directionToZoomLocation);
@@ -271,7 +228,7 @@ export class GeospatialCameraMouseWheelInput implements ICameraInput<GeospatialC
         directionToZoomLocation.scaleInPlace(inertiaComp);
         this._inertialPanning.addInPlace(directionToZoomLocation);
 
-        camera.inertialRadiusOffset += delta;
+        // camera.inertialRadiusOffset += delta;
     }
 
     // Sets x y or z of passed in vector to zero if less than Epsilon.
