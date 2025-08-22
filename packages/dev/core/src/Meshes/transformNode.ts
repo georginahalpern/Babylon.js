@@ -11,7 +11,7 @@ import type { Bone } from "../Bones/bone";
 import type { AbstractMesh } from "../Meshes/abstractMesh";
 import { Space } from "../Maths/math.axis";
 import { GetClass } from "../Misc/typeStore";
-import { FloatingOriginCamera } from "../Cameras/geospatialCamera";
+import { FloatingOriginCamera } from "../Cameras/floatingOriginCamera";
 
 /**
  * A TransformNode is an object that is not rendered but can be used as a center of transformation. This can decrease memory usage and increase rendering speed compared to using an empty mesh as a parent and is less complicated than using a pivot matrix.

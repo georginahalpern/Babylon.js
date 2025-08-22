@@ -1,27 +1,32 @@
+import type { IVector3Like } from "./math.like";
 import { Matrix, Quaternion, Vector3 } from "./math.vector";
 
-export function GeodeticToCartesian(lon: number, lat: number, alt: number) {
+export interface IGeoPositionLike {
+    latitude: number; // radians
+    longitude: number; // radians
+    altitude: number; // meters
+}
+
+export function GeoPositionToPosition(geoPosition: IGeoPositionLike): IVector3Like {
+    const { latitude, longitude, altitude } = geoPosition;
     // Constants for WGS84 ellipsoid
     const a = 6378137; // semi-major axis
     const f = 1 / 298.257223563; // flattening
     const e = Math.sqrt(2 * f - f * f); // eccentricity
 
-    // Convert degrees to radians
-    lon *= Math.PI / 180;
-    lat *= Math.PI / 180;
-
     // Calculate N, the radius of curvature in the prime vertical
-    const n = a / Math.sqrt(1 - Math.pow(e, 2) * Math.sin(lat) * Math.sin(lat));
+    const n = a / Math.sqrt(1 - Math.pow(e, 2) * Math.sin(latitude) * Math.sin(latitude));
 
     // Calculate Cartesian coordinates
-    const x = (n + alt) * Math.cos(lat) * Math.cos(lon);
-    const y = (n + alt) * Math.cos(lat) * Math.sin(lon);
-    const z = ((1 - Math.pow(e, 2)) * n + alt) * Math.sin(lat);
+    const x = (n + altitude) * Math.cos(latitude) * Math.cos(longitude);
+    const y = (n + altitude) * Math.cos(latitude) * Math.sin(longitude);
+    const z = ((1 - Math.pow(e, 2)) * n + altitude) * Math.sin(latitude);
 
-    return [x, y, z];
+    return { x, y, z };
 }
 
-export function CartesianToGeodetic(x: number, y: number, z: number) {
+export function PositionToGeoPosition(position: IVector3Like): IGeoPositionLike {
+    const { x, y, z } = position;
     // Constants for WGS84 ellipsoid
     const a = 6378137; // semi-major axis
     const f = 1 / 298.257223563; // flattening
@@ -32,22 +37,18 @@ export function CartesianToGeodetic(x: number, y: number, z: number) {
     const th = Math.atan2(a * y, b * p); // angle between p and y
 
     // Calculate longitude
-    let lon = Math.atan2(-z, x);
+    const longitude = Math.atan2(-z, x);
 
     // Calculate latitude
-    let lat = Math.atan2(y + Math.pow(e, 2) * b * Math.pow(Math.sin(th), 3), p - Math.pow(e, 2) * a * Math.pow(Math.cos(th), 3));
+    const latitude = Math.atan2(y + Math.pow(e, 2) * b * Math.pow(Math.sin(th), 3), p - Math.pow(e, 2) * a * Math.pow(Math.cos(th), 3));
 
     // Calculate N, the radius of curvature in the prime vertical
-    const n = a / Math.sqrt(1 - Math.pow(e, 2) * Math.sin(lat) * Math.sin(lat));
+    const n = a / Math.sqrt(1 - Math.pow(e, 2) * Math.sin(latitude) * Math.sin(latitude));
 
     // Calculate altitude
-    const alt = p / Math.cos(lat) - n;
+    const altitude = p / Math.cos(latitude) - n;
 
-    // Convert to degrees
-    lon *= 180 / Math.PI;
-    lat *= 180 / Math.PI;
-
-    return [lon, lat, alt];
+    return { latitude, longitude, altitude };
 }
 
 export function LatLongToEulerAngles(lat: number, long: number) {
