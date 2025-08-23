@@ -4,7 +4,6 @@ import type { Scene } from "../scene";
 
 export class FloatingOriginCamera extends Camera {
     protected _lookAtVector: Vector3;
-    private _floatingOriginOffset: Vector3;
     protected _isViewMatrixDirty = true;
     protected _viewMatrix: Matrix;
     protected _rotation: Vector3;
@@ -18,13 +17,12 @@ export class FloatingOriginCamera extends Camera {
         if (scene.activeCamera != null) {
             throw new Error("FloatingOrigin camera must be the only active camera on a scene");
         }
-        super(name, Vector3.Zero(), scene); // Camera always at origin
-        this.resetToDefault(position); // Initialize vectors
+        super(name, position, scene);
+        this.resetToDefault(); // Initialize vectors
         scene.getEngine().getCreationOptions().useHighPrecisionMatrix = true;
     }
 
-    public resetToDefault(position?: Vector3): void {
-        this._floatingOriginOffset = position || Vector3.Zero(); // Where is the camera located in geoworld space
+    public resetToDefault(): void {
         this.upVector = Vector3.Up(); // Up vector of the camera
         this._lookAtVector = new Vector3(0, 0, 1); // Lookat vector of the camera
         this._target = this._lookAtVector.clone();
@@ -32,40 +30,6 @@ export class FloatingOriginCamera extends Camera {
         this._localRotation = Vector3.Zero(); // starting incremental rotation
         this._rotation = Vector3.Zero(); // starting cumulative rotation
         this._viewMatrix = Matrix.Identity();
-        this._isViewMatrixDirty = true;
-    }
-
-    // Override position to track world position
-    public override get position(): Vector3 {
-        if (!this._floatingOriginOffset) {
-            this._floatingOriginOffset = Vector3.Zero(); // Initialize if not set
-        }
-        return this._floatingOriginOffset;
-    }
-
-    public override set position(value: Vector3) {
-        if (!this._floatingOriginOffset) {
-            this._floatingOriginOffset = Vector3.Zero(); // Initialize if not set
-        }
-        this._floatingOriginOffset.copyFrom(value);
-    }
-
-    public get target(): Vector3 {
-        if (!this._target) {
-            this._target = Vector3.Zero(); // Initialize if not set
-        }
-
-        return this._target.add(this._floatingOriginOffset);
-    }
-
-    public set target(value: Vector3) {
-        if (!this._target) {
-            this._target = Vector3.Zero(); // Initialize if not set
-        }
-
-        this._target.copyFrom(value.subtract(this._floatingOriginOffset));
-        this._lookAtVector = value.subtract(this.position).normalize();
-        global.console.log("lookat", this._lookAtVector);
         this._isViewMatrixDirty = true;
     }
 
@@ -93,7 +57,7 @@ export class FloatingOriginCamera extends Camera {
         let shouldRecalc = false;
         if (this._localTranslation.lengthSquared() > 0) {
             // Update world position
-            this._floatingOriginOffset.addInPlace(this._localTranslation);
+            this.position.addInPlace(this._localTranslation);
             shouldRecalc = true;
         }
         if (this._localRotation.lengthSquared() > 0) {

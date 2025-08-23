@@ -3,7 +3,7 @@ This is an in-progress test app used to load 3d tiles and navigate a globe with 
 To run the test playground
 
 - run playground development launch command from vscode
-- replace URL with http://localhost:1338/?inspectorv2#MQHLDI#5 to load the test playground
+- replace URL with http://localhost:1338/?inspectorv2#MQHLDI#8 to load the test playground
 - in a terminal cd to packages/dev/addons/src/3dTile directiory and run http-server -a localhost -p 8003 --cors=http://localhost:8080/ to load the files locally (or update the calls in loader to fetch the texture URL / tileset.json and do a local fetch instead)
 
 The playground will call into loader.ts TestApp.render3DTiles() which will do the following

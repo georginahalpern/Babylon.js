@@ -32,8 +32,8 @@ export const GeospatialCameraTransformProperties: FunctionComponent<{ camera: Ge
                 defaultValue={Vector3.Zero()}
             />
             <BoundProperty label="position" component={Vector3PropertyLine} target={camera} propertyKey="position" step={0.001} />
-            <BoundProperty label="geoworldOrigin" component={Vector3PropertyLine} target={camera} propertyKey="geoworldOrigin" step={0.001} />
-            <BoundProperty label="geoworldHit" component={Vector3PropertyLine} target={camera} propertyKey="geoworldHitPoint" step={0.001} />
+            {/* <BoundProperty label="geoworldOrigin" component={Vector3PropertyLine} target={camera} propertyKey="geoworldOrigin" step={0.001} />
+            <BoundProperty label="geoworldHit" component={Vector3PropertyLine} target={camera} propertyKey="geoworldHitPoint" step={0.001} /> */}
             <BoundProperty label="geocentricNormal" component={Vector3PropertyLine} target={camera} propertyKey="geocentricNormalOfHitPoint" step={0.001} />
 
             {/* <BoundProperty label="Look At Vector" component={Vector3PropertyLine} target={camera} propertyKey="_lookAtVector" step={0.001} /> */}

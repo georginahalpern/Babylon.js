@@ -29,28 +29,26 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
     private _isDragging = false;
     private _button: number = -1;
     private _mouseDownRay: Ray;
-    private _dragPlanePoint: Vector3 = Vector3.Zero();
+    private _dragPlaneOriginPoint: Vector3 = Vector3.Zero();
     private _dragPlane: Plane = new Plane(0, 0, 0, 0);
     private _dragPlaneNormal: Vector3 = Vector3.Zero();
-    private _prevPt: Vector3 = Vector3.Zero();
-    private _planeHitPoint: Vector3 = Vector3.Zero();
+    private _dragPlaneDistanceVector: Vector3 = Vector3.Zero();
+    private _dragPlaneHitPoint: Vector3 = Vector3.Zero();
+    private _hitPointRadius: number;
+    private _cameraRadius: number = 0;
 
-    // private _setCursorPtToRef(evt: PointerEvent, ref: Vector2) {
-    //     const rect = this.camera.getScene().getEngine().getRenderingCanvas()?.getBoundingClientRect();
-    //     const x = evt.clientX - (rect ? rect.left : 0);
-    //     const y = evt.clientY - (rect ? rect.top : 0);
-    //     ref.copyFromFloats(x, y);
-    // }
-
-    private _recalculateHitPlaneWithCameraGeocentricNormal(distance: number) {
+    private _recalculateHitPlaneWithCameraGeocentricNormal() {
         // Then calculate _dragPlaneNormal (i.e. the cameras geocentric normal) and use that to find the dragPlanePoint
         // -- the point along camera's geocentric normal that has a length of above distance
+
+        // Recalc current geocentric normal
         this.camera.position.normalizeToRef(this._dragPlaneNormal);
-        this._dragPlanePoint.setAll(0);
-        movePtAlongVectorInPlace(this._dragPlanePoint, distance, this._dragPlaneNormal);
+        this._dragPlaneOriginPoint.setAll(0);
+
+        movePtAlongVectorInPlace(this._dragPlaneOriginPoint, this._hitPointRadius, this._dragPlaneNormal);
 
         // Now create a plane at that point, perpendicular to the camera's geocentric normal
-        Plane.FromPositionAndNormalToRef(this._dragPlanePoint, this._dragPlaneNormal, this._dragPlane);
+        Plane.FromPositionAndNormalToRef(this._dragPlaneOriginPoint, this._dragPlaneNormal, this._dragPlane);
     }
 
     public attachControl(noPreventDefault?: boolean): void {
@@ -64,26 +62,9 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
                     if (this.buttons.includes(evt.button)) {
                         let pickResult;
                         // Determine rayOrigin based off of mouse input
-                        // let pickResult2;
                         if (evt.button == 0 || evt.button == 1) {
-                            // Left mouse button drag under cursor, Middle mouse button tilt around cursor
-                            // Middle mouse button tilt around cursor
-                            // const rect = scene.getEngine().getRenderingCanvas()?.getBoundingClientRect();
-                            // const x = evt.clientX - (rect ? rect.left : 0);
-                            // const y = evt.clientY - (rect ? rect.top : 0);
-
                             pickResult = scene.pick(scene.pointerX, scene.pointerY);
                             pickResult.ray && (this._mouseDownRay = pickResult.ray);
-
-                            // // Create a picking ray from the camera's world position through the center of the screen
-                            // const ray = scene.createPickingRay(
-                            //     x,
-                            //     y,
-                            //     Matrix.Identity(), // world matrix, usually identity for screen picking
-                            //     this.camera,
-                            //     false // cameraViewSpace
-                            // );
-                            // pickResult2 = scene.pickWithRay(ray);
                         } else {
                             // Right mouse button tilt around screen center
                             const engine = scene.getEngine();
@@ -95,25 +76,26 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
 
                         if (pickResult?.pickedPoint) {
                             // what if no hit?
-                            // this returns in geoworldCoordinates so we must add the camera offset (which is actually the origin) to ensure geocentric normal is actually coming from geoworld origin
-                            this._prevPt = pickResult.pickedPoint;
-                            this.camera.geoworldHitPoint.copyFrom(pickResult.pickedPoint);
-                            // TODO move the below into camera! or perhaps into the scene ray logic itself
-                            this.camera.geoworldHitPoint.addInPlace(this.camera.position);
-                            this.camera.geoworldHitPoint.normalizeToRef(this.camera.geocentricNormalOfHitPoint);
+                            this._dragPlaneDistanceVector = pickResult.pickedPoint;
+                            this.camera.worldHitPoint.copyFrom(pickResult.pickedPoint);
+                            this.camera.worldHitPoint.normalizeToRef(this.camera.geocentricNormalOfHitPoint);
 
+                            this._cameraRadius = this.camera.position.length();
                             if (evt.button == 0) {
                                 // If left mouse button 0, calculate distance from earth center to hitpoint
-                                const distance = this.camera.geoworldHitPoint.length();
+                                this._hitPointRadius = this.camera.worldHitPoint.length();
 
                                 // Calculate the plane perpendicular to the camera's geocentric normal which lives that distance from earths center
-                                this._recalculateHitPlaneWithCameraGeocentricNormal(distance);
+                                this._recalculateHitPlaneWithCameraGeocentricNormal();
 
                                 // Lastly, find the _planeHitPoint where the _mouseDownRay intersects the _dragPlane if looking at the geoworldHitPoint
                                 // As the mouse is dragged, we will recalculate the intersection point of the plane and calculate the delta movement along the plane
                                 // That is the amount by which we will translate the camera
                                 // Ray.CreateFromToToRef(this.camera.position, this.camera.geoworldHitPoint, this._mouseDownRay);
-                                intersectRayWithPlaneToRef(this._mouseDownRay, this._dragPlane, this._planeHitPoint);
+                                intersectRayWithPlaneToRef(this._mouseDownRay, this._dragPlane, this._dragPlaneHitPoint);
+
+                                // calc distance
+                                this._dragPlaneDistanceVector = this._dragPlaneHitPoint.subtract(this._dragPlaneOriginPoint);
                             }
                         }
 
@@ -162,65 +144,35 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
     }
 
     private _handleDrag(scene: Scene, evt: PointerEvent): void {
-        const oldIntersectionPt = this._dragPlanePoint.clone();
-        const newIntersectionPt = Vector3.Zero();
-
-        // this._recalculateHitPlaneWithCameraGeocentricNormal(this.camera.geoworldHitPoint.length());
-
         // With new cursor location, identify where a ray from camera would intersect with the new drag plane
-        // this._setCursorPtToRef(evt, this._rayOrigin);
-        // const pickResult = this.camera.getScene().pick(this._rayOrigin.x, this._rayOrigin.y);
+        //        const prevPlane = this._dragPlane;
         const pickResult = scene.pick(scene.pointerX, scene.pointerY);
         pickResult.ray && (this._mouseDownRay = pickResult.ray);
 
-        const newPt = pickResult.pickedPoint;
-        if (newPt) {
-            const delta2 = newPt.subtract(this._prevPt);
-            this.camera._localTranslation.subtractInPlace(delta2);
-            // this.camera.target = this.camera.target.add(delta2);
-            this._prevPt = newPt;
-        }
-        // const pickResult = this.camera.getScene().pickWithRay(this._mouseDownRay);
-        // const hitPoint = ray.intersectsPlane(this._dragPlane);
-        intersectRayWithPlaneToRef(this._mouseDownRay, this._dragPlane, newIntersectionPt);
+        // Calculate the plane perpendicular to the camera's geocentric normal which lives that distance from earths center
+        this._recalculateHitPlaneWithCameraGeocentricNormal();
 
-        const delta = oldIntersectionPt.subtract(newIntersectionPt);
+        // Lastly, find the _planeHitPoint where the _mouseDownRay intersects the _dragPlane if looking at the geoworldHitPoint
+        // As the mouse is dragged, we will recalculate the intersection point of the plane and calculate the delta movement along the plane
+        // That is the amount by which we will translate the camera
+        // Ray.CreateFromToToRef(this.camera.position, this.camera.geoworldHitPoint, this._mouseDownRay);
+        intersectRayWithPlaneToRef(this._mouseDownRay, this._dragPlane, this._dragPlaneHitPoint);
 
-        global.console.log(
-            "old",
-            oldIntersectionPt,
-            "\n",
-            "new",
-            newIntersectionPt,
-            "\n",
-            "ray",
-            this._mouseDownRay,
-            "\n",
-            "localTrans",
-            this.camera._localTranslation,
-            "\n",
+        // calc distance
+        const newRelativeDist = this._dragPlaneHitPoint.subtract(this._dragPlaneOriginPoint);
+        const delta = newRelativeDist.subtract(this._dragPlaneDistanceVector);
+        this.camera._localTranslation.subtractInPlace(delta);
+        this._dragPlaneDistanceVector = newRelativeDist;
 
-            "dragPlane",
-            this._dragPlane,
-            "\n",
-
-            "delta",
-            delta,
-            "\n",
-            "camerapos",
-            this.camera.position,
-            "\n",
-            "newIntersectionPtWithCamOffset",
-            newIntersectionPt.add(this.camera.position)
-        );
-
-        // this.camera._localTranslation.addInPlace(delta);
-        // this.camera.target.addInPlace(delta);
+        // // Recalc what new pos would be if it were at the same cameraRadius, find the delta between currentRadius and
+        // const newPos = this.camera.position.add(this.camera._localTranslation);
+        // const newPosScaled = newPos.normalizeToNew().scaleInPlace(this._cameraRadius);
+        // this.camera._localTranslation.addInPlace(newPosScaled.subtract(newPos));
     }
 
     private _handleTilt(deltaX: number, deltaY: number): void {
         // Just rotate the view without moving
-        //this.camera._localRotation.y += -deltaX / this.angularSensibility; // yaw
+        this.camera._localRotation.y += -deltaX / this.angularSensibility; // yaw
         this.camera._localRotation.x += -deltaY / this.angularSensibility; // pitch - dragging up look towards sky
     }
 

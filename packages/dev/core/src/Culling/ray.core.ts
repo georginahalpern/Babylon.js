@@ -754,6 +754,8 @@ export function CreatePickingRayToRef(
     x = x * levelInv - vx;
     y = y * levelInv - (renderHeight - vy - height);
 
+    // should be conditional         Matrix.Translation(camera.position.x, camera.position.y, camera.position.z),
+
     result.update(
         x,
         y,
@@ -764,6 +766,7 @@ export function CreatePickingRayToRef(
         camera.getProjectionMatrix(),
         enableDistantPicking
     );
+    // result.
     return scene;
 }
 
@@ -1042,6 +1045,8 @@ export function Pick(
     );
     if (result) {
         result.ray = CreatePickingRay(scene, x, y, Matrix.Identity(), camera || null);
+        result.ray.origin.addInPlace(scene.activeCamera!.position);
+        result.pickedPoint?.addInPlace(scene.activeCamera!.position); // TODO move this to perhaps update the matrix instead of offsetting position after the fact
     }
     return result;
 }
@@ -1079,6 +1084,8 @@ export function PickWithRay(scene: Scene, ray: Ray, predicate?: MeshPredicate, f
     );
     if (result) {
         result.ray = ray;
+        result.ray.origin.addInPlace(scene.activeCamera!.position);
+        result.pickedPoint?.addInPlace(scene.activeCamera!.position);
     }
     return result;
 }
