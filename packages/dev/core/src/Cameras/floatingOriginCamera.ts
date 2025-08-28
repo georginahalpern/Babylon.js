@@ -2,33 +2,52 @@ import { Camera } from "./camera";
 import { Vector3, Matrix } from "../Maths/math.vector";
 import type { Scene } from "../scene";
 
+/**
+ * @experimental
+ * This camera avoids floating-point imprecision (resulting in visual jittering) when rendering large-scale coordinate systems (ex: navigating a globe).
+ *
+ * It solves this by
+ * 1. Setting the engine to use double point precision via the useHighPrecisionMatrix flag
+ * 2. Centering the camera at world origin and offsetting all meshes by the camera's position
+ *
+ * This offsetting logic is done in 2 parts
+ * 1. Overriding the camera's viewMatrix calculation to use Vector3.Zero as the position in the lookAt matrix calculation
+ * 2. Detecting this camera in the transform node's worldMatrix calculation and translating the root nodes by the camera's position
+ */
 export class FloatingOriginCamera extends Camera {
     protected _isViewMatrixDirty = true;
     protected _viewMatrix: Matrix;
+    protected _lookAtVector: Vector3;
 
-    // Changed by the inputs
+    // Changed by the inputs, reset on every frame
     public _localTranslation: Vector3;
     public _localRotation: Vector3;
-    public _lookAtVector: Vector3;
 
     constructor(name: string, position: Vector3, scene: Scene) {
         if (scene.activeCamera != null) {
             throw new Error("FloatingOrigin camera must be the only active camera on a scene");
         }
         super(name, position, scene);
-        this.resetToDefault(); // Initialize vectors
+        this._resetToDefault(); // Initialize vectors
         scene.getEngine().getCreationOptions().useHighPrecisionMatrix = true;
     }
 
-    public resetToDefault(): void {
+    protected _resetToDefault(): void {
         this.upVector = Vector3.Up(); // Up vector of the camera
-        this._lookAtVector = new Vector3(0, 0, 1); // Lookat vector of the camera
+        this._lookAtVector = this.position.negate().normalize(); // Lookat vector of the camera
         this._localTranslation = Vector3.Zero(); // starting incremental translation
         this._localRotation = Vector3.Zero(); // starting incremental rotation
         this._viewMatrix = Matrix.Identity();
         this._isViewMatrixDirty = true;
     }
 
+    protected _recalcViewMatrix() {
+        this._isViewMatrixDirty = true;
+        this._localRotation.setAll(0);
+        this._localTranslation.setAll(0);
+    }
+
+    /** @internal */
     public override _getViewMatrix() {
         if (!this._isViewMatrixDirty) {
             return this._viewMatrix;
@@ -48,15 +67,14 @@ export class FloatingOriginCamera extends Camera {
         return this._viewMatrix;
     }
 
+    /** @internal */
     public override _checkInputs(): void {
         this.inputs.checkInputs();
         let shouldRecalc = false;
         if (this._localTranslation.lengthSquared() > 0) {
-            // Update world position
             shouldRecalc = true;
         }
         if (this._localRotation.lengthSquared() > 0) {
-            // Accumulate the rotation values
             shouldRecalc = true;
         }
 
@@ -64,12 +82,7 @@ export class FloatingOriginCamera extends Camera {
         super._checkInputs();
     }
 
-    protected _recalcViewMatrix() {
-        this._isViewMatrixDirty = true;
-        this._localRotation.setAll(0);
-        this._localTranslation.setAll(0);
-    }
-
+    /** @internal */
     public override _isSynchronizedViewMatrix(): boolean {
         if (!super._isSynchronizedViewMatrix() || this._isViewMatrixDirty) {
             return false;

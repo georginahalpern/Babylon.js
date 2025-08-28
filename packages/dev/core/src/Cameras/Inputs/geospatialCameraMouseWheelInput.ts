@@ -33,7 +33,7 @@ export class GeospatialCameraMouseWheelInput implements ICameraInput<GeospatialC
      * Gets or Set the mouse wheel precision or how fast is the camera zooming.
      */
     @serialize()
-    public wheelPrecision = 3.0;
+    public wheelPrecision = 1.0;
 
     /**
      * wheelDeltaPercentage will be used instead of wheelPrecision if different from 0.
@@ -41,11 +41,6 @@ export class GeospatialCameraMouseWheelInput implements ICameraInput<GeospatialC
      */
     @serialize()
     public wheelDeltaPercentage = 0;
-
-    /**
-     * If set, this function will be used to set the radius delta that will be added to the current camera radius
-     */
-    public customComputeDeltaFromMouseWheel: Nullable<(wheelDelta: number, input: GeospatialCameraMouseWheelInput, event: IWheelEvent) => number> = null;
 
     private _wheel: Nullable<(p: PointerInfo, s: EventState) => void>;
     private _observer: Nullable<Observer<PointerInfo>>;
@@ -78,14 +73,10 @@ export class GeospatialCameraMouseWheelInput implements ICameraInput<GeospatialC
 
             const wheelDelta = -(event.deltaY * platformScale);
 
-            if (this.customComputeDeltaFromMouseWheel) {
-                delta = this.customComputeDeltaFromMouseWheel(wheelDelta, this, event);
+            if (this.wheelDeltaPercentage) {
+                delta = this._computeDeltaFromMouseWheelDefault(wheelDelta, this.camera.position.length());
             } else {
-                if (this.wheelDeltaPercentage) {
-                    delta = this._computeDeltaFromMouseWheelDefault(wheelDelta, this.camera.radius);
-                } else {
-                    delta = wheelDelta / (this.wheelPrecision * 40);
-                }
+                delta = wheelDelta / (this.wheelPrecision * 40);
             }
 
             if (delta) {

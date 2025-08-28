@@ -1,150 +1,77 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { Vector3, Matrix } from "../Maths/math.vector";
 import type { Scene } from "../scene";
 import { GeospatialCameraInputsManager } from "./geospatialCameraInputsManager";
 import { Epsilon, Scalar } from "../Maths";
-import type { Plane, IVector3Like } from "../Maths";
-import { GeoPositionToPosition, PositionToGeoPosition } from "../Maths/math.geo";
-import type { IGeoPositionLike } from "../Maths/math.geo";
+
 import { FloatingOriginCamera } from "./floatingOriginCamera";
-import type { Ray } from "../Culling";
 
+/**
+ * @experimental
+ * This camera extends the FloatingOriginCamera (centering it at world origin) and enables navigation of a large-scale world
+ *
+ * Its movements are limited to a camera orbiting a globe, and as the API evolves it will introduce conversions between cartesian coordinates and true lat/long/alt
+ *
+ * Please note this is marked as experimental and the API will change until we remove that flag
+ *
+ */
 export class GeospatialCamera extends FloatingOriginCamera {
-    public pitchRotationAxis: Vector3;
-
-    // What caller sees when retrieving position/target/rotation
-    public worldOrigin: Vector3 = Vector3.Zero();
-    public worldHitPoint: Vector3;
-    public geocentricNormalOfHitPoint: Vector3;
-    public radius: number;
-    public pitch: number;
+    public pitchPoint: Vector3;
 
     // Temp vars
-    private _eastTemp: Vector3 = Vector3.Zero();
-    private _northTemp: Vector3 = Vector3.Zero();
-    private _upTemp: Vector3 = Vector3.Zero();
-    private _basisMatrix: Matrix = Matrix.Identity();
+    private _eastTemp: Vector3;
+    private _northTemp: Vector3;
+    private _upTemp: Vector3;
+    private _basisMatrix: Matrix;
+    private _pitchRotationAxis: Vector3;
+    private _geocentricNormalOfPitchPoint: Vector3;
 
     public override inputs: GeospatialCameraInputsManager;
 
     constructor(name: string, scene: Scene) {
-        if (scene.activeCamera != null) {
-            throw new Error("Geospatial camera must be the only active camera on a scene");
-        }
-        super(name, new Vector3(0, 0, -200), scene);
+        const position = new Vector3(0, 0, -200); // since i don't want to solidify the constructor API yet I am hardcoding this. eventually this camera will have concept of lat/long/alt and an understanding of the world's size and the constructor will likely take in something other than position
+        super(name, position, scene);
 
         // Set up inputs
         this.inputs = new GeospatialCameraInputsManager(this);
-        this.inputs.addKeyboard().addMouse().addMouseWheel();
+        this.inputs.addMouse().addMouseWheel();
     }
 
-    public override resetToDefault(): void {
-        super.resetToDefault();
-        this.worldOrigin = Vector3.Zero();
-        this.pitch = 0;
-        this.worldHitPoint = new Vector3(0, 0, -50); // What is the first point on geoWorld that a ray would hit if shot from camera in lookatDirection?
-        this._lookAtVector = this.worldOrigin.subtract(this.position).normalize(); // Unit vector showing direction of camera before any rotation is applied
-        this.geocentricNormalOfHitPoint = this.worldHitPoint.normalizeToNew();
+    protected override _resetToDefault(): void {
+        super._resetToDefault();
+        this.pitchPoint = new Vector3(0, 0, -50); // What is the first point on geoWorld that a ray would hit if shot from camera in lookatDirection? Right now hardcoding based on above hardcoded position
+        this._lookAtVector = Vector3.Zero().subtract(this.position).normalize(); // Unit vector showing direction of camera before any rotation is applied
+        this._geocentricNormalOfPitchPoint = this.pitchPoint.normalizeToNew();
 
-        this.radius = this.position.length(); // Distance from camera to geoworld origin
-        this.pitchRotationAxis = new Vector3(1, 0, 0); // starting axis used to calculate rotation matrix
+        this._pitchRotationAxis = new Vector3(1, 0, 0); // starting axis used to calculate pitch rotation matrix
         this._eastTemp = Vector3.Zero();
         this._northTemp = Vector3.Zero();
         this._upTemp = Vector3.Zero();
         this._basisMatrix = Matrix.Identity();
-        computeLocalBasis(this.position, this._eastTemp, this._northTemp, this._upTemp);
+        ComputeLocalBasis(this.position, this._eastTemp, this._northTemp, this._upTemp);
         Matrix.FromXYZAxesToRef(this._eastTemp, this._northTemp, this._upTemp, this._basisMatrix);
-    }
-
-    /**
-     * This is a geospatial term which means to look directly downward towards the surface/center of the earth
-     */
-    public lookNadir() {
-        this._lookAtVector = Vector3.Zero().subtract(this.position).normalize(); // Unit vector showing direction of camera before any rotation is applied
-        this._isViewMatrixDirty = true;
-    }
-
-    public set geoTarget(geoTargetLike: IGeoPositionLike) {
-        // const target = GeoPositionToPosition(geoTargetLike);
-        // this._target.copyFromFloats(target.x, target.y, target.z);
-    }
-
-    public lookStraightAtTarget(target: IVector3Like) {
-        // this._target.copyFromFloats(target.x, target.y, target.z);
-        this._lookAtVector = this.worldOrigin.subtract(this.position).normalize();
-        this._isViewMatrixDirty = true;
-    }
-
-    public lookStraightAtGeoTarget(geoTarget: IGeoPositionLike) {
-        const target = GeoPositionToPosition(geoTarget);
-        this.lookStraightAtTarget(target);
-    }
-
-    public get geoPositionLike(): IGeoPositionLike {
-        return PositionToGeoPosition(this.position);
-    }
-
-    public set geoPositionLike(geoPosition: IGeoPositionLike) {
-        const position = GeoPositionToPosition(geoPosition);
-        this.position.copyFromFloats(position.x, position.y, position.z);
-    }
-
-    /**
-     * Geospatial terminology for rotating along the x axis. Think of it as moving head/camera up/down towards sky/ground
-     * Also known as pitch/tilt/inclination
-     * @param tilt
-     */
-    public setTilt(tilt: number): void {
-        // this._rotation.x = tilt;
-        this._isViewMatrixDirty = true;
-    }
-    /**
-     * Geospatial terminology for rotating along the y axis. Think of it as moving head/camera left/right.
-     * Also known as yaw/bearing/rotation/azimuth/orientation
-     * @param heading
-     */
-    public setHeading(heading: number): void {
-        // this._rotation.y = heading;
-        this._isViewMatrixDirty = true;
-    }
-
-    /**
-     * Geospatial terminology for height above surface.
-     * Increasing radius will increase altitude
-     * Increasing zoomLevel will decrease altitude
-     * @param elevation
-     */
-    public setAltitude(elevation: number): void {
-        this.position.z = elevation;
     }
 
     /**
      * Move the camera forward/back along the current look vector.
      * @param distance positive = move forward (in direction of vector), negative = move backward
-     * @param moveHitPointIfAny if true, shift geoworldHitPoint together with the camera (useful to keep same world-under-cursor)
      */
-    public zoomAlongLook(distance: number, moveHitPointIfAny = false): void {
+    public zoomAlongLook(distance: number): void {
         // move camera
-        const dir = moveAlongVectorByDistance(this._lookAtVector, distance);
+        const dir = MoveAlongVectorByDistance(this._lookAtVector, distance);
         this.position.addInPlace(dir);
-
-        // optionally move the stored hit point and recompute the geocentric normal
-        if (moveHitPointIfAny && this.worldHitPoint) {
-            this.worldHitPoint.addInPlace(dir);
-            if (this.worldHitPoint.lengthSquared() > 0) {
-                this.geocentricNormalOfHitPoint.copyFrom(this.worldHitPoint).normalize();
-            }
-        }
         this._isViewMatrixDirty = true;
     }
 
+    /**
+     * When the geocentric normal has any translation change (due to dragging), we must ensure the camera remains orbiting around the world origin
+     * We thus need to perform 2 correction steps
+     * 1. Translation correction that keeps the camera at the same radius as before the drag
+     * 2. Rotation correction that keeps the camera facing the globe (so that as we pan, the globe stays centered on screen)
+     */
     private _applyTranslationAndRotateCameraTowardsGeocentricNormal() {
-        computeLocalBasis(this.position, this._eastTemp, this._northTemp, this._upTemp);
-        Matrix.FromXYZAxesToRef(this._eastTemp, this._northTemp, this._upTemp, this._basisMatrix);
-
         const newPos = this.position.add(this._localTranslation);
 
-        // First calculate the height correction to keep camera at the same radius as before the position
+        // 1. Calculate the height correction to keep camera at the same radius as before the position
         // Calculate what camera pos would be if we applied localTranslation, scale that by the cameraRadius, and
         // apply that delta to localTranslation. This will ensure the translation keeps the camera at the proper height from earth's surface
         const newPosScaledByCameraRadius = newPos.normalizeToNew().scaleInPlace(this.position.length());
@@ -152,10 +79,10 @@ export class GeospatialCamera extends FloatingOriginCamera {
         this._localTranslation.addInPlace(heightCorrection);
         newPos.addInPlace(heightCorrection); // this shouldn't matter
 
-        // Then calculate the rotation correction to keep camera facing earth
+        // 2. Calculate the rotation correction to keep camera facing earth
         // Calculate basis matrix off of the new position, then apply changeOfBasis to lookAt/up vectors
         const newBasis = Matrix.Identity();
-        computeLocalBasis(newPos, this._eastTemp, this._northTemp, this._upTemp);
+        ComputeLocalBasis(newPos, this._eastTemp, this._northTemp, this._upTemp);
         Matrix.FromXYZAxesToRef(this._eastTemp, this._northTemp, this._upTemp, newBasis);
 
         // Change of basis matrix = basis2 * basis1.inverse()
@@ -173,85 +100,72 @@ export class GeospatialCamera extends FloatingOriginCamera {
         this.position.copyFrom(newPos);
     }
 
-    protected override _recalcViewMatrix(): void {
+    private _applyRotation(): void {
         // Normalize key vectors
-        this.geocentricNormalOfHitPoint.normalize();
+        this._geocentricNormalOfPitchPoint = this.pitchPoint.normalizeToNew();
         this.upVector.normalize();
         this._lookAtVector.normalize();
 
+        let pitchRotationMatrix = Matrix.Identity();
+        let yawRotationMatrix = Matrix.Identity();
+        if (this._localRotation.x !== 0) {
+            // Compute a rotation axis that is perpendicular to both the upVector and the hitPoint's geocentricNormalOfHitPoint: cross(up, geocentricNormalOfHitPoint)
+            Vector3.CrossToRef(this.upVector, this._geocentricNormalOfPitchPoint, this._pitchRotationAxis);
+
+            // If upVector and geocentricNormalOfHitPoint are parallel, fall back to cross(lookAtDirection, geocentricNormalOfHitPoint)
+            if (this._pitchRotationAxis.lengthSquared() <= Epsilon) {
+                Vector3.CrossToRef(this._lookAtVector, this._geocentricNormalOfPitchPoint, this._pitchRotationAxis);
+            }
+
+            const pitchSign = Math.sign(Vector3.Dot(this._geocentricNormalOfPitchPoint, this.upVector)); // If negative, camera is upside down
+            // Since these are pointed in opposite directions, we must negate the dot product to get the proper angle
+            const currentPitch = pitchSign * Math.acos(Scalar.Clamp(-Vector3.Dot(this._lookAtVector, this._geocentricNormalOfPitchPoint), -1, 1));
+            const newPitch = Scalar.Clamp(currentPitch + this._localRotation.x, 0, 0.5 * Math.PI - Epsilon);
+            const actualLocationRotationX = newPitch - currentPitch;
+            // Build rotation matrix around normalized axis
+            this._pitchRotationAxis.normalize();
+            pitchRotationMatrix = Matrix.RotationAxis(this._pitchRotationAxis, actualLocationRotationX);
+        }
+
+        if (this._localRotation.y !== 0) {
+            yawRotationMatrix = Matrix.RotationAxis(this._geocentricNormalOfPitchPoint, this._localRotation.y); // this axis changes if we aren't using center of screen for tilt
+        }
+        const accumulatedRotationMatrix = pitchRotationMatrix.multiply(yawRotationMatrix);
+
+        // Offset camera to be (position-hitpoint) distance from geocentricOrigin, apply rotation to position/up/lookat vectors, then reverse the offset
+        const camDistanceFromHitPoint = this.position.subtract(this.pitchPoint);
+        const rotatedOffset = new Vector3();
+
+        Vector3.TransformCoordinatesToRef(camDistanceFromHitPoint, accumulatedRotationMatrix, rotatedOffset);
+        Vector3.TransformNormalToRef(this.upVector, accumulatedRotationMatrix, this._upVector);
+        Vector3.TransformNormalToRef(this._lookAtVector, accumulatedRotationMatrix, this._lookAtVector);
+
+        this.position = this.pitchPoint.add(rotatedOffset);
+    }
+
+    protected override _recalcViewMatrix(): void {
         if (this._localTranslation.lengthSquared() > 0) {
             this._applyTranslationAndRotateCameraTowardsGeocentricNormal();
         }
 
-        // Compute a rotation axis that is perpendicular to both the upVector and the hitPoint's geocentricNormalOfHitPoint: cross(up, geocentricNormalOfHitPoint)
-        Vector3.CrossToRef(this.upVector, this.geocentricNormalOfHitPoint, this.pitchRotationAxis);
-
-        // If upVector and geocentricNormalOfHitPoint are parallel, fall back to cross(lookAtDirection, geocentricNormalOfHitPoint)
-        if (this.pitchRotationAxis.lengthSquared() <= Epsilon) {
-            Vector3.CrossToRef(this._lookAtVector, this.geocentricNormalOfHitPoint, this.pitchRotationAxis);
+        if (this._localRotation.lengthSquared() > 0) {
+            this._applyRotation();
         }
 
-        let pitchRotationMatrix = Matrix.Identity();
-        if (this._localRotation.x !== 0) {
-            const pitchSign = Math.sign(Vector3.Dot(this.geocentricNormalOfHitPoint, this.upVector)); // If negative, camera is upside down
-            // Since these are pointed in opposite directions, we must negate the dot product to get the proper angle
-            const currentPitch = pitchSign * Math.acos(Scalar.Clamp(-Vector3.Dot(this._lookAtVector, this.geocentricNormalOfHitPoint), -1, 1));
-            const newPitch = Scalar.Clamp(currentPitch + this._localRotation.x, 0, 0.5 * Math.PI - Epsilon);
-            const actualLocationRotationX = newPitch - currentPitch;
-            // Build rotation matrix around normalized axis
-            this.pitchRotationAxis.normalize();
-            pitchRotationMatrix = Matrix.RotationAxis(this.pitchRotationAxis, actualLocationRotationX);
-        }
-
-        const yawRotationMatrix = Matrix.RotationAxis(this.geocentricNormalOfHitPoint, this._localRotation.y); // this axis changes if we aren't using center of screen for tilt
-        const accumulatedRotationMatrix = pitchRotationMatrix.multiply(yawRotationMatrix);
-
-        // Offset camera to be (position-hitpoint) distance from geocentricOrigin, apply rotation to position/up/lookat vectors, then reverse the offset
-        const camDistanceFromHitPoint = this.position.subtract(this.worldHitPoint);
-        const rotatedOffset = new Vector3();
-        Vector3.TransformCoordinatesToRef(camDistanceFromHitPoint, accumulatedRotationMatrix, rotatedOffset);
-
-        const newUp = new Vector3();
-        const newLook = new Vector3();
-        Vector3.TransformNormalToRef(this.upVector, accumulatedRotationMatrix, newUp);
-        Vector3.TransformNormalToRef(this._lookAtVector, accumulatedRotationMatrix, newLook);
-
-        this.upVector.copyFrom(newUp);
-        this._lookAtVector.copyFrom(newLook);
-
-        this.position = this.worldHitPoint.add(rotatedOffset);
-
-        // Update radius!
-        this.radius = this.position.length();
-
+        // Ensure floatingpointorigin camera marks viewMatrix as dirty and resets the per-frame values
         super._recalcViewMatrix();
     }
 }
 
-export function moveAlongVectorByDistance(alongVector: Vector3, distance: number): Vector3 {
-    // clone to avoid mutating alongVector
-    const dir = alongVector.clone();
-    // ensure unit length
-    dir.normalize();
-    // scale by requested distance
+export function MoveAlongVectorByDistance(alongVector: Vector3, distance: number): Vector3 {
+    // Ensure unit length, then scale by requested distance
+    const dir = alongVector.normalizeToNew();
     dir.scaleInPlace(distance);
     return dir;
 }
 
-export function intersectRayWithPlaneToRef(ray: Ray, plane: Plane, ref: Vector3): boolean {
-    // Distance along the ray to the plane; null if no hit
-    const dist = ray.intersectsPlane(plane);
-
-    if (dist !== null && dist >= 0) {
-        ref.copyFrom(ray.origin.add(ray.direction.scale(dist)));
-        return true;
-    }
-
-    return false;
-}
-
 // Helper to build east/north/up basis vectors at a world position
-export function computeLocalBasis(worldPos: Vector3, refEast: Vector3, refNorth: Vector3, refUp: Vector3) {
+export function ComputeLocalBasis(worldPos: Vector3, refEast: Vector3, refNorth: Vector3, refUp: Vector3) {
     // up = normalized position (geocentric normal)
     refUp.copyFrom(worldPos).normalize();
 
