@@ -5,8 +5,6 @@ import type { Scene } from "../scene";
 export class FloatingOriginCamera extends Camera {
     protected _isViewMatrixDirty = true;
     protected _viewMatrix: Matrix;
-    protected _rotation: Vector3;
-    protected _target: Vector3;
 
     // Changed by the inputs
     public _localTranslation: Vector3;
@@ -25,10 +23,8 @@ export class FloatingOriginCamera extends Camera {
     public resetToDefault(): void {
         this.upVector = Vector3.Up(); // Up vector of the camera
         this._lookAtVector = new Vector3(0, 0, 1); // Lookat vector of the camera
-        this._target = this._lookAtVector.clone();
         this._localTranslation = Vector3.Zero(); // starting incremental translation
         this._localRotation = Vector3.Zero(); // starting incremental rotation
-        this._rotation = Vector3.Zero(); // starting cumulative rotation
         this._viewMatrix = Matrix.Identity();
         this._isViewMatrixDirty = true;
     }

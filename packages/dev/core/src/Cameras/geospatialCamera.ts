@@ -46,7 +46,6 @@ export class GeospatialCamera extends FloatingOriginCamera {
         this._lookAtVector = this.worldOrigin.subtract(this.position).normalize(); // Unit vector showing direction of camera before any rotation is applied
         this.geocentricNormalOfHitPoint = this.worldHitPoint.normalizeToNew();
 
-        this._rotation = Vector3.Zero(); // starting accumulative rotation
         this.radius = this.position.length(); // Distance from camera to geoworld origin
         this.pitchRotationAxis = new Vector3(1, 0, 0); // starting axis used to calculate rotation matrix
         this._eastTemp = Vector3.Zero();
@@ -61,18 +60,17 @@ export class GeospatialCamera extends FloatingOriginCamera {
      * This is a geospatial term which means to look directly downward towards the surface/center of the earth
      */
     public lookNadir() {
-        this._rotation = Vector3.Zero();
         this._lookAtVector = Vector3.Zero().subtract(this.position).normalize(); // Unit vector showing direction of camera before any rotation is applied
         this._isViewMatrixDirty = true;
     }
 
     public set geoTarget(geoTargetLike: IGeoPositionLike) {
-        const target = GeoPositionToPosition(geoTargetLike);
-        this._target.copyFromFloats(target.x, target.y, target.z);
+        // const target = GeoPositionToPosition(geoTargetLike);
+        // this._target.copyFromFloats(target.x, target.y, target.z);
     }
 
     public lookStraightAtTarget(target: IVector3Like) {
-        this._target.copyFromFloats(target.x, target.y, target.z);
+        // this._target.copyFromFloats(target.x, target.y, target.z);
         this._lookAtVector = this.worldOrigin.subtract(this.position).normalize();
         this._isViewMatrixDirty = true;
     }
@@ -97,7 +95,7 @@ export class GeospatialCamera extends FloatingOriginCamera {
      * @param tilt
      */
     public setTilt(tilt: number): void {
-        this._rotation.x = tilt;
+        // this._rotation.x = tilt;
         this._isViewMatrixDirty = true;
     }
     /**
@@ -106,7 +104,7 @@ export class GeospatialCamera extends FloatingOriginCamera {
      * @param heading
      */
     public setHeading(heading: number): void {
-        this._rotation.y = heading;
+        // this._rotation.y = heading;
         this._isViewMatrixDirty = true;
     }
 
@@ -198,7 +196,7 @@ export class GeospatialCamera extends FloatingOriginCamera {
             const pitchSign = Math.sign(Vector3.Dot(this.geocentricNormalOfHitPoint, this.upVector)); // If negative, camera is upside down
             // Since these are pointed in opposite directions, we must negate the dot product to get the proper angle
             const currentPitch = pitchSign * Math.acos(Scalar.Clamp(-Vector3.Dot(this._lookAtVector, this.geocentricNormalOfHitPoint), -1, 1));
-            const newPitch = Math.min(0.5 * Math.PI, Math.max(0, currentPitch + this._localRotation.x));
+            const newPitch = Scalar.Clamp(currentPitch + this._localRotation.x, 0, 0.5 * Math.PI - Epsilon);
             const actualLocationRotationX = newPitch - currentPitch;
             // Build rotation matrix around normalized axis
             this.pitchRotationAxis.normalize();

@@ -29,7 +29,6 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
     private _isDragging = false;
     private _button: number = -1;
 
-    // Vars recalculated at each drag call
     private _mouseDownRay: Ray;
     private _dragPlaneOriginPoint: Vector3 = Vector3.Zero();
     private _dragPlane: Plane = new Plane(0, 0, 0, 0);
@@ -37,13 +36,6 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
     private _dragPlaneDistanceVector: Vector3 = Vector3.Zero();
     private _dragPlaneHitPoint: Vector3 = Vector3.Zero();
 
-    // Temp vars
-    // private _eastTemp: Vector3 = Vector3.Zero();
-    // private _northTemp: Vector3 = Vector3.Zero();
-    // private _upTemp: Vector3 = Vector3.Zero();
-    // private _basisMatrix: Matrix = Matrix.Identity();
-
-    // Vars stored when drag begins
     private _hitPointRadius: number;
 
     public attachControl(noPreventDefault?: boolean): void {
@@ -70,7 +62,6 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
                         }
 
                         if (pickResult?.pickedPoint) {
-                            // what if no hit?
                             this._isDragging = true;
                             this._dragPlaneDistanceVector = pickResult.pickedPoint;
                             this.camera.worldHitPoint.copyFrom(pickResult.pickedPoint);
@@ -83,8 +74,6 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
                                 // Calculate the dragPlane and the initial relativeDistance between the dragPlane hit point and origin
                                 // This will later be recalculated when drag occurs, and the delta between these vectors is what will be applied to localTranslation
                                 this._dragPlaneDistanceVector = this._recalculateHitPlaneAndGetNewRelativeDist();
-                                // computeLocalBasis(this.camera.position, this._eastTemp, this._northTemp, this._upTemp);
-                                // buildBasisMatrix(this._eastTemp, this._northTemp, this._upTemp, this._basisMatrix);
                             }
                         } else {
                             this._isDragging = false;
@@ -149,7 +138,6 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
     }
 
     private _handleDrag(scene: Scene, evt: PointerEvent): void {
-        // 1. Recalculate newDragPlane and its newRelativeDist, then apply the delta in relativeDist to the localTranslation vector
         // With new cursor location, identify where a ray from camera would intersect with the new drag plane, store in _mouseDownRay
         const pickResult = scene.pick(scene.pointerX, scene.pointerY);
         pickResult.ray && (this._mouseDownRay = pickResult.ray);
@@ -159,32 +147,6 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
         const delta = newRelativeDist.subtract(this._dragPlaneDistanceVector);
         this.camera._localTranslation.subtractInPlace(delta);
         this._dragPlaneDistanceVector = newRelativeDist;
-
-        // // 2. Calculate what camera pos would be if we applied localTranslation, scale that by the cameraRadius, and
-        // // apply that delta to localTranslation. This will ensure the translation keeps the camera at the proper height from earth's surface
-        // const newPos = this.camera.position.add(this.camera._localTranslation);
-        // const newPosScaledByCameraRadius = newPos.normalizeToNew().scaleInPlace(this.camera.position.length());
-        // const heightCorrection = newPosScaledByCameraRadius.subtract(newPos);
-        // this.camera._localTranslation.addInPlace(heightCorrection);
-
-        // newPos.addInPlace(heightCorrection);
-
-        // // 3. Calculate basis matrix off of the new position, then apply changeOfBasis to lookAt/up vectors
-        // const newBasis = Matrix.Identity();
-        // computeLocalBasis(newPos, this._eastTemp, this._northTemp, this._upTemp);
-        // buildBasisMatrix(this._eastTemp, this._northTemp, this._upTemp, newBasis);
-
-        // // Change of basis matrix = basis2 * basis1.inverse()
-        // // (since orthonormal, inverse = transpose)
-        // const changeOfBasis = newBasis.multiply(Matrix.Transpose(this._basisMatrix));
-
-        // // Apply to vectors
-        // Vector3.TransformNormalToRef(this.camera._lookAtVector, changeOfBasis, this.camera._lookAtVector);
-        // Vector3.TransformNormalToRef(this.camera.upVector, changeOfBasis, this.camera.upVector);
-
-        // // 4. Store vars for next handle drag!
-        // this._dragPlaneDistanceVector = newRelativeDist;
-        // this._basisMatrix = newBasis;
     }
 
     private _handleTilt(deltaX: number, deltaY: number): void {
