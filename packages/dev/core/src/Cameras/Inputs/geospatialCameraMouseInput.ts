@@ -2,7 +2,7 @@ import type { Nullable } from "../../types";
 import type { Observer } from "../../Misc/observable";
 import type { ICameraInput } from "../../Cameras/cameraInputsManager";
 import type { GeospatialCamera } from "../../Cameras/geospatialCamera";
-import { intersectRayWithPlaneToRef, movePtAlongVectorInPlace } from "../../Cameras/geospatialCamera";
+import { intersectRayWithPlaneToRef, moveAlongVectorByDistance } from "../../Cameras/geospatialCamera";
 import type { PointerInfo } from "../../Events/pointerEvents";
 import { PointerEventTypes } from "../../Events/pointerEvents";
 import { Matrix, Vector2, Vector3 } from "../../Maths/math.vector";
@@ -28,28 +28,23 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
     private _previousPosition: Nullable<Vector2> = null;
     private _isDragging = false;
     private _button: number = -1;
+
+    // Vars recalculated at each drag call
     private _mouseDownRay: Ray;
     private _dragPlaneOriginPoint: Vector3 = Vector3.Zero();
     private _dragPlane: Plane = new Plane(0, 0, 0, 0);
     private _dragPlaneNormal: Vector3 = Vector3.Zero();
     private _dragPlaneDistanceVector: Vector3 = Vector3.Zero();
     private _dragPlaneHitPoint: Vector3 = Vector3.Zero();
+
+    // Temp vars
+    // private _eastTemp: Vector3 = Vector3.Zero();
+    // private _northTemp: Vector3 = Vector3.Zero();
+    // private _upTemp: Vector3 = Vector3.Zero();
+    // private _basisMatrix: Matrix = Matrix.Identity();
+
+    // Vars stored when drag begins
     private _hitPointRadius: number;
-    private _cameraRadius: number = 0;
-
-    private _recalculateHitPlaneWithCameraGeocentricNormal() {
-        // Then calculate _dragPlaneNormal (i.e. the cameras geocentric normal) and use that to find the dragPlanePoint
-        // -- the point along camera's geocentric normal that has a length of above distance
-
-        // Recalc current geocentric normal
-        this.camera.position.normalizeToRef(this._dragPlaneNormal);
-        this._dragPlaneOriginPoint.setAll(0);
-
-        movePtAlongVectorInPlace(this._dragPlaneOriginPoint, this._hitPointRadius, this._dragPlaneNormal);
-
-        // Now create a plane at that point, perpendicular to the camera's geocentric normal
-        Plane.FromPositionAndNormalToRef(this._dragPlaneOriginPoint, this._dragPlaneNormal, this._dragPlane);
-    }
 
     public attachControl(noPreventDefault?: boolean): void {
         const scene = this.camera.getScene();
@@ -76,30 +71,25 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
 
                         if (pickResult?.pickedPoint) {
                             // what if no hit?
+                            this._isDragging = true;
                             this._dragPlaneDistanceVector = pickResult.pickedPoint;
                             this.camera.worldHitPoint.copyFrom(pickResult.pickedPoint);
                             this.camera.worldHitPoint.normalizeToRef(this.camera.geocentricNormalOfHitPoint);
 
-                            this._cameraRadius = this.camera.position.length();
                             if (evt.button == 0) {
-                                // If left mouse button 0, calculate distance from earth center to hitpoint
+                                // If left click, calculate radius from earth center to hitpoint and to camera, and store camera's normal as the dragPlaneNormal
                                 this._hitPointRadius = this.camera.worldHitPoint.length();
 
-                                // Calculate the plane perpendicular to the camera's geocentric normal which lives that distance from earths center
-                                this._recalculateHitPlaneWithCameraGeocentricNormal();
-
-                                // Lastly, find the _planeHitPoint where the _mouseDownRay intersects the _dragPlane if looking at the geoworldHitPoint
-                                // As the mouse is dragged, we will recalculate the intersection point of the plane and calculate the delta movement along the plane
-                                // That is the amount by which we will translate the camera
-                                // Ray.CreateFromToToRef(this.camera.position, this.camera.geoworldHitPoint, this._mouseDownRay);
-                                intersectRayWithPlaneToRef(this._mouseDownRay, this._dragPlane, this._dragPlaneHitPoint);
-
-                                // calc distance
-                                this._dragPlaneDistanceVector = this._dragPlaneHitPoint.subtract(this._dragPlaneOriginPoint);
+                                // Calculate the dragPlane and the initial relativeDistance between the dragPlane hit point and origin
+                                // This will later be recalculated when drag occurs, and the delta between these vectors is what will be applied to localTranslation
+                                this._dragPlaneDistanceVector = this._recalculateHitPlaneAndGetNewRelativeDist();
+                                // computeLocalBasis(this.camera.position, this._eastTemp, this._northTemp, this._upTemp);
+                                // buildBasisMatrix(this._eastTemp, this._northTemp, this._upTemp, this._basisMatrix);
                             }
+                        } else {
+                            this._isDragging = false;
                         }
 
-                        this._isDragging = true;
                         this._button = evt.button;
                         this._previousPosition = new Vector2(evt.clientX, evt.clientY);
                         if (!noPreventDefault) {
@@ -143,31 +133,58 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
         });
     }
 
+    private _recalculateHitPlaneAndGetNewRelativeDist() {
+        // Use the camera's geocentric normal to find the dragPlaneOriginPoint which lives at hitPointRadius along the camera's geocentric normal
+        this.camera.position.normalizeToRef(this._dragPlaneNormal);
+        this._dragPlaneOriginPoint = moveAlongVectorByDistance(this._dragPlaneNormal, this._hitPointRadius);
+
+        // Now create a plane at that point, perpendicular to the camera's geocentric normal
+        Plane.FromPositionAndNormalToRef(this._dragPlaneOriginPoint, this._dragPlaneNormal, this._dragPlane);
+
+        // Lastly, find the _dragPlaneHitPoint where the _mouseDownRay intersects the _dragPlane
+        intersectRayWithPlaneToRef(this._mouseDownRay, this._dragPlane, this._dragPlaneHitPoint);
+
+        // Return the new relativeDist between the drag plane's hitPoint and originPoint
+        return this._dragPlaneHitPoint.subtract(this._dragPlaneOriginPoint);
+    }
+
     private _handleDrag(scene: Scene, evt: PointerEvent): void {
-        // With new cursor location, identify where a ray from camera would intersect with the new drag plane
-        //        const prevPlane = this._dragPlane;
+        // 1. Recalculate newDragPlane and its newRelativeDist, then apply the delta in relativeDist to the localTranslation vector
+        // With new cursor location, identify where a ray from camera would intersect with the new drag plane, store in _mouseDownRay
         const pickResult = scene.pick(scene.pointerX, scene.pointerY);
         pickResult.ray && (this._mouseDownRay = pickResult.ray);
 
-        // Calculate the plane perpendicular to the camera's geocentric normal which lives that distance from earths center
-        this._recalculateHitPlaneWithCameraGeocentricNormal();
-
-        // Lastly, find the _planeHitPoint where the _mouseDownRay intersects the _dragPlane if looking at the geoworldHitPoint
-        // As the mouse is dragged, we will recalculate the intersection point of the plane and calculate the delta movement along the plane
-        // That is the amount by which we will translate the camera
-        // Ray.CreateFromToToRef(this.camera.position, this.camera.geoworldHitPoint, this._mouseDownRay);
-        intersectRayWithPlaneToRef(this._mouseDownRay, this._dragPlane, this._dragPlaneHitPoint);
-
-        // calc distance
-        const newRelativeDist = this._dragPlaneHitPoint.subtract(this._dragPlaneOriginPoint);
+        // Calc new dragPlane's relativeDistance, then apply the delta between the planes relativeDist to the camera's localTranslation
+        const newRelativeDist = this._recalculateHitPlaneAndGetNewRelativeDist();
         const delta = newRelativeDist.subtract(this._dragPlaneDistanceVector);
         this.camera._localTranslation.subtractInPlace(delta);
         this._dragPlaneDistanceVector = newRelativeDist;
 
-        // // Recalc what new pos would be if it were at the same cameraRadius, find the delta between currentRadius and
+        // // 2. Calculate what camera pos would be if we applied localTranslation, scale that by the cameraRadius, and
+        // // apply that delta to localTranslation. This will ensure the translation keeps the camera at the proper height from earth's surface
         // const newPos = this.camera.position.add(this.camera._localTranslation);
-        // const newPosScaled = newPos.normalizeToNew().scaleInPlace(this._cameraRadius);
-        // this.camera._localTranslation.addInPlace(newPosScaled.subtract(newPos));
+        // const newPosScaledByCameraRadius = newPos.normalizeToNew().scaleInPlace(this.camera.position.length());
+        // const heightCorrection = newPosScaledByCameraRadius.subtract(newPos);
+        // this.camera._localTranslation.addInPlace(heightCorrection);
+
+        // newPos.addInPlace(heightCorrection);
+
+        // // 3. Calculate basis matrix off of the new position, then apply changeOfBasis to lookAt/up vectors
+        // const newBasis = Matrix.Identity();
+        // computeLocalBasis(newPos, this._eastTemp, this._northTemp, this._upTemp);
+        // buildBasisMatrix(this._eastTemp, this._northTemp, this._upTemp, newBasis);
+
+        // // Change of basis matrix = basis2 * basis1.inverse()
+        // // (since orthonormal, inverse = transpose)
+        // const changeOfBasis = newBasis.multiply(Matrix.Transpose(this._basisMatrix));
+
+        // // Apply to vectors
+        // Vector3.TransformNormalToRef(this.camera._lookAtVector, changeOfBasis, this.camera._lookAtVector);
+        // Vector3.TransformNormalToRef(this.camera.upVector, changeOfBasis, this.camera.upVector);
+
+        // // 4. Store vars for next handle drag!
+        // this._dragPlaneDistanceVector = newRelativeDist;
+        // this._basisMatrix = newBasis;
     }
 
     private _handleTilt(deltaX: number, deltaY: number): void {

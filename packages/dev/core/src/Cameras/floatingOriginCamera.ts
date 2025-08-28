@@ -3,7 +3,6 @@ import { Vector3, Matrix } from "../Maths/math.vector";
 import type { Scene } from "../scene";
 
 export class FloatingOriginCamera extends Camera {
-    protected _lookAtVector: Vector3;
     protected _isViewMatrixDirty = true;
     protected _viewMatrix: Matrix;
     protected _rotation: Vector3;
@@ -12,6 +11,7 @@ export class FloatingOriginCamera extends Camera {
     // Changed by the inputs
     public _localTranslation: Vector3;
     public _localRotation: Vector3;
+    public _lookAtVector: Vector3;
 
     constructor(name: string, position: Vector3, scene: Scene) {
         if (scene.activeCamera != null) {
@@ -57,12 +57,10 @@ export class FloatingOriginCamera extends Camera {
         let shouldRecalc = false;
         if (this._localTranslation.lengthSquared() > 0) {
             // Update world position
-            this.position.addInPlace(this._localTranslation);
             shouldRecalc = true;
         }
         if (this._localRotation.lengthSquared() > 0) {
             // Accumulate the rotation values
-            // this._rotation.addInPlace(this._localRotation);
             shouldRecalc = true;
         }
 

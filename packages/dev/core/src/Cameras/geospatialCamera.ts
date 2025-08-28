@@ -18,7 +18,12 @@ export class GeospatialCamera extends FloatingOriginCamera {
     public geocentricNormalOfHitPoint: Vector3;
     public radius: number;
     public pitch: number;
-    private _correctionMatrixTemp: Matrix = Matrix.Identity();
+
+    // Temp vars
+    private _eastTemp: Vector3 = Vector3.Zero();
+    private _northTemp: Vector3 = Vector3.Zero();
+    private _upTemp: Vector3 = Vector3.Zero();
+    private _basisMatrix: Matrix = Matrix.Identity();
 
     public override inputs: GeospatialCameraInputsManager;
 
@@ -44,7 +49,14 @@ export class GeospatialCamera extends FloatingOriginCamera {
         this._rotation = Vector3.Zero(); // starting accumulative rotation
         this.radius = this.position.length(); // Distance from camera to geoworld origin
         this.pitchRotationAxis = new Vector3(1, 0, 0); // starting axis used to calculate rotation matrix
+        this._eastTemp = Vector3.Zero();
+        this._northTemp = Vector3.Zero();
+        this._upTemp = Vector3.Zero();
+        this._basisMatrix = Matrix.Identity();
+        computeLocalBasis(this.position, this._eastTemp, this._northTemp, this._upTemp);
+        Matrix.FromXYZAxesToRef(this._eastTemp, this._northTemp, this._upTemp, this._basisMatrix);
     }
+
     /**
      * This is a geospatial term which means to look directly downward towards the surface/center of the earth
      */
@@ -115,7 +127,7 @@ export class GeospatialCamera extends FloatingOriginCamera {
      */
     public zoomAlongLook(distance: number, moveHitPointIfAny = false): void {
         // move camera
-        const dir = moveAlongVector(distance, this._lookAtVector);
+        const dir = moveAlongVectorByDistance(this._lookAtVector, distance);
         this.position.addInPlace(dir);
 
         // optionally move the stored hit point and recompute the geocentric normal
@@ -125,29 +137,42 @@ export class GeospatialCamera extends FloatingOriginCamera {
                 this.geocentricNormalOfHitPoint.copyFrom(this.worldHitPoint).normalize();
             }
         }
-
-        // update derived state
-        this.radius = this.position.length();
         this._isViewMatrixDirty = true;
     }
 
-    public correctCameraRotationTowardsGeocentricNormal() {
-        // Calculate the cos of the angle between the camera's geocentric normal and the lookat vector
-        const cosAngle = -Vector3.Dot(this._lookAtVector, this.position.normalizeToNew());
+    private _applyTranslationAndRotateCameraTowardsGeocentricNormal() {
+        computeLocalBasis(this.position, this._eastTemp, this._northTemp, this._upTemp);
+        Matrix.FromXYZAxesToRef(this._eastTemp, this._northTemp, this._upTemp, this._basisMatrix);
 
-        // ArcCos to get the actual angle
-        const pitch = Math.acos(cosAngle);
+        const newPos = this.position.add(this._localTranslation);
 
-        // Compare to previous pitch
-        const deltaPitch = this.pitch - pitch;
+        // First calculate the height correction to keep camera at the same radius as before the position
+        // Calculate what camera pos would be if we applied localTranslation, scale that by the cameraRadius, and
+        // apply that delta to localTranslation. This will ensure the translation keeps the camera at the proper height from earth's surface
+        const newPosScaledByCameraRadius = newPos.normalizeToNew().scaleInPlace(this.position.length());
+        const heightCorrection = newPosScaledByCameraRadius.subtract(newPos);
+        this._localTranslation.addInPlace(heightCorrection);
+        newPos.addInPlace(heightCorrection); // this shouldn't matter
 
-        // Calculate a rotation axis perpendicular to both the upVector and lookVector
-        const correctionAxis = Vector3.Cross(this.upVector, this._lookAtVector);
+        // Then calculate the rotation correction to keep camera facing earth
+        // Calculate basis matrix off of the new position, then apply changeOfBasis to lookAt/up vectors
+        const newBasis = Matrix.Identity();
+        computeLocalBasis(newPos, this._eastTemp, this._northTemp, this._upTemp);
+        Matrix.FromXYZAxesToRef(this._eastTemp, this._northTemp, this._upTemp, newBasis);
 
-        // Rotate lookat and upvector said delta angle around said axis
-        this._correctionMatrixTemp = Matrix.RotationAxis(correctionAxis, deltaPitch);
-        Vector3.TransformNormalToRef(this._lookAtVector, this._correctionMatrixTemp, this._lookAtVector);
-        Vector3.TransformNormalToRef(this.upVector, this._correctionMatrixTemp, this.upVector);
+        // Change of basis matrix = basis2 * basis1.inverse()
+        // (since orthonormal, inverse = transpose)
+        const changeOfBasis = this._basisMatrix.transpose().multiply(newBasis);
+
+        // Apply to vectors
+        Vector3.TransformNormalToRef(this._lookAtVector, changeOfBasis, this._lookAtVector);
+        Vector3.TransformNormalToRef(this.upVector, changeOfBasis, this.upVector);
+
+        // Store basis for next time
+        this._basisMatrix = newBasis;
+
+        // Update the camera's position with all corrections applied
+        this.position.copyFrom(newPos);
     }
 
     protected override _recalcViewMatrix(): void {
@@ -156,9 +181,9 @@ export class GeospatialCamera extends FloatingOriginCamera {
         this.upVector.normalize();
         this._lookAtVector.normalize();
 
-        // if (this._localTranslation.lengthSquared() > 0) {
-        //     this.correctCameraRotationTowardsGeocentricNormal();
-        // }
+        if (this._localTranslation.lengthSquared() > 0) {
+            this._applyTranslationAndRotateCameraTowardsGeocentricNormal();
+        }
 
         // Compute a rotation axis that is perpendicular to both the upVector and the hitPoint's geocentricNormalOfHitPoint: cross(up, geocentricNormalOfHitPoint)
         Vector3.CrossToRef(this.upVector, this.geocentricNormalOfHitPoint, this.pitchRotationAxis);
@@ -168,17 +193,20 @@ export class GeospatialCamera extends FloatingOriginCamera {
             Vector3.CrossToRef(this._lookAtVector, this.geocentricNormalOfHitPoint, this.pitchRotationAxis);
         }
 
-        // Since these are pointed in opposite directions, we must negate the dot product to get the proper angle
-        const currentPitch = Math.acos(Scalar.Clamp(-Vector3.Dot(this._lookAtVector, this.geocentricNormalOfHitPoint), -1, 1));
-        const newPitch = Math.min(0.5 * Math.PI, Math.max(0, currentPitch + this._localRotation.x));
-        const actualLocationRotationX = newPitch - currentPitch;
-
-        // Build rotation matrix around normalized axis
-        this.pitchRotationAxis.normalize();
-        const pitchRotationMatrix = Matrix.RotationAxis(this.pitchRotationAxis, actualLocationRotationX);
+        let pitchRotationMatrix = Matrix.Identity();
+        if (this._localRotation.x !== 0) {
+            const pitchSign = Math.sign(Vector3.Dot(this.geocentricNormalOfHitPoint, this.upVector)); // If negative, camera is upside down
+            // Since these are pointed in opposite directions, we must negate the dot product to get the proper angle
+            const currentPitch = pitchSign * Math.acos(Scalar.Clamp(-Vector3.Dot(this._lookAtVector, this.geocentricNormalOfHitPoint), -1, 1));
+            const newPitch = Math.min(0.5 * Math.PI, Math.max(0, currentPitch + this._localRotation.x));
+            const actualLocationRotationX = newPitch - currentPitch;
+            // Build rotation matrix around normalized axis
+            this.pitchRotationAxis.normalize();
+            pitchRotationMatrix = Matrix.RotationAxis(this.pitchRotationAxis, actualLocationRotationX);
+        }
 
         const yawRotationMatrix = Matrix.RotationAxis(this.geocentricNormalOfHitPoint, this._localRotation.y); // this axis changes if we aren't using center of screen for tilt
-        const accumulatedRotationMatrix = yawRotationMatrix.multiply(pitchRotationMatrix);
+        const accumulatedRotationMatrix = pitchRotationMatrix.multiply(yawRotationMatrix);
 
         // Offset camera to be (position-hitpoint) distance from geocentricOrigin, apply rotation to position/up/lookat vectors, then reverse the offset
         const camDistanceFromHitPoint = this.position.subtract(this.worldHitPoint);
@@ -202,7 +230,7 @@ export class GeospatialCamera extends FloatingOriginCamera {
     }
 }
 
-export function moveAlongVector(distance: number, alongVector: Vector3): Vector3 {
+export function moveAlongVectorByDistance(alongVector: Vector3, distance: number): Vector3 {
     // clone to avoid mutating alongVector
     const dir = alongVector.clone();
     // ensure unit length
@@ -212,23 +240,35 @@ export function moveAlongVector(distance: number, alongVector: Vector3): Vector3
     return dir;
 }
 
-export function movePtAlongVectorInPlace(point: Vector3, distance: number, alongVector: Vector3): Vector3 {
-    const dir = moveAlongVector(distance, alongVector);
-    point.addInPlace(dir);
-    return point;
-}
-
 export function intersectRayWithPlaneToRef(ray: Ray, plane: Plane, ref: Vector3): boolean {
     // Distance along the ray to the plane; null if no hit
     const dist = ray.intersectsPlane(plane);
 
-    global.console.log("intersecting ray", ray, "\n", "with plane", plane, "\n", "calcdist", dist);
-
     if (dist !== null && dist >= 0) {
         ref.copyFrom(ray.origin.add(ray.direction.scale(dist)));
-        global.console.log("rayorigin ", ray.origin, "\n", "ray dir ", ray.direction, "\n", "calcdist", dist, "\n", "finalRef", ref);
-
         return true;
     }
+
     return false;
+}
+
+// Helper to build east/north/up basis vectors at a world position
+export function computeLocalBasis(worldPos: Vector3, refEast: Vector3, refNorth: Vector3, refUp: Vector3) {
+    // up = normalized position (geocentric normal)
+    refUp.copyFrom(worldPos).normalize();
+
+    // east = normalize(up × worldUp)
+    // (cross product of up with world Y gives east except at poles)
+    const worldUp = Vector3.Up(); // (0,1,0)
+    Vector3.CrossToRef(refUp, worldUp, refEast);
+
+    // at poles, cross with worldForward instead
+    if (refEast.lengthSquared() < Epsilon) {
+        Vector3.CrossToRef(refUp, Vector3.Forward(), refEast);
+    }
+    refEast.normalize();
+
+    // north = up × east (completes right-handed basis)
+    Vector3.CrossToRef(refUp, refEast, refNorth);
+    refNorth.normalize();
 }
