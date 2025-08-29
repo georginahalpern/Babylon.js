@@ -173,6 +173,8 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
      */
     public static MaxDeltaTime = 1000.0;
 
+    public floatingOriginOffsetRef: Nullable<Vector3>;
+
     // eslint-disable-next-line jsdoc/require-returns-check
     /**
      * Factory used to create the default material.

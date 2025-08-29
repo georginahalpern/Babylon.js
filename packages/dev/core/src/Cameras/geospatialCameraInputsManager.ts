@@ -1,6 +1,5 @@
 import { CameraInputsManager } from "./cameraInputsManager";
 import type { GeospatialCamera } from "./geospatialCamera";
-import { GeospatialCameraKeyboardInput } from "./Inputs/geospatialCameraKeyboardInput";
 import { GeospatialCameraMouseInput } from "./Inputs/geospatialCameraMouseInput";
 import { GeospatialCameraMouseWheelInput } from "./Inputs/geospatialCameraMouseWheelInput";
 
@@ -15,15 +14,6 @@ export class GeospatialCameraInputsManager extends CameraInputsManager<Geospatia
      */
     constructor(camera: GeospatialCamera) {
         super(camera);
-    }
-
-    /**
-     * Add keyboard input support to the input manager
-     * @returns the current input manager
-     */
-    public addKeyboard(): GeospatialCameraInputsManager {
-        this.add(new GeospatialCameraKeyboardInput());
-        return this;
     }
 
     /**

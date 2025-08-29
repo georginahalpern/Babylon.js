@@ -2,13 +2,14 @@ import type { Nullable } from "../../types";
 import type { Observer } from "../../Misc/observable";
 import type { ICameraInput } from "../../Cameras/cameraInputsManager";
 import type { GeospatialCamera } from "../../Cameras/geospatialCamera";
-import { MoveAlongVectorByDistance } from "../../Cameras/geospatialCamera";
+import { MoveAlongVectorByDistanceToRef } from "../../Cameras/geospatialCamera";
 import type { PointerInfo } from "../../Events/pointerEvents";
 import { PointerEventTypes } from "../../Events/pointerEvents";
-import { Matrix, Vector2, Vector3 } from "../../Maths/math.vector";
-import type { Ray } from "../../Culling";
+import { Matrix, TmpVectors, Vector2, Vector3 } from "../../Maths/math.vector";
+import { Ray } from "../../Culling";
 import { Plane } from "../../Maths/math.plane";
 import type { Scene } from "../../scene";
+import type { PickingInfo } from "../../Collisions";
 
 /**
  * @experimental
@@ -41,12 +42,12 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
     private _isDragging = false;
     private _button: number = -1;
 
-    private _mouseDownRay: Ray;
     private _dragPlane: Plane = new Plane(0, 0, 0, 0);
     private _dragPlaneNormal: Vector3 = Vector3.Zero();
     private _dragPlaneOriginPoint: Vector3 = Vector3.Zero();
     private _dragPlaneHitPoint: Vector3 = Vector3.Zero();
     private _dragPlaneOffsetVector: Vector3 = Vector3.Zero();
+    private _mouseDownRay: Ray = new Ray(this._dragPlaneHitPoint, this._dragPlaneHitPoint, 0);
 
     private _hitPointRadius: number;
 
@@ -59,7 +60,7 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
             switch (pointerInfo.type) {
                 case PointerEventTypes.POINTERDOWN:
                     if (this.buttons.includes(evt.button)) {
-                        let pickResult;
+                        let pickResult: Nullable<PickingInfo>;
                         // Determine rayOrigin based off of mouse input. If left click or middle click, use pointer position to cast ray
                         if (evt.button == 0 || evt.button == 1) {
                             pickResult = scene.pick(scene.pointerX, scene.pointerY);
@@ -69,7 +70,7 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
                             const engine = scene.getEngine();
                             const width = engine.getRenderWidth();
                             const height = engine.getRenderHeight();
-                            this._mouseDownRay = scene.createPickingRay(width / 2, height / 2, Matrix.Identity(), this.camera, false);
+                            scene.createPickingRayToRef(width / 2, height / 2, Matrix.Identity(), this._mouseDownRay, this.camera, false);
                             pickResult = scene.pickWithRay(this._mouseDownRay);
                         }
 
@@ -83,7 +84,7 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
 
                                 // Calculate the dragPlane and the initial offset between the dragPlane hit point and origin
                                 // This will later be recalculated when drag occurs, and the delta between these vectors is what will be applied to localTranslation
-                                this._dragPlaneOffsetVector = this._recalculateDragPlaneOffsetVector();
+                                this._recalculateDragPlaneOffsetVectorToRef(this._dragPlaneOffsetVector);
                             } else {
                                 // tilt
                                 this.camera.pitchPoint.copyFrom(pickResult.pickedPoint);
@@ -138,12 +139,12 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
     /**
      * The DragPlaneOffsetVector represents the vector between the dragPlane hit point and the dragPlane origin point.
      * As the drag movement occurs, we will continuously recalculate this vector. The delta between the offsetVectors is the delta we will apply to the camera's localtranslation
-     * @returns The new offset vector between the drag plane's hitPoint and originPoint
+     * @param ref The offset vector between the drag plane's hitPoint and originPoint
      */
-    private _recalculateDragPlaneOffsetVector(): Vector3 {
+    private _recalculateDragPlaneOffsetVectorToRef(ref: Vector3) {
         // Use the camera's geocentric normal to find the dragPlaneOriginPoint which lives at hitPointRadius along the camera's geocentric normal
         this.camera.position.normalizeToRef(this._dragPlaneNormal);
-        this._dragPlaneOriginPoint = MoveAlongVectorByDistance(this._dragPlaneNormal, this._hitPointRadius);
+        MoveAlongVectorByDistanceToRef(this._dragPlaneNormal, this._hitPointRadius, this._dragPlaneOriginPoint);
 
         // Now create a plane at that point, perpendicular to the camera's geocentric normal
         Plane.FromPositionAndNormalToRef(this._dragPlaneOriginPoint, this._dragPlaneNormal, this._dragPlane);
@@ -151,8 +152,8 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
         // Lastly, find the _dragPlaneHitPoint where the _mouseDownRay intersects the _dragPlane
         IntersectRayWithPlaneToRef(this._mouseDownRay, this._dragPlane, this._dragPlaneHitPoint);
 
-        // Return the new offset between the drag plane's hitPoint and originPoint
-        return this._dragPlaneHitPoint.subtract(this._dragPlaneOriginPoint);
+        // Store the new offset between the drag plane's hitPoint and originPoint
+        this._dragPlaneHitPoint.subtractToRef(this._dragPlaneOriginPoint, ref);
     }
 
     private _handleDrag(scene: Scene): void {
@@ -161,16 +162,17 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
         pickResult.ray && (this._mouseDownRay = pickResult.ray);
 
         // Calc new dragPlane's offsetVector (i.e. the vector between dragPlane hitPoint and originPoint), then apply the delta between the current and previous plane offsetVectors to the camera's localTranslation
-        const newDragPlaneOffsetVector = this._recalculateDragPlaneOffsetVector();
-        const delta = newDragPlaneOffsetVector.subtract(this._dragPlaneOffsetVector);
-        this.camera._localTranslation.subtractInPlace(delta);
-        this._dragPlaneOffsetVector = newDragPlaneOffsetVector;
+        const newDragPlaneOffsetVector = TmpVectors.Vector3[5];
+        this._recalculateDragPlaneOffsetVectorToRef(newDragPlaneOffsetVector);
+        newDragPlaneOffsetVector.subtractInPlace(this._dragPlaneOffsetVector);
+        this.camera._perFrameTranslation.subtractInPlace(newDragPlaneOffsetVector);
+        this._dragPlaneOffsetVector.copyFrom(newDragPlaneOffsetVector);
     }
 
     private _handleTilt(deltaX: number, deltaY: number): void {
         // Just rotate the view without moving
-        this.camera._localRotation.y += -deltaX / this.angularSensibility; // yaw
-        this.camera._localRotation.x += -deltaY / this.angularSensibility; // pitch - dragging up look towards sky
+        this.camera._perFrameRotation.y += -deltaX / this.angularSensibility; // yaw
+        this.camera._perFrameRotation.x += -deltaY / this.angularSensibility; // pitch - dragging up look towards sky
     }
 
     public detachControl(): void {
@@ -202,7 +204,7 @@ function IntersectRayWithPlaneToRef(ray: Ray, plane: Plane, ref: Vector3): boole
     const dist = ray.intersectsPlane(plane);
 
     if (dist !== null && dist >= 0) {
-        ref.copyFrom(ray.origin.add(ray.direction.scale(dist)));
+        ray.origin.addToRef(ray.direction.scale(dist), ref);
         return true;
     }
 

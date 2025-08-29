@@ -19,10 +19,6 @@ export class FloatingOriginCamera extends Camera {
     protected _viewMatrix: Matrix;
     protected _lookAtVector: Vector3;
 
-    // Changed by the inputs, reset on every frame
-    public _localTranslation: Vector3;
-    public _localRotation: Vector3;
-
     constructor(name: string, position: Vector3, scene: Scene) {
         if (scene.activeCamera != null) {
             throw new Error("FloatingOrigin camera must be the only active camera on a scene");
@@ -30,21 +26,22 @@ export class FloatingOriginCamera extends Camera {
         super(name, position, scene);
         this._resetToDefault(); // Initialize vectors
         scene.getEngine().getCreationOptions().useHighPrecisionMatrix = true;
+        scene.floatingOriginOffsetRef = this.position;
     }
 
     protected _resetToDefault(): void {
         this.upVector = Vector3.Up(); // Up vector of the camera
         this._lookAtVector = this.position.negate().normalize(); // Lookat vector of the camera
-        this._localTranslation = Vector3.Zero(); // starting incremental translation
-        this._localRotation = Vector3.Zero(); // starting incremental rotation
         this._viewMatrix = Matrix.Identity();
         this._isViewMatrixDirty = true;
     }
 
-    protected _recalcViewMatrix() {
+    protected _setDirty() {
+        // early out if already dirty
         this._isViewMatrixDirty = true;
-        this._localRotation.setAll(0);
-        this._localTranslation.setAll(0);
+        for (const node of this.getScene().rootNodes) {
+            node.markAsDirty();
+        }
     }
 
     /** @internal */
@@ -68,38 +65,10 @@ export class FloatingOriginCamera extends Camera {
     }
 
     /** @internal */
-    public override _checkInputs(): void {
-        this.inputs.checkInputs();
-        let shouldRecalc = false;
-        if (this._localTranslation.lengthSquared() > 0) {
-            shouldRecalc = true;
-        }
-        if (this._localRotation.lengthSquared() > 0) {
-            shouldRecalc = true;
-        }
-
-        shouldRecalc && this._recalcViewMatrix();
-        super._checkInputs();
-    }
-
-    /** @internal */
     public override _isSynchronizedViewMatrix(): boolean {
         if (!super._isSynchronizedViewMatrix() || this._isViewMatrixDirty) {
             return false;
         }
         return true;
-    }
-
-    public override attachControl(noPreventDefault?: boolean): void {
-        this.inputs.attachElement(noPreventDefault);
-    }
-
-    public override detachControl(): void {
-        this.inputs.detachElement();
-    }
-
-    public override dispose(): void {
-        this.inputs.clear();
-        super.dispose();
     }
 }

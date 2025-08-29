@@ -20,7 +20,8 @@ import { Tools } from "../../Misc/tools";
 const FfMultiplier = 40;
 
 /**
- * Manage the mouse wheel inputs to control an arc rotate camera.
+ * @experimental
+ * Manage the mouse wheel inputs to control a geospatial camera. As this is experimental the API will evolve
  * @see https://doc.babylonjs.com/features/featuresDeepDive/cameras/customizingCameraInputs
  */
 export class GeospatialCameraMouseWheelInput implements ICameraInput<GeospatialCamera> {

@@ -11,7 +11,6 @@ import type { Bone } from "../Bones/bone";
 import type { AbstractMesh } from "../Meshes/abstractMesh";
 import { Space } from "../Maths/math.axis";
 import { GetClass } from "../Misc/typeStore";
-import { FloatingOriginCamera } from "../Cameras/floatingOriginCamera";
 
 /**
  * A TransformNode is an object that is not rendered but can be used as a center of transformation. This can decrease memory usage and increase rendering speed compared to using an empty mesh as a parent and is less complicated than using a pivot matrix.
@@ -1074,21 +1073,6 @@ export class TransformNode extends Node {
      * @returns the world matrix
      */
     public override computeWorldMatrix(force: boolean = false, camera: Nullable<Camera> = null): Matrix {
-        const activeCam = this._scene.activeCamera;
-        let translation: Vector3 = this._position;
-
-        // The FloatingOriginCamera camera works by positioning the camera at world origin and offsetting the positions of all other
-        // nodes in the scene via world matrix transform. We thus need to calculate the offset between mesh position and camera position
-        // to offset the mesh by the appropriate amount. This must be done before the isDirty check so that we can recalculate worldMatrix if
-        // either the camera position or mesh position has changed since the last frame and if so, mark the node as dirty
-        if (activeCam instanceof FloatingOriginCamera && !this.parent) {
-            translation = TransformNode._TmpTranslation;
-            translation.copyFromFloats(this._position.x - activeCam.position.x, this._position.y - activeCam.position.y, this._position.z - activeCam.position.z);
-            if (!this._worldMatrix.getTranslation().equalsToFloats(translation.x, translation.y, translation.z)) {
-                // If the translation is not the same as the cached translation, we need to update world matrix so mark isDirty to true
-                this._isDirty = true;
-            }
-        }
         if (this._isWorldMatrixFrozen && !this._isDirty) {
             return this._worldMatrix;
         }
@@ -1120,6 +1104,7 @@ export class TransformNode extends Node {
         const scaling: Vector3 = TransformNode._TmpScaling;
 
         // Translation
+        let translation: Vector3 = this._position;
         if (this._infiniteDistance) {
             if (!this.parent && camera) {
                 const cameraWorldMatrix = camera.getWorldMatrix();
@@ -1128,6 +1113,19 @@ export class TransformNode extends Node {
                 translation = TransformNode._TmpTranslation;
                 translation.copyFromFloats(this._position.x + cameraGlobalPosition.x, this._position.y + cameraGlobalPosition.y, this._position.z + cameraGlobalPosition.z);
             }
+        }
+
+        // The FloatingOriginCamera camera works by positioning the camera at world origin and offsetting the positions of all other
+        // nodes in the scene via world matrix transform. We thus need to calculate the offset between mesh position and camera position
+        // to offset the mesh by the appropriate amount. This must be done before the isDirty check so that we can recalculate worldMatrix if
+        // either the camera position or mesh position has changed since the last frame and if so, mark the node as dirty
+        if (this._scene.floatingOriginOffsetRef && !this.parent) {
+            translation = TransformNode._TmpTranslation;
+            translation.copyFromFloats(
+                this._position.x - this._scene.floatingOriginOffsetRef.x,
+                this._position.y - this._scene.floatingOriginOffsetRef.y,
+                this._position.z - this._scene.floatingOriginOffsetRef.z
+            );
         }
 
         // Scaling
@@ -1170,7 +1168,7 @@ export class TransformNode extends Node {
 
             this._localMatrix.addTranslationFromFloats(translation.x, translation.y, translation.z);
         } else {
-            Matrix.ComposeToRef(scaling, rotation, translation, this._localMatrix); // If we're using the scaling / rotation / translation here why is this _localMatrix and not worldMatrix? Is this because we may not be parent node?
+            Matrix.ComposeToRef(scaling, rotation, translation, this._localMatrix);
         }
 
         // Parent
@@ -1334,7 +1332,7 @@ export class TransformNode extends Node {
         this._afterComputeWorldMatrix();
 
         // Absolute position
-        this._absolutePosition.copyFromFloats(this._worldMatrix.m[12], this._worldMatrix.m[13], this._worldMatrix.m[14]); // absoluteposition is the node's position in the world
+        this._absolutePosition.copyFromFloats(this._worldMatrix.m[12], this._worldMatrix.m[13], this._worldMatrix.m[14]);
         this._isAbsoluteSynced = false;
 
         // Callbacks

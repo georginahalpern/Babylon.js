@@ -754,8 +754,6 @@ export function CreatePickingRayToRef(
     x = x * levelInv - vx;
     y = y * levelInv - (renderHeight - vy - height);
 
-    // should be conditional         Matrix.Translation(camera.position.x, camera.position.y, camera.position.z),
-
     result.update(
         x,
         y,
@@ -766,7 +764,6 @@ export function CreatePickingRayToRef(
         camera.getProjectionMatrix(),
         enableDistantPicking
     );
-    // result.
     return scene;
 }
 
@@ -912,7 +909,14 @@ function InternalPick(
         }
     }
 
-    return pickingInfo || new PickingInfo();
+    const result = pickingInfo || new PickingInfo();
+
+    if (result && scene.floatingOriginOffsetRef) {
+        result.pickedPoint?.addInPlace(scene.floatingOriginOffsetRef);
+    }
+
+    // Fix for all raypicking!
+    return result;
 }
 
 function InternalMultiPick(
@@ -1045,8 +1049,9 @@ export function Pick(
     );
     if (result) {
         result.ray = CreatePickingRay(scene, x, y, Matrix.Identity(), camera || null);
-        result.ray.origin.addInPlace(scene.activeCamera!.position);
-        result.pickedPoint?.addInPlace(scene.activeCamera!.position); // TODO move this to perhaps update the matrix instead of offsetting position after the fact
+        if (scene.floatingOriginOffsetRef) {
+            result.ray.origin.addInPlace(scene.floatingOriginOffsetRef);
+        }
     }
     return result;
 }
@@ -1084,8 +1089,9 @@ export function PickWithRay(scene: Scene, ray: Ray, predicate?: MeshPredicate, f
     );
     if (result) {
         result.ray = ray;
-        result.ray.origin.addInPlace(scene.activeCamera!.position);
-        result.pickedPoint?.addInPlace(scene.activeCamera!.position);
+        if (scene.floatingOriginOffsetRef) {
+            result.ray.origin.addInPlace(scene.floatingOriginOffsetRef);
+        }
     }
     return result;
 }

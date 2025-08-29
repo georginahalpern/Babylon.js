@@ -64,8 +64,8 @@ export const GeospatialCameraTransformProperties: FunctionComponent<{ camera: Ge
 
             {/* <BoundProperty label="Radius" component={NumberInputPropertyLine} target={camera} propertyKey="radius" /> */}
 
-            <BoundProperty label="_localTranslation" component={Vector3PropertyLine} target={camera} propertyKey="_localTranslation" />
-            <BoundProperty label="_localRotation" component={Vector3PropertyLine} target={camera} propertyKey="_localRotation" />
+            {/* <BoundProperty label="_localTranslation" component={Vector3PropertyLine} target={camera} propertyKey="_localTranslation" />
+            <BoundProperty label="_localRotation" component={Vector3PropertyLine} target={camera} propertyKey="_localRotation" /> */}
             {/* 
             <BoundProperty
                 ignoreNullable
