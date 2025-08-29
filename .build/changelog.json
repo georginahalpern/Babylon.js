@@ -1,6 +1,956 @@
 {
-    "fromTag": "8.23.0",
+    "fromTag": "8.24.2",
     "changelog": {
+        "8.25.0": [
+            {
+                "pr": "17078",
+                "title": "Adding support for the player to take a json object",
+                "description": "The current API of the player only accepted the URL of a file to load. This change also adds supporting a JSON object as the input instead of the URL, as in certain scenarios the object may have already been parsed, and we don't need to parse it ourselves.\r\n\r\nAlso added support for the devHost to test this scenario with the QSP useUrl=boolean. This QSP will tell the devhost to either pass the URL to the player or to download the file and parse the content and pass the json instead. Default is using the URL.",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/lottiePlayer/src/index.ts",
+                    "packages/dev/lottiePlayer/src/localPlayer.ts",
+                    "packages/dev/lottiePlayer/src/messageTypes.ts",
+                    "packages/dev/lottiePlayer/src/player.ts",
+                    "packages/dev/lottiePlayer/src/worker.ts",
+                    "packages/tools/devHost/src/index.ts",
+                    "packages/tools/devHost/src/lottie/main.ts",
+                    "packages/tools/devHost/src/testScene/main.ts"
+                ],
+                "tags": [
+                    "enhancement"
+                ]
+            }
+        ],
+        "8.24.2": [
+            {
+                "pr": "17076",
+                "title": "Viewer: Fix perf issue with hotspots",
+                "description": "This change mainly switches from using getVerticesData to getVertexBuffer+EnumerateFloatData to drastically reduce the cost of querying hotspots (about a 266x improvement from my measurements). The issue with getVerticesData is that it makes copies of large buffers, and we were doing this three times per hotspot (one for each point of the triangle). On the other hand, getVertexBuffer just accesses the existing buffer without copying, and EnumerateFloatData basically gives us an easy way to index into that buffer to get just the data subset corresponding to a single element.\r\n\r\nSo previously it only took about 15 hotspots to use up the entire 16ms frame time on my desktop machine. With the new approach, it takes about 60 microseconds to query 15 hotspots. If needed, we could possibly further improve this in the future by adding caching, but if this is fast enough then it is also more robust since it would work correctly when the hotspot definition changes (e.g. indices for the position buffer) or the position buffers themselves.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/core/src/Meshes/abstractMesh.hotSpot.ts",
+                    "packages/dev/core/src/Meshes/abstractMesh.ts",
+                    "packages/dev/core/src/Meshes/instancedMesh.ts",
+                    "packages/dev/core/src/Meshes/mesh.ts",
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/KHR_materials_variants.ts"
+                ],
+                "tags": [
+                    "viewer"
+                ]
+            },
+            {
+                "pr": "17074",
+                "title": "add enginefactory option type",
+                "description": "I needed to search for the type and then had a typo so i thought why not add the types for lsp validation and auto complete.\r\n",
+                "author": {
+                    "name": "ThalerMatthias",
+                    "url": "https://github.com/ThalerMatthias"
+                },
+                "files": [
+                    "packages/dev/core/src/Engines/engineFactory.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17073",
+                "title": "Pass through eventState with eventData",
+                "description": "My last PR (https://github.com/BabylonJS/Babylon.js/pull/17055) passed through the `eventData`, but I forgot about the `eventState`. This PR unpacks the `eventState` when notifying gizmo drag observers, along with the `eventData`.",
+                "author": {
+                    "name": "amirt-ms",
+                    "url": "https://github.com/amirt-ms"
+                },
+                "files": [
+                    "packages/dev/core/src/Gizmos/positionGizmo.ts",
+                    "packages/dev/core/src/Gizmos/rotationGizmo.ts",
+                    "packages/dev/core/src/Gizmos/scaleGizmo.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17072",
+                "title": "glTF Exporter: Touch up image cache checks",
+                "description": "Some brush up here for Native.\r\n- Ensure HTMLImageElement exists before check\r\n- Reorganize check order; URL and ArrayBufferViews are probably the most common cases",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/serializers/src/glTF/2.0/glTFMaterialExporter.ts"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            }
+        ],
+        "8.24.1": [
+            {
+                "pr": "17071",
+                "title": "Fixing test positioning Y issue",
+                "description": "Text was positioned incorrectly because the Y=0 of the text is at the baseline of the text (at the bottom), and then it goes upwards. This is different from other shapes like vector paths or rectangles.\r\n\r\nConfirmed the behavior with After Effects:\r\n\r\n<img width=\"3810\" height=\"2034\" alt=\"image\" src=\"https://github.com/user-attachments/assets/36c73ca5-c441-4e40-b257-c1128148dac7\" />\r\n\r\nAlso removing the flag to ignore transparency animations as transparency needs to be calculated even without animations (as layers visibility affects transparency).",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/lottiePlayer/src/animationConfiguration.ts",
+                    "packages/dev/lottiePlayer/src/nodes/controlNode.ts",
+                    "packages/dev/lottiePlayer/src/nodes/node.ts",
+                    "packages/dev/lottiePlayer/src/nodes/spriteNode.ts",
+                    "packages/dev/lottiePlayer/src/parsing/parser.ts",
+                    "packages/tools/devHost/src/lottie/main.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17069",
+                "title": "Bounding Box: Fix bounding boxes not visible when rtt is pushed in camera.customRenderTarget",
+                "description": "See https://forum.babylonjs.com/t/bounding-box-bug-in-8-22-3/60227/14",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/Textures/renderTargetTexture.ts",
+                    "packages/dev/core/src/Rendering/objectRenderer.ts",
+                    "packages/dev/core/src/scene.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "rendering engine"
+                ]
+            },
+            {
+                "pr": "17070",
+                "title": "Devhost improvements",
+                "description": "This PR refactors the devhost so it can be used as the dev inner loop for experiences that contain Babylon, like the lottie-player where Babylon is hidden to the user. Scenarios that are using Babylon directly should prefer to use the Playground, although devhost can be used for ES6 scenarios testing as no side effects are loaded in the devhost by default.\r\n\r\nThe devhost is controlled now by using QSPs.\r\n\r\n**exp=lottie**\r\n<img width=\"2590\" height=\"1354\" alt=\"image\" src=\"https://github.com/user-attachments/assets/267c72ef-fcad-4dec-86a2-49fd70b51f68\" />\r\n<img width=\"2602\" height=\"1360\" alt=\"image\" src=\"https://github.com/user-attachments/assets/51a1e810-9be1-4fcb-b82f-ce2dd42e3554\" />\r\n\r\n**exp=testScene** (default if no QSP)\r\n<img width=\"2386\" height=\"1358\" alt=\"image\" src=\"https://github.com/user-attachments/assets/2cc3d514-9b8a-4d39-a771-b02732540bf7\" />\r\n<img width=\"2414\" height=\"1352\" alt=\"image\" src=\"https://github.com/user-attachments/assets/9dbab726-556e-49cb-8516-a2d2fb54169d\" />",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "package-lock.json",
+                    "packages/dev/lottiePlayer/src/player.ts",
+                    "packages/dev/lottiePlayer/src/worker.ts",
+                    "packages/tools/devHost/package.json",
+                    "packages/tools/devHost/public/index.html",
+                    "packages/tools/devHost/readme.md",
+                    "packages/tools/devHost/src/createScene.ts",
+                    "packages/tools/devHost/src/createSceneJS.js",
+                    "packages/tools/devHost/src/engine.ts",
+                    "packages/tools/devHost/src/index.ts",
+                    "packages/tools/devHost/src/lottie/main.ts",
+                    "packages/tools/devHost/src/testScene/createScene.ts",
+                    "packages/tools/devHost/src/testScene/createSceneJS.js",
+                    "packages/tools/devHost/src/testScene/main.ts",
+                    "packages/tools/devHost/tsconfig.build.json",
+                    "packages/tools/devHost/webpack.config.js",
+                    "tsconfig.json"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17068",
+                "title": "Fix light reset when reducing maxSimultaneousLights value",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/materialHelper.functions.ts"
+                ],
+                "tags": [
+                    "bug"
+                ]
+            },
+            {
+                "pr": "17067",
+                "title": "Fix comment for RotationYawPitchRoll",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Maths/math.vector.ts"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "17055",
+                "title": "Pass through gizmo drag observer messages",
+                "description": "I was recently working on a feature that utilized the PositionGizmo, adjusting its behavior based on whether the shift key was pressed. I was surprised to find that the pointer info wasn't available at the PositionGizmo level because the notification packet from the PointerDragBehavior isn't being passed through. This seems to have been done intentionally, though I'm not sure why.\r\n\r\nThis PR proposes that the notification packets for the specialized gizmo PointerDragBehavior be passed through their onDragObservables. This implementation keeps the Observer type dynamic to ease future development.\r\n\r\nIf the current behavior was intentional, I'm curious to know why.",
+                "author": {
+                    "name": "amirt-ms",
+                    "url": "https://github.com/amirt-ms"
+                },
+                "files": [
+                    "packages/dev/core/src/Behaviors/Meshes/index.ts",
+                    "packages/dev/core/src/Behaviors/Meshes/pointerDragBehavior.ts",
+                    "packages/dev/core/src/Behaviors/Meshes/pointerDragEvents.ts",
+                    "packages/dev/core/src/Gizmos/positionGizmo.ts",
+                    "packages/dev/core/src/Gizmos/rotationGizmo.ts",
+                    "packages/dev/core/src/Gizmos/scaleGizmo.ts",
+                    "packages/dev/inspector/src/components/sceneExplorer/entities/sceneTreeItemComponent.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17064",
+                "title": "WebGPU: fix fast snapshot rendering mode + add support for it to frame graphs",
+                "description": null,
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Engines/Extensions/engine.multiview.ts",
+                    "packages/dev/core/src/Engines/webgpuEngine.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Layers/baseLayerTask.ts",
+                    "packages/dev/core/src/Lights/Shadows/cascadedShadowGenerator.ts",
+                    "packages/dev/core/src/Lights/Shadows/shadowGenerator.ts",
+                    "packages/dev/core/src/Materials/uniformBuffer.ts",
+                    "packages/dev/core/src/Misc/snapshotRenderingHelper.ts",
+                    "packages/dev/core/src/Rendering/objectRenderer.ts",
+                    "packages/dev/core/src/scene.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "WebGPU",
+                    "frame graph"
+                ]
+            },
+            {
+                "pr": "17066",
+                "title": "Quaternion docs: Update PG link",
+                "description": "`position` vectors are now shared internally since early 7.0, so the PG was broken.",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/core/src/Maths/math.vector.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17061",
+                "title": "KTX2Decoder: Use user options over defaults",
+                "description": null,
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/tools/ktx2Decoder/src/ktx2Decoder.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17065",
+                "title": "KTX2Decoder: Use user options over defaults",
+                "description": "This reverts #17061.\r\n\r\nWill follow-up later, but essentially, the defaults are currently intended to take precedence over options.",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/tools/ktx2Decoder/src/ktx2Decoder.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17063",
+                "title": "Fix several UI issues + move colorDead to particle instead of system",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/Emitters/createParticleBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/Emitters/meshShapeBlock.ts",
+                    "packages/dev/core/src/Particles/Node/nodeParticleBuildState.ts",
+                    "packages/dev/core/src/Particles/particle.ts",
+                    "packages/dev/core/src/Particles/thinParticleSystem.function.ts",
+                    "packages/dev/core/src/Particles/thinParticleSystem.ts",
+                    "packages/tools/nodeParticleEditor/src/graphSystem/properties/genericNodePropertyComponent.tsx",
+                    "packages/tools/nodeParticleEditor/src/graphSystem/properties/nodePortPropertyComponent.tsx",
+                    "packages/tools/nodeParticleEditor/src/graphSystem/registerNodePortDesign.ts"
+                ],
+                "tags": [
+                    "skip changelog",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17059",
+                "title": "Moving lottie code to its own package and new features",
+                "description": "The lottie player makes more sense as its own package babylon/lottie-player than inside of babylon/addons.\r\n- It's not emitting UMD, only ES6.\r\n- It has side effects, which would cause the addons package to be bigger even if someone was not using the lottie functionalities.\r\n- It is more of an experience that uses the engine than adding new engine capabilities.\r\n\r\nApart from moving the code, this PR adds support for several lottie features:\r\n- Support for randomly ordered layers in the original file\r\n- Nested groups\r\n- Text support\r\n- Stroke fill support\r\n- Player that uses the main js thread for when workers are not supported or possible\r\n- Resizing animations during playback\r\n\r\n**This feature is still in an experimental phase.**",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "package-lock.json",
+                    "package.json",
+                    "packages/dev/addons/src/lottie/index.ts",
+                    "packages/dev/addons/src/lottie/lottie/animationParser.ts",
+                    "packages/dev/addons/src/lottie/lottiePlayer.ts",
+                    "packages/dev/addons/src/lottie/readme.md",
+                    "packages/dev/addons/src/lottie/sprites/spritePacker.ts",
+                    "packages/dev/addons/src/lottie/worker.ts",
+                    "packages/dev/lottiePlayer/license.md",
+                    "packages/dev/lottiePlayer/package.json",
+                    "packages/dev/lottiePlayer/readme.md",
+                    "packages/dev/lottiePlayer/src/animationConfiguration.ts",
+                    "packages/dev/lottiePlayer/src/index.ts",
+                    "packages/dev/lottiePlayer/src/localPlayer.ts",
+                    "packages/dev/lottiePlayer/src/maths/bezier.ts",
+                    "packages/dev/lottiePlayer/src/maths/boundingBox.ts",
+                    "packages/dev/lottiePlayer/src/maths/matrix.ts",
+                    "packages/dev/lottiePlayer/src/messageTypes.ts",
+                    "packages/dev/lottiePlayer/src/nodes/controlNode.ts",
+                    "packages/dev/lottiePlayer/src/nodes/node.ts",
+                    "packages/dev/lottiePlayer/src/nodes/spriteNode.ts",
+                    "packages/dev/lottiePlayer/src/parsing/parsedTypes.ts",
+                    "packages/dev/lottiePlayer/src/parsing/parser.ts",
+                    "packages/dev/lottiePlayer/src/parsing/rawTypes.ts",
+                    "packages/dev/lottiePlayer/src/parsing/spritePacker.ts",
+                    "packages/dev/lottiePlayer/src/player.ts",
+                    "packages/dev/lottiePlayer/src/rendering/animationController.ts",
+                    "packages/dev/lottiePlayer/src/rendering/renderingManager.ts",
+                    "packages/dev/lottiePlayer/src/worker.ts",
+                    "packages/dev/lottiePlayer/tsconfig.build.json",
+                    "packages/dev/lottiePlayer/tsconfig.json",
+                    "packages/public/@babylonjs/lottiePlayer/license.md",
+                    "packages/public/@babylonjs/lottiePlayer/package.json",
+                    "packages/public/@babylonjs/lottiePlayer/readme.md",
+                    "packages/public/@babylonjs/lottiePlayer/tsconfig.build.json"
+                ],
+                "tags": [
+                    "enhancement"
+                ]
+            },
+            {
+                "pr": "17062",
+                "title": "Visual Tests: Await viewport resize",
+                "description": "Else test can run before this finishes.",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/tools/tests/test/playwright/visualizationPlaywright.utils.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17061",
+                "title": "KTX2Decoder: Use user options over defaults",
+                "description": null,
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/tools/ktx2Decoder/src/ktx2Decoder.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17060",
+                "title": "FrameGraph: improves support for the statistics pane in the inspector + add support for \"Screenshots\" and \"Capture equirectangular\"",
+                "description": "It also corrects certain statistics:\r\n* the rendering time for particle systems did not take into account particle systems rendered by object renderers\r\n* the number of active meshes did not take into account active meshes in object renderers\r\n* The “Render” statistics did not take into account rendering performed by object renderers\r\n\r\nNote that rendering times for render targets are now performed at the object renderer level, in order to work with frame graphs.",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Instrumentation/sceneInstrumentation.ts",
+                    "packages/dev/core/src/Misc/screenshotTools.ts",
+                    "packages/dev/core/src/Rendering/objectRenderer.ts",
+                    "packages/dev/core/src/scene.ts",
+                    "packages/dev/inspector-v2/src/components/stats/countStats.tsx",
+                    "packages/dev/inspector-v2/src/components/tools/captureTools.tsx",
+                    "packages/dev/inspector/src/components/actionTabs/tabs/statisticsTabComponent.tsx",
+                    "packages/dev/inspector/src/components/actionTabs/tabs/toolsTabComponent.tsx"
+                ],
+                "tags": [
+                    "enhancement",
+                    "inspector",
+                    "frame graph"
+                ]
+            },
+            {
+                "pr": "17058",
+                "title": "Inspector v2: Picking toolbar",
+                "description": "This PR adds a picking button to the toolbar for picking objects from the scene.\r\n\r\n<img width=\"406\" height=\"189\" alt=\"image\" src=\"https://github.com/user-attachments/assets/324bdb17-6340-410e-9ebc-d2eedc73c2ea\" />\r\n\r\nThe picking logic is similar to inspector v1, but fixes a handful of bugs as well.\r\n- Picking gizmos doesn't work in v1, at least not in any way I expect it to as a user or looking at the existing code. It works in v2.\r\n- Picking meshes with morph target or skeletal animations does not work in v1. It works in v2.\r\n\r\nThe picking logic also uses the \"Ignore Backfaces for Picking\" setting that @deltakosh already added to the settings pane.\r\n\r\n<img width=\"396\" height=\"161\" alt=\"image\" src=\"https://github.com/user-attachments/assets/ffbd1542-1099-4705-8734-1fdf64b20957\" />\r\n\r\nOther changes:\r\n- Fixed a bug that was [introduced 5 years ago](https://github.com/BabylonJS/Babylon.js/pull/8853/files) where the `isHovered` state on a gizmo is only updated on pointer click, not on pointer move, which means if you click on it, it just stays in the \"hovered\" state indefinitely.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/core/src/Gizmos/cameraGizmo.ts",
+                    "packages/dev/core/src/Gizmos/lightGizmo.ts",
+                    "packages/dev/inspector-v2/src/components/pickingToolbar.tsx",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/services/gizmoService.ts",
+                    "packages/dev/inspector-v2/src/services/pickingService.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "17048",
+                "title": "Clustered lighting depth clustering",
+                "description": "This is the depth clustering aspect of the clustered lighting implementation",
+                "author": {
+                    "name": "matanui159",
+                    "url": "https://github.com/matanui159"
+                },
+                "files": [
+                    "packages/dev/core/src/Lights/Clustered/clusteredLightContainer.ts",
+                    "packages/dev/core/src/Lights/light.ts",
+                    "packages/dev/core/src/Materials/PBR/pbrBaseMaterial.ts",
+                    "packages/dev/core/src/Materials/materialHelper.functions.ts",
+                    "packages/dev/core/src/Materials/standardMaterial.ts",
+                    "packages/dev/core/src/Materials/uniformBuffer.ts",
+                    "packages/dev/core/src/Shaders/ShadersInclude/clusteredLightingFunctions.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/helperFunctions.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/lightFragment.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/lightFragmentDeclaration.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/lightUboDeclaration.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/lightVxUboDeclaration.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/lightsFragmentFunctions.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/pbrClusteredLightingFunctions.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/pbrFragmentExtraDeclaration.fx",
+                    "packages/dev/core/src/Shaders/default.fragment.fx",
+                    "packages/dev/core/src/Shaders/default.vertex.fx",
+                    "packages/dev/core/src/Shaders/pbr.vertex.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/clusteredLightingFunctions.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/lightFragment.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/lightUboDeclaration.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/lightVxUboDeclaration.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/lightsFragmentFunctions.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/pbrDirectLightingFunctions.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/pbrFragmentExtraDeclaration.fx",
+                    "packages/dev/core/src/ShadersWGSL/default.fragment.fx",
+                    "packages/dev/core/src/ShadersWGSL/default.vertex.fx",
+                    "packages/dev/core/src/ShadersWGSL/pbr.vertex.fx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17052",
+                "title": "Inspector v2: Gizmo toolbar",
+                "description": "This PR adds a gizmo toolbar at the top of the left pane.\r\n\r\n<img width=\"441\" height=\"232\" alt=\"image\" src=\"https://github.com/user-attachments/assets/eba74d2e-1bc8-4e1e-84cb-d28dc015929a\" />\r\n\r\n<img width=\"663\" height=\"312\" alt=\"image\" src=\"https://github.com/user-attachments/assets/3b08eac3-a8cd-4f17-9811-daa3ae91eabd\" />\r\n\r\n- These buttons are in the main toolbar, not attached to the scene node in scene explorer or even the scene explorer pane itself. Talked with @PatrickRyanMS about this before implementing it this way.\r\n- The button to switch between local and world coordinate mode on the gizmos only shows when a gizmo is enabled.\r\n- I factored out some existing code from nodeExplorerService that manages light and camera gizmos as well as a shared utility layer. These are ref counted to make the behavior sane when toggling transform gizmos (toolbar) and visualization gizmos (scene explorer tree item commands).",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/gizmoToolbar.tsx",
+                    "packages/dev/inspector-v2/src/components/scene/sceneExplorer.tsx",
+                    "packages/dev/inspector-v2/src/hooks/compoundPropertyHooks.ts",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/services/creationToolsService.tsx",
+                    "packages/dev/inspector-v2/src/services/gizmoService.ts",
+                    "packages/dev/inspector-v2/src/services/gizmoToolbarService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/nodeExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/shellService.tsx",
+                    "packages/dev/inspector-v2/src/services/themeSelectorService.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/collapse.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/toggleButton.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "17057",
+                "title": "Htmlmesh",
+                "description": "Added a property to control  the global scale factor applied to the homogeneous `w` component (m[15]) of the ttransformation matrix when projecting 3D objects into pixel space.",
+                "author": {
+                    "name": "RolandCsibrei",
+                    "url": "https://github.com/RolandCsibrei"
+                },
+                "files": [
+                    "packages/dev/addons/src/htmlMesh/htmlMeshRenderer.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17054",
+                "title": "NRGE: Fix error in console at load time (WebGPU)",
+                "description": "Fixes https://github.com/BabylonJS/ThePirateCove/issues/1280\r\n",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/tools/nodeRenderGraphEditor/src/components/preview/previewManager.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "WebGPU",
+                    "nrge"
+                ]
+            },
+            {
+                "pr": "17053",
+                "title": "Rendering Engine: Fix blending when blending parameters per target are not supported",
+                "description": "See https://forum.babylonjs.com/t/possible-incompatibility-between-order-independent-transparency-and-transparent-gridmaterial/60163/12",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Engines/abstractEngine.ts",
+                    "packages/dev/core/src/Engines/thinEngine.ts",
+                    "packages/dev/core/src/Engines/webgpuEngine.ts",
+                    "packages/dev/core/src/States/alphaCullingState.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "rendering engine"
+                ]
+            },
+            {
+                "pr": "17051",
+                "title": "glTF Exporter: Add KTX2, WEBP, and AVIF glTF extensions",
+                "description": "Since it's now technically possible to export .ktx2, .avif, and .webp, this PR brings the rest of the exporter up-to-speed by filling out each image's corresponding glTF extensions and other interfaces.\r\n\r\n<details>\r\n<summary>Side note</summary>\r\nI'd factor the extensions out into common parts, but let's wait to see how some of their full implementations, like ktx2, pan out. \r\n</details>",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/core/src/Misc/fileTools.ts",
+                    "packages/dev/serializers/src/glTF/2.0/Extensions/EXT_texture_avif.ts",
+                    "packages/dev/serializers/src/glTF/2.0/Extensions/EXT_texture_webp.ts",
+                    "packages/dev/serializers/src/glTF/2.0/Extensions/KHR_texture_basisu.ts",
+                    "packages/dev/serializers/src/glTF/2.0/Extensions/index.ts",
+                    "packages/dev/serializers/src/glTF/2.0/glTFMaterialExporter.ts",
+                    "packages/dev/serializers/test/integration/glTFSerializer.test.ts",
+                    "packages/public/glTF2Interface/babylon.glTF2Interface.d.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17050",
+                "title": "Add support for more features in the particules to NPE converter",
+                "description": "Also allows NPE to resync existing particles systems",
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/systemBlock.ts",
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.helper.ts",
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.ts",
+                    "packages/dev/core/src/Particles/particleSystem.ts",
+                    "packages/tools/nodeParticleEditor/src/components/preview/previewManager.ts"
+                ],
+                "tags": [
+                    "skip changelog",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17041",
+                "title": "Inspector v2: Rework BoundProperty to have no conditional hooks",
+                "description": "This changes BoundProperty to remove the conditional hooks (see https://react.dev/reference/rules/rules-of-hooks). The strategy here is to first do a useProperty in the \"outer\" component so we can observe the value of that property to determine if we really ideally should be using a more specific property hook that watches nested properties like x/y/z of a Vector3 for example. The desired hook is then used as the dependency for a useMemo that creates and returns an \"inner\" component that uses the desired hook. This eliminates conditional hooks.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/boundProperty.tsx",
+                    "packages/dev/inspector-v2/src/hooks/compoundPropertyHooks.ts"
+                ],
+                "tags": [
+                    "inspector",
+                    "skip changelog"
+                ]
+            }
+        ],
+        "8.24.0": [
+            {
+                "pr": "17047",
+                "title": "Add support for initial color range for NPE converter",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.helper.ts"
+                ],
+                "tags": [
+                    "skip changelog",
+                    "npe"
+                ]
+            }
+        ],
+        "8.23.2": [
+            {
+                "pr": "17046",
+                "title": "Instanced meshes: Fix disabled instances not removed from display",
+                "description": "See https://forum.babylonjs.com/t/disposing-instance-with-vat-v8-16-0/60154",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Meshes/mesh.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "rendering engine"
+                ]
+            },
+            {
+                "pr": "17045",
+                "title": "Add Lazy helper class and use it for dynamic imports",
+                "description": "This is a follow up from https://github.com/BabylonJS/Babylon.js/pull/17043. It adds a generic `Lazy<T>` helper class, and then I use it in gltfLoader. There are a couple nice things about this pattern:\r\n\r\n1. It keeps the import paths all in one place at the top of the file, rather than sprinkled throughout the file, which makes it easier to understand dependencies quickly.\r\n2. It reduces the amount of code and makes it trivial to use this pattern anywhere we have dynamic imports in high traffic critical parts of the code.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/core/src/Misc/index.ts",
+                    "packages/dev/core/src/Misc/lazy.ts",
+                    "packages/dev/loaders/src/glTF/2.0/glTFLoader.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17044",
+                "title": "glTF Exporter: Use stored image data of Textures",
+                "description": "This PR introduces an optimization to the glTF exporter. When possible, the exporter will now leverage the original URL or `_buffer` of a `Texture` instead of re-encoding the image data. This can lead to smaller export size, faster export times, and less loss on roundtrips, especially when the original image format was already compressed.\r\n\r\nThis optimization is applied if the following conditions are met:\r\n\r\n- The texture's source is URL-based. We assume that if a texture was loaded from a URL, its pixel data has not been modified.\r\n- The `engine.doNotHandleContextLost` setting is `false` (or, if `true`, that `Texture.url` is able to be used alone.)\r\n- The texture was not inverted on the Y-axis during import.\r\n\r\nIf these conditions are not met, the exporter will fall back to the previous behavior of reading the pixels from the GPU and re-encoding them based on `Texture.mimeType`.\r\n\r\n<details>\r\n<summary>\r\nA Note on Texture.mimeType...\r\n</summary>\r\n\r\nThere is some ambiguity surrounding the `Texture.mimeType` property. It has sometimes been used to influence the glTF export type, for example, to preserve an original image's MIME type when it was not implicitly known. While this is useful, it also had the side effect of allowing users to re-encode textures on export by setting a different `mimeType` (e.g., from \"image/png\" to \"image/webp\").\r\n\r\nThis optimization may break this usage. Going forward, `Texture.mimeType` should be considered a hint about the underlying data's format, not a directive to encode to a new format. A separate, more explicit mechanism for format conversion should be introduced in the future.\r\n</details>",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/core/src/Misc/fileTools.ts",
+                    "packages/dev/serializers/src/glTF/2.0/glTFMaterialExporter.ts",
+                    "packages/tools/tests/test/visualization/ReferenceImages/glTFSerializerTextureExport.png",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "16866",
+                "title": "Initial clustered lights implementation (tiled clustering only)",
+                "description": "# Remaining issues\r\n- causes issues with the default physical material falloff. was considering preventing this in the shader but decided to leave it so that if a user wants to use physical falloff they still can as long as the adjust the light ranges accordingly (and the default light range is absolutely large enough for physical falloff)\r\n- there's no depth clipping (to prevent lights disappearing when too close or too far from the camera). this does also mean lights behind the camera will be marked as \"contributing\" to pixels in front of the camera (their light meshes get flipped). couldn't find an easy and clean solution to only prevent clipping if the light is within range and once depth clustering is implemented it will fix this issue (since any lights behind the camera won't end up in any depth slice)\r\n\r\n# Implementation Details\r\nWhen this work is more complete ill move all this over to the official docs, but for now just using this PR as a rough set of notes/thoughts/todos\r\n\r\nThe implementation is mainly inspired by these CoD slides: https://advances.realtimerendering.com/s2017/2017_Sig_Improved_Culling_final.pdf\r\n\r\nThe main idea is to split the clustering into separate X/Y \"tiled\" clustering AND a Z \"depth\" clustering, and then checking if the lights is in both the tile and the depth slice.\r\n\r\n## Tiled Clustering\r\nThis uses the rendering pipeline to draw meshes for each light and writes bits out to a light mask texture if there are pixels infront of the depth buffer (effectively finding lights that intersect the depth buffer).\r\n\r\nThe render target with the light mask texture and depth buffer has a resolution equal to the amount of tiles.\r\n\r\n### Depth pre-pass (removed)\r\nAll the scene geometry is rendered to a low resolution render target. Currently this is repeated per `ClusteredLight`, in future these depth texture might be able to get shared\r\n\r\n### Stencil Pass (removed)\r\nDraws all the light geometry with depthFunction=GREATER and sets stencil bits to 1.\r\n\r\nThis is combined with the next pass to only mark pixels that contain light geometry both behind AND infront of the depth buffer.\r\n\r\nHowever this ended up causing issues due to the low-resolution aliased depth buffer where stencil bits weren't set for the edges of meshes.\r\n![image](https://github.com/user-attachments/assets/66310a5d-8da1-4fb1-be6b-faae7f7fa8cb)\r\n\r\nIn future we could maybe get around this by doing a post-process pass over the depth pre-pass to expand the max depth values out by one tile. Although for now this just adds extra complexity and we probably don't really need this pass.\r\n\r\n### Light Mask Pass\r\nEach light mesh is drawn with a different index and any fragment pixels which pass the depth test (meaning the light is in front of the depth pre-pass) will set its bit in the light mask texture with an atomic OR.\r\n\r\nAtleast thats the plan on WebGPU which isn't implemented yet. WebGL doesn't have support for storage textures or atomic operations, so we instead use a float buffer with additive blending.\r\n\r\nTo prevent accuracy issues with floating point values we ensure the mask doesn't go above the bits in the floating-point fraction, which limits us to 23 lights per clusteredlight on most systems.\r\n\r\n### Lighting pass\r\nThis light mask is then queried bit-by-bit in the lighting calculation to figure out which lights are in that \"tile\"\r\n\r\n### Light Meshes\r\nAll the light meshes are just spheres. To reduce the pixels set for spotlights they are modified in the vertex shader so positions on the sphere that are outside the spotlight angle are set to 0,0,0. This causes the sphere to end up having a more cone shape\r\n\r\n## Depth Clustering\r\nTODO. not currently implemented. will be implemented in a different PR\r\n\r\nCoD seems to do this in CPU which makes sense since its only a min/max index per slice so can be cheaply calculated and uploaded.\r\n\r\n## Not Implemented / Broken\r\n- [x] PBR materials\r\n- [x] I have code for point lights but its untested. I feel like they likely won't work rn\r\n- [x] moving the camera too close or too far from the lights make them disappear\r\n  - this is an issue with the camera intersecting with the light geometry, on WebGPU this can be fixed by disabling back-face culling but on WebGL this will cause more issues due to its additive blending\r\n  - on WebGL we could test if the light mesh intersects with the camera and draw back faces instead\r\n- [x] spot lights that point in any other direction but down\r\n  - to make the light mesh vertex shader simpler we assume a direction of down. this will have to get changed or (better) we just rotate the world matrix by the light direction\r\n- [x] lights with a default range. trying to scale the light geometry by `Number.MAX_VALUE` seems to break it\r\n  - maybe we should clamp it?\r\n- [x] WebGPU support\r\n- [x] Using instancing for the light meshes\r\n- [x] make the amount of tiles configurable\r\n  - I don't know if this should be an options to specify the number of tiles or to specify the size of each tile\r\n- [ ] figure out what to do for `transferToNodeMaterialEffect`\r\n\r\nI don't plan to support these kinda lights:\r\n- anything that requires textures like IES textures or shadowed lights\r\n- anything other than point/spot lights\r\n- lights using anything other than the default falloff\r\n",
+                "author": {
+                    "name": "matanui159",
+                    "url": "https://github.com/matanui159"
+                },
+                "files": [
+                    "packages/dev/core/src/Buffers/storageBuffer.ts",
+                    "packages/dev/core/src/Engines/engineCapabilities.ts",
+                    "packages/dev/core/src/Engines/nativeEngine.ts",
+                    "packages/dev/core/src/Engines/nullEngine.ts",
+                    "packages/dev/core/src/Engines/thinEngine.ts",
+                    "packages/dev/core/src/Engines/webgpuEngine.ts",
+                    "packages/dev/core/src/Lights/Clustered/clusteredLightContainer.ts",
+                    "packages/dev/core/src/Lights/Clustered/clusteredLightingSceneComponent.ts",
+                    "packages/dev/core/src/Lights/Clustered/index.ts",
+                    "packages/dev/core/src/Lights/index.ts",
+                    "packages/dev/core/src/Lights/light.ts",
+                    "packages/dev/core/src/Lights/lightConstants.ts",
+                    "packages/dev/core/src/Lights/spotLight.ts",
+                    "packages/dev/core/src/Materials/PBR/pbrBaseMaterial.ts",
+                    "packages/dev/core/src/Materials/materialHelper.functions.ts",
+                    "packages/dev/core/src/Materials/standardMaterial.ts",
+                    "packages/dev/core/src/Materials/uniformBuffer.ts",
+                    "packages/dev/core/src/Shaders/ShadersInclude/clusteredLightingFunctions.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/helperFunctions.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/lightFragment.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/lightFragmentDeclaration.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/lightUboDeclaration.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/lightVxUboDeclaration.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/lightsFragmentFunctions.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/pbrClusteredLightingFunctions.fx",
+                    "packages/dev/core/src/Shaders/lightProxy.fragment.fx",
+                    "packages/dev/core/src/Shaders/lightProxy.vertex.fx",
+                    "packages/dev/core/src/Shaders/pbr.fragment.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/clusteredLightingFunctions.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/lightFragment.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/lightUboDeclaration.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/lightVxUboDeclaration.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/lightsFragmentFunctions.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/pbrDirectLightingFunctions.fx",
+                    "packages/dev/core/src/ShadersWGSL/lightProxy.fragment.fx",
+                    "packages/dev/core/src/ShadersWGSL/lightProxy.vertex.fx",
+                    "packages/dev/core/src/sceneComponent.ts",
+                    "packages/tools/tests/test/visualization/ReferenceImages/sponza-clustered-lighting-viewports.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/sponza-clustered-lighting.png",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17043",
+                "title": "Optimize glTF animation loading",
+                "description": "This is a first pass at some low hanging fruit for optimizing glTF animation loading perf. These changes together reduce animation loading time by about 33% (in my test model with what turns into ~90 Babylon animation groups, total time to load animations went from 270ms to 180ms). The main changes are:\r\n\r\n- Reduce some unnecessary asynchrony (e.g. `return away Promise.resolve()`)\r\n- Remove `async` from a function that then no longer needed it (which also improves perf)\r\n- Cache the promises returned from dynamic imports\r\n\r\nThe rest of the changes are adding some additional perf markers in the glTF loader around animations, and adding a couple extra glTF loader options about enabling perf logging and performing glTF validation. The changes look bigger than they are because this PR started from a branch from @bghgary where he re-ordered options to be alphabetical. :)",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/loaders/src/glTF/2.0/glTFLoader.ts",
+                    "packages/dev/loaders/src/glTF/glTFFileLoader.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17026",
+                "title": "fix(viewer): adjust IBL direction with useRightHandedSystem",
+                "description": "The viewer's IBL shadow-map direction was not properly adjusted when `useRightHandedSystem` is set to `true`. \r\nI added coordinate system handedness compensation in the `refreshLightPositionDirection`.",
+                "author": {
+                    "name": "cournoll",
+                    "url": "https://github.com/cournoll"
+                },
+                "files": [
+                    "packages/tools/viewer/src/viewer.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17042",
+                "title": "Adding support for texture and color update in NPE converter",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/buildTools/src/webpackTools.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/Emitters/createParticleBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/Emitters/meshShapeBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/Update/basicColorUpdateBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/index.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/particleInputBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/particleSourceTextureBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Enums/nodeParticleContextualSources.ts",
+                    "packages/dev/core/src/Particles/Node/nodeParticleBuildState.ts",
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.helper.ts",
+                    "packages/dev/core/src/Particles/particle.ts",
+                    "packages/dev/inspector/src/components/actionTabs/tabs/propertyGrids/particleSystems/particleSystemPropertyGridComponent.tsx",
+                    "packages/tools/nodeParticleEditor/src/blockTools.ts",
+                    "packages/tools/nodeParticleEditor/src/components/nodeList/nodeListComponent.tsx",
+                    "packages/tools/nodeParticleEditor/src/graphSystem/display/inputDisplayManager.ts",
+                    "packages/tools/nodeParticleEditor/src/graphSystem/properties/inputNodePropertyComponent.tsx",
+                    "packages/tools/nodeParticleEditor/src/graphSystem/registerToDisplayLedger.ts"
+                ],
+                "tags": [
+                    "skip changelog",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17039",
+                "title": "Update manifold version to 3.2.1",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Meshes/csg2.ts"
+                ],
+                "tags": [
+                    "new feature"
+                ]
+            },
+            {
+                "pr": "17040",
+                "title": "FrameGraph: adds support for frozen meshes + allows no output color texture for the geometry buffer renderer task",
+                "description": "This PR adds support for frozen meshes to frame graphs.\r\n\r\nNote that we have a bug when using multiple active cameras in a scene with meshes + instances. If we freeze the scene, only some instances (those that were culled and displayed by the last camera in the list) are displayed, due to the way we currently handle frozen meshes (we have a single `scene._activeMeshes` list, which is populated by a call to `_evaluateActiveMeshes` when `freezeActiveMeshes` is called). I'm not sure how to fix this bug in the current code, but the frame graph version of the same example works correctly because it uses object renderers to render meshes:\r\n* without frame graph: https://playground.babylonjs.com/#9SDNZF#30\r\n* with frame graph: https://playground.babylonjs.com/#9SDNZF#29\r\n\r\nThe meshes are frozen after two seconds. In the first PG, some instances disappear along with the plane because they are displayed by the first camera. Note that you must wait for the PR to be merged to test the second PG, because otherwise the meshes will not be frozen even after calling `scene.freezeActiveMeshes()`!\r\n\r\nIn addition, the PR allows you to not define any output color textures for the geometry buffer renderer. This allows you to generate only a depth render of the scene and reuse the depth buffer when rendering the scene later in the graph.",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Engines/Extensions/engine.multiRender.ts",
+                    "packages/dev/core/src/Engines/WebGPU/Extensions/engine.multiRender.ts",
+                    "packages/dev/core/src/Engines/WebGPU/webgpuDrawContext.ts",
+                    "packages/dev/core/src/Engines/webgpuEngine.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Rendering/baseObjectRendererBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Rendering/geometryRendererBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/nodeRenderGraph.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Layers/baseLayerTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Misc/cullObjectsTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/geometryRendererTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/objectRendererTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Texture/clearTextureTask.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraph.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphRenderTarget.ts",
+                    "packages/dev/core/src/Meshes/abstractMesh.ts",
+                    "packages/dev/core/src/Rendering/objectRenderer.ts",
+                    "packages/dev/core/src/Shaders/ShadersInclude/pbrBlockPrePass.fx",
+                    "packages/dev/core/src/Shaders/default.fragment.fx",
+                    "packages/dev/core/src/Shaders/pbr.fragment.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/pbrBlockPrePass.fx",
+                    "packages/dev/core/src/ShadersWGSL/default.fragment.fx",
+                    "packages/dev/core/src/scene.ts",
+                    "packages/tools/tests/test/visualization/ReferenceImages/FrameGraph-nrge-frozen-meshes.png",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": [
+                    "new feature",
+                    "frame graph"
+                ]
+            },
+            {
+                "pr": "16998",
+                "title": "Fix bugs in number/text input; Add input validation UX; Refactor colorPicker to use new components",
+                "description": "- Separate out the input.tsx component into spinButton.tsx and textInput.tsx since spinButton is more appropriate for handling numerical values\r\n- Introduce forceInt param to NumerInputPropertyLine \r\n- Both spinButton and textInput now have input validation UX as the user types - if the input is valid, it will automatically propagate to parent. If not, it will display as red background and won't notify parent of change\r\n<img width=\"378\" height=\"330\" alt=\"image\" src=\"https://github.com/user-attachments/assets/7d3c42e1-65c7-45ec-8534-d2cda00ef82e\" />\r\n\r\n- ColorPicker.tsx refactored to use the new textInput/spinButtons directly,\r\n- InfoLabel now an optional param to PrimitiveProps so that primitives can optionally display an infoLabel (with or without the info popup) directly on the primitive value (distinct from the propertyline's label) -- colorpicker usage is refactored accordingly\r\n- Add units to spinbutton with inputvalidation as well\r\n- minor styling\r\n<img width=\"411\" height=\"128\" alt=\"image\" src=\"https://github.com/user-attachments/assets/ad7072ba-054c-4c5d-9b2b-77f3612631dd\" />\r\n<img width=\"508\" height=\"174\" alt=\"image\" src=\"https://github.com/user-attachments/assets/7421bab0-442f-40fd-b213-8bdad68ed9da\" />\r\n<img width=\"408\" height=\"489\" alt=\"image\" src=\"https://github.com/user-attachments/assets/ceb08ef3-6f0d-4417-9b52-48a15e53a950\" />\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/animation/animationGroupProperties.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/inputPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/vectorPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/colorPicker.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/infoLabel.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/input.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/primitive.ts",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/spinButton.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/syncedSlider.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/textInput.tsx",
+                    "packages/dev/sharedUiComponents/src/lines/textInputLineComponent.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17038",
+                "title": "DumpData: Fix implicit download",
+                "description": "For backwards compatibility. I missed this case in #17015.\r\nFixes specific CreateScreenshotWithRenderTarget usage in Sandbox.",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/core/src/Misc/dumpTools.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17037",
+                "title": "glTF Exporter: Some pruning",
+                "description": "Some staging for upcoming PRs related to texture work. \r\n- Clean up some dead code surrounding preExportTextureAsync\r\n- mimeType is eventually sourced from either the texture and/or manually set while converting to metal/rough in exporter. No need to pass it around.",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/serializers/src/glTF/2.0/Extensions/KHR_materials_transmission.ts",
+                    "packages/dev/serializers/src/glTF/2.0/glTFExporter.ts",
+                    "packages/dev/serializers/src/glTF/2.0/glTFExporterExtension.ts",
+                    "packages/dev/serializers/src/glTF/2.0/glTFMaterialExporter.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17034",
+                "title": "ShadowGenerator: optimize renderList parsing in Parse",
+                "description": "The `ShadowGenerator.Parse` method exhibited a performance bottleneck due to its inefficient handling of the `renderList`. Previously, it iterated through the `parsedShadowGenerator.renderList` and for each mesh ID, it called `scene.getMeshesById`. This resulted in an O(m*n) time complexity, where 'n' is the total number of meshes in the scene and 'm' is the number of meshes in the `renderList`. Profiling indicated that `getMeshesById` was a significant performance drain.\r\n\r\nThis commit refactors the parsing logic to improve efficiency. Instead of repeatedly querying meshes by ID, it now creates a `Set` of mesh IDs from the `renderList` (O(m) time and space). It then iterates through all meshes in the scene once (O(n) time) and checks for membership in the `Set` using an O(1) average time complexity lookup. Any mesh whose ID is found in the set is added to the `shadowMap.renderList`.\r\n\r\nThis change reduces the overall time complexity of parsing the `renderList` to O(n + m), which is a substantial performance improvement, especially for scenes with a large number of meshes or a large `renderList`.\r\n\r\nForum post: <https://forum.babylonjs.com/t/optimize-performance-of-shadowgenerator-parse/60086>",
+                "author": {
+                    "name": "kzhsw",
+                    "url": "https://github.com/kzhsw"
+                },
+                "files": [
+                    "packages/dev/core/src/Lights/Shadows/shadowGenerator.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17031",
+                "title": "geometry: skip getFloatData if not needed",
+                "description": "The `setVerticesBuffer` method currently unconditionally calls `buffer.getFloatData` when setting a position buffer. However, if `useBoundingInfoFromGeometry` is true and `_boundingInfo` is already set (a common scenario for glTF models), the data returned by `getFloatData` is ignored within the `_updateExtend` method.\r\n\r\nThis `getFloatData` operation is profiled to be CPU and RAM intensive, contributing significantly to model loading times and potentially causing major garbage collection events.\r\n\r\nThis change optimizes performance by conditionally calling `buffer.getFloatData`. It now passes `null` to `_updateExtend` when `useBoundingInfoFromGeometry` is true and `_boundingInfo` exists, ensuring the expensive data retrieval is only performed when its result is actually needed and used. This will improve loading performance and reduce GC pressure, particularly for glTF assets.\r\n\r\nForum post: <https://forum.babylonjs.com/t/redundant-getfloatdata-in-geometry-setverticesbuffer/60063>",
+                "author": {
+                    "name": "kzhsw",
+                    "url": "https://github.com/kzhsw"
+                },
+                "files": [
+                    "packages/dev/core/src/Meshes/geometry.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17036",
+                "title": "ObjectRenderer: Fix crash when bounding box renderer not present (follow up)",
+                "description": "Hoping it's a better fix than #17032.",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Rendering/objectRenderer.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "rendering engine"
+                ]
+            },
+            {
+                "pr": "17033",
+                "title": "BoundProperty auto-detects known compoundProperties and uses their compoundPropertyHooks",
+                "description": "BoundProperty now detects whether the passed in property is of type vector , color, or quaternion and uses the corresponding compound hook automatically, that way caller doesn't need to know about this nuance. \r\n\r\nIn future would be nice to expand this to be more flexible so that we can still use boundproperty with other complex hooks, but the typing was a bit too complex for what I needed at the moment",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/boundProperty.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/areaLightProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/directionalLightProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/hemisphericLightProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/pointLightProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/spotLightProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/nodes/abstractMeshProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/sprites/spriteTransformProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/transformProperties.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "tools",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "17032",
+                "title": "Object Renderer: Fix crash when bounding box renderer not present",
+                "description": null,
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Rendering/objectRenderer.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "rendering engine"
+                ]
+            }
+        ],
         "8.23.1": [
             {
                 "pr": "17029",
