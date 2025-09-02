@@ -176,7 +176,20 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
      */
     public static MaxDeltaTime = 1000.0;
 
-    public floatingOriginOffsetRef: Nullable<Vector3>;
+    private _floatingOriginOffsetRef: Nullable<Vector3>;
+    public set floatingOriginOffsetRef(value: Vector3) {
+        if (!this._floatingOriginOffsetRef) {
+            this._floatingOriginOffsetRef = new Vector3();
+        }
+        this._floatingOriginOffsetRef.copyFrom(value);
+    }
+    public get floatingOriginOffsetRef(): Nullable<Vector3> {
+        if (this._floatingOriginOffsetRef && this.activeCamera) {
+            this._floatingOriginOffsetRef.copyFrom(this.activeCamera.position);
+            return this._floatingOriginOffsetRef;
+        }
+        return null;
+    }
 
     // eslint-disable-next-line jsdoc/require-returns-check
     /**
