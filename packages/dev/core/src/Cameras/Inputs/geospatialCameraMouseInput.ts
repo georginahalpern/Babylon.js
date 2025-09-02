@@ -47,7 +47,7 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
     private _dragPlaneOriginPoint: Vector3 = Vector3.Zero();
     private _dragPlaneHitPoint: Vector3 = Vector3.Zero();
     private _dragPlaneOffsetVector: Vector3 = Vector3.Zero();
-    private _mouseDownRay: Ray = new Ray(this._dragPlaneHitPoint, this._dragPlaneHitPoint, 0);
+    private _mouseDownRay: Ray = new Ray(this._dragPlaneHitPoint, this._dragPlaneOriginPoint, 0);
 
     private _hitPointRadius: number;
 
@@ -64,7 +64,7 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
                         // Determine rayOrigin based off of mouse input. If left click or middle click, use pointer position to cast ray
                         if (evt.button == 0 || evt.button == 1) {
                             pickResult = scene.pick(scene.pointerX, scene.pointerY);
-                            pickResult.ray && (this._mouseDownRay = pickResult.ray);
+                            pickResult.ray && (this._mouseDownRay = pickResult.ray.clone());
                         } else {
                             // Right mouse button we want to tilt around screen center, so cast ray into screen center
                             const engine = scene.getEngine();
@@ -159,13 +159,13 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
     private _handleDrag(scene: Scene): void {
         // With new cursor location, identify where a ray from camera would intersect with the new drag plane, store in _mouseDownRay
         const pickResult = scene.pick(scene.pointerX, scene.pointerY);
-        pickResult.ray && (this._mouseDownRay = pickResult.ray);
+        pickResult.ray && (this._mouseDownRay = pickResult.ray.clone());
 
-        // Calc new dragPlane's offsetVector (i.e. the vector between dragPlane hitPoint and originPoint), then apply the delta between the current and previous plane offsetVectors to the camera's localTranslation
         const newDragPlaneOffsetVector = TmpVectors.Vector3[5];
         this._recalculateDragPlaneOffsetVectorToRef(newDragPlaneOffsetVector);
-        newDragPlaneOffsetVector.subtractInPlace(this._dragPlaneOffsetVector);
-        this.camera._perFrameTranslation.subtractInPlace(newDragPlaneOffsetVector);
+        const delta = TmpVectors.Vector3[6];
+        newDragPlaneOffsetVector.subtractToRef(this._dragPlaneOffsetVector, delta);
+        this.camera._perFrameTranslation.subtractInPlace(delta);
         this._dragPlaneOffsetVector.copyFrom(newDragPlaneOffsetVector);
     }
 
@@ -204,7 +204,7 @@ function IntersectRayWithPlaneToRef(ray: Ray, plane: Plane, ref: Vector3): boole
     const dist = ray.intersectsPlane(plane);
 
     if (dist !== null && dist >= 0) {
-        ray.origin.addToRef(ray.direction.scale(dist), ref);
+        ray.origin.addToRef(ray.direction.scaleToRef(dist, TmpVectors.Vector3[0]), ref);
         return true;
     }
 

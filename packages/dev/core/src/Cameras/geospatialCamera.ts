@@ -65,7 +65,7 @@ export class GeospatialCamera extends FloatingOriginCamera {
         // move camera
         MoveAlongVectorByDistanceToRef(this._lookAtVector, distance, TmpVectors.Vector3[7]);
         this.position.addInPlace(TmpVectors.Vector3[7]);
-        this._isViewMatrixDirty = true;
+        this._setDirty();
     }
 
     /**
@@ -75,27 +75,32 @@ export class GeospatialCamera extends FloatingOriginCamera {
      * 2. Rotation correction that keeps the camera facing the globe (so that as we pan, the globe stays centered on screen)
      */
     private _applyTranslationAndRotateCameraTowardsGeocentricNormal() {
-        const newPos = TmpVectors.Vector3[1];
-        const posDelta = TmpVectors.Vector3[2];
+        const newPos = TmpVectors.Vector3[1]; // This will store all of the newPosition calculations and be applied
         this.position.addToRef(this._perFrameTranslation, newPos);
 
         // 1. Calculate the height correction to keep camera at the same radius as before the position
         // Calculate what camera pos would be if we applied localTranslation, scale that by the cameraRadius, and
         // apply that delta to localTranslation. This will ensure the translation keeps the camera at the proper height from earth's surface
-        newPos.normalizeToRef(posDelta).scaleInPlace(this.position.length()); // store in posDelta the newPosScaledByCameraRadius
+        const posDelta = TmpVectors.Vector3[2];
+        newPos.normalizeToRef(posDelta).scaleInPlace(this.position.length()); // what would newPos be if it were scaled to same radius as before
         posDelta.subtractInPlace(newPos); // calculate height correction
         newPos.addInPlace(posDelta); // add height correction to newPos
 
         // 2. Calculate the rotation correction to keep camera facing earth
+
+        // Recompute _basisMatrix based on current camera position
+        ComputeLocalBasisToRefs(this.position, this._eastTemp, this._northTemp, this._upTemp);
+        Matrix.FromXYZAxesToRef(this._eastTemp, this._northTemp, this._upTemp, this._basisMatrix);
         // Calculate basis matrix off of the new position, then apply changeOfBasis to lookAt/up vectors
         const newBasis = TmpVectors.Matrix[6];
         const changeOfBasis = TmpVectors.Matrix[7];
+
         ComputeLocalBasisToRefs(newPos, this._eastTemp, this._northTemp, this._upTemp);
         Matrix.FromXYZAxesToRef(this._eastTemp, this._northTemp, this._upTemp, newBasis);
 
         // Change of basis matrix = basis2 * basis1.inverse()
         // (since orthonormal, inverse = transpose)
-        this._basisMatrix.transposeToRef(changeOfBasis).multiplyInPlace(newBasis);
+        this._basisMatrix.transposeToRef(changeOfBasis).multiplyToRef(newBasis, changeOfBasis);
 
         // Apply to vectors
         Vector3.TransformNormalToRef(this._lookAtVector, changeOfBasis, this._lookAtVector);

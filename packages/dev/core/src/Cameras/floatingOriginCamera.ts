@@ -15,9 +15,10 @@ import type { Scene } from "../scene";
  * 2. Detecting this camera in the transform node's worldMatrix calculation and translating the root nodes by the camera's position
  */
 export class FloatingOriginCamera extends Camera {
-    protected _isViewMatrixDirty = true;
     protected _viewMatrix: Matrix;
     protected _lookAtVector: Vector3;
+
+    private _isViewMatrixDirty: boolean;
 
     constructor(name: string, position: Vector3, scene: Scene) {
         if (scene.activeCamera != null) {
@@ -33,14 +34,15 @@ export class FloatingOriginCamera extends Camera {
         this.upVector = Vector3.Up(); // Up vector of the camera
         this._lookAtVector = this.position.negate().normalize(); // Lookat vector of the camera
         this._viewMatrix = Matrix.Identity();
-        this._isViewMatrixDirty = true;
+        this._setDirty();
     }
 
     protected _setDirty() {
-        // early out if already dirty
-        this._isViewMatrixDirty = true;
-        for (const node of this.getScene().rootNodes) {
-            node.markAsDirty();
+        if (!this._isViewMatrixDirty) {
+            this._isViewMatrixDirty = true;
+            for (const node of this.getScene().rootNodes) {
+                node.markAsDirty();
+            }
         }
     }
 
