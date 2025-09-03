@@ -5,7 +5,7 @@ import type { GeospatialCamera } from "../../Cameras/geospatialCamera";
 import { MoveAlongVectorByDistanceToRef } from "../../Cameras/geospatialCamera";
 import type { PointerInfo } from "../../Events/pointerEvents";
 import { PointerEventTypes } from "../../Events/pointerEvents";
-import { Matrix, TmpVectors, Vector2, Vector3 } from "../../Maths/math.vector";
+import { TmpVectors, Vector2, Vector3 } from "../../Maths/math.vector";
 import { Ray } from "../../Culling";
 import { Plane } from "../../Maths/math.plane";
 import type { Scene } from "../../scene";
@@ -22,6 +22,8 @@ import type { PickingInfo } from "../../Collisions";
  * Left mouse button: drag globe
  * Middle mouse button: tilt globe around cursor location
  * Right mouse button: tilt globe around center of screen
+ *
+ * TODO: Fix rotation around the poles, add zoom to center, add configurable pitch/zoom limits
  */
 export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera> {
     public camera: GeospatialCamera;
@@ -64,17 +66,16 @@ export class GeospatialCameraMouseInput implements ICameraInput<GeospatialCamera
                         // Determine rayOrigin based off of mouse input. If left click or middle click, use pointer position to cast ray
                         if (evt.button == 0 || evt.button == 1) {
                             pickResult = scene.pick(scene.pointerX, scene.pointerY);
-                            pickResult.ray && (this._mouseDownRay = pickResult.ray.clone());
                         } else {
                             // Right mouse button we want to tilt around screen center, so cast ray into screen center
                             const engine = scene.getEngine();
                             const width = engine.getRenderWidth();
                             const height = engine.getRenderHeight();
-                            scene.createPickingRayToRef(width / 2, height / 2, Matrix.Identity(), this._mouseDownRay, this.camera, false);
-                            pickResult = scene.pickWithRay(this._mouseDownRay);
+                            pickResult = scene.pick(width / 2, height / 2);
                         }
+                        pickResult.ray && (this._mouseDownRay = pickResult.ray.clone());
 
-                        if (pickResult?.pickedPoint) {
+                        if (pickResult.pickedPoint) {
                             this._isDragging = true;
 
                             if (evt.button == 0) {
