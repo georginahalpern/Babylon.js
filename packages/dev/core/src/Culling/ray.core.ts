@@ -1194,38 +1194,3 @@ export function AddRayExtensions(sceneClass: typeof Scene, cameraClass: typeof C
         return CreatePickingRay(this, x, y, world, camera, cameraViewSpace);
     };
 }
-
-/**
- * @experimental This function is used by floatingOriginCamera to ensure offset is applied to pickedPoint
- * @param pickingInfo defines the picking info to update
- * @param rayFunction defines the ray function to use
- * @param mesh defines the mesh to pick
- * @param world defines the world matrix
- * @param fastCheck defines if fast check should be used
- * @param onlyBoundingInfo defines if only bounding info should be used
- * @param trianglePredicate defines the triangle predicate to use
- * @param skipBoundingInfo defines if bounding info should be skipped
- * @returns the updated picking info
- */
-export function FloatingOriginInternalPicker(
-    pickingInfo: Nullable<PickingInfo>,
-    rayFunction: (world: Matrix, enableDistantPicking: boolean) => Ray,
-    mesh: AbstractMesh,
-    world: Matrix,
-    fastCheck?: boolean,
-    onlyBoundingInfo?: boolean,
-    trianglePredicate?: TrianglePickingPredicate,
-    skipBoundingInfo?: boolean
-): PickingInfo {
-    const offset = mesh.getScene().floatingOriginOffsetRef;
-    if (!offset) {
-        throw Error("Cannot use FloatingOriginInternalPicker without a floating origin offset");
-    }
-    const ray = (world: Matrix, enableDistantPicking: boolean) => {
-        world.setTranslationFromFloats(offset.x, offset.y, offset.z);
-        return rayFunction(world, enableDistantPicking);
-    };
-    const result = InternalPickForMesh(pickingInfo, ray, mesh, world, fastCheck, onlyBoundingInfo, trianglePredicate, skipBoundingInfo) || new PickingInfo();
-    result.pickedPoint?.addInPlace(offset);
-    return result;
-}

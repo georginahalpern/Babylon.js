@@ -502,7 +502,7 @@ export class TransformNode extends Node {
      * @returns a Vector3.
      */
     public getAbsolutePosition(): Vector3 {
-        this.computeWorldMatrix(); // What about this? Should this return the absolute position or should it return what the caller thinks is absolute position?
+        this.computeWorldMatrix();
         return this._absolutePosition;
     }
 
@@ -550,7 +550,7 @@ export class TransformNode extends Node {
      * @returns the TransformNode.
      */
     public setPositionWithLocalVector(vector3: Vector3): TransformNode {
-        this.computeWorldMatrix(); // Same with these? what do we want to return for all of these fns? If we are using the computerworldmatrix
+        this.computeWorldMatrix();
         this.position = Vector3.TransformNormal(vector3, this._localMatrix);
         return this;
     }
@@ -1063,7 +1063,7 @@ export class TransformNode extends Node {
      * @returns true if the world matrix computation needs the camera information to be computed
      */
     public isWorldMatrixCameraDependent(): boolean {
-        return (this._infiniteDistance && !this.parent) || this._billboardMode !== TransformNode.BILLBOARDMODE_NONE; // TODO georgie shold this return if geospatial?
+        return (this._infiniteDistance && !this.parent) || this._billboardMode !== TransformNode.BILLBOARDMODE_NONE;
     }
 
     /**
@@ -1092,7 +1092,7 @@ export class TransformNode extends Node {
         cache.infiniteDistance = this.infiniteDistance;
         cache.parent = this._parentNode;
 
-        // this._currentRenderId = currentRenderId;
+        this._currentRenderId = currentRenderId;
         this._childUpdateId += 1;
         this._isDirty = false;
         this._position._isDirty = false;
@@ -1102,9 +1102,9 @@ export class TransformNode extends Node {
 
         // Scaling
         const scaling: Vector3 = TransformNode._TmpScaling;
+        let translation: Vector3 = this._position;
 
         // Translation
-        let translation: Vector3 = this._position;
         if (this._infiniteDistance) {
             if (!this.parent && camera) {
                 const cameraWorldMatrix = camera.getWorldMatrix();
@@ -1114,19 +1114,6 @@ export class TransformNode extends Node {
                 translation.copyFromFloats(this._position.x + cameraGlobalPosition.x, this._position.y + cameraGlobalPosition.y, this._position.z + cameraGlobalPosition.z);
             }
         }
-
-        // The FloatingOriginCamera camera works by positioning the camera at world origin and offsetting the positions of all other
-        // nodes in the scene via world matrix transform. We thus need to calculate the offset between mesh position and camera position
-        // to offset the mesh by the appropriate amount. This must be done before the isDirty check so that we can recalculate worldMatrix if
-        // either the camera position or mesh position has changed since the last frame and if so, mark the node as dirty
-        // if (this._scene.floatingOriginOffsetRef && !this.parent) {
-        //     translation = TransformNode._TmpTranslation;
-        //     translation.copyFromFloats(
-        //         this._position.x - this._scene.floatingOriginOffsetRef.x,
-        //         this._position.y - this._scene.floatingOriginOffsetRef.y,
-        //         this._position.z - this._scene.floatingOriginOffsetRef.z
-        //     );
-        // }
 
         // Scaling
         scaling.copyFromFloats(this._scaling.x * this.scalingDeterminant, this._scaling.y * this.scalingDeterminant, this._scaling.z * this.scalingDeterminant);
@@ -1207,12 +1194,12 @@ export class TransformNode extends Node {
                     this._localMatrix.multiplyToRef(bone.getFinalMatrix(), TmpVectors.Matrix[6]);
                     TmpVectors.Matrix[6].multiplyToRef(this._transformToBoneReferal.getWorldMatrix(), this._worldMatrix);
                 } else {
-                    this._localMatrix.multiplyToRef(parent.getWorldMatrix(), this._worldMatrix); // Take localmatrix and multiply with parent worldMatrix to get this node's worldmatrix
+                    this._localMatrix.multiplyToRef(parent.getWorldMatrix(), this._worldMatrix);
                 }
             }
             this._markSyncedWithParent();
         } else {
-            this._worldMatrix.copyFrom(this._localMatrix); // If we are root, then our localmatrix is our world matrix
+            this._worldMatrix.copyFrom(this._localMatrix);
         }
 
         if (camera && this.billboardMode) {

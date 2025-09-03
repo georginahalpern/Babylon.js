@@ -176,21 +176,6 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
      */
     public static MaxDeltaTime = 1000.0;
 
-    private _floatingOriginOffsetRef: Nullable<Vector3>;
-    public set floatingOriginOffsetRef(value: Vector3) {
-        if (!this._floatingOriginOffsetRef) {
-            this._floatingOriginOffsetRef = new Vector3();
-        }
-        this._floatingOriginOffsetRef.copyFrom(value);
-    }
-    public get floatingOriginOffsetRef(): Nullable<Vector3> {
-        if (this._floatingOriginOffsetRef && this.activeCamera) {
-            this._floatingOriginOffsetRef.copyFrom(this.activeCamera.position);
-            return this._floatingOriginOffsetRef;
-        }
-        return null;
-    }
-
     // eslint-disable-next-line jsdoc/require-returns-check
     /**
      * Factory used to create the default material.
@@ -2693,6 +2678,76 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
      */
     public getTransformMatrix(): Matrix {
         return this._transformMatrix;
+    }
+
+    private _floatingOriginMode: boolean = false;
+    /**
+     * @experimental
+     */
+    public get floatingOriginMode(): boolean {
+        return this._floatingOriginMode;
+    }
+    /**
+     * @experimental
+     */
+    public set floatingOriginMode(value: boolean) {
+        this._floatingOriginMode = value;
+        this.getEngine().getCreationOptions().useHighPrecisionMatrix = true;
+        if (value) {
+            const tempWorld = Matrix.Identity();
+            this.onBeforeRenderObservable.add(() => {
+                const activeCamera = this.activeCamera;
+                if (!activeCamera) {
+                    return;
+                }
+                this.rootNodes.forEach((node) => {
+                    if (node == activeCamera) {
+                        const world = activeCamera.getViewMatrix();
+                        tempWorld.copyFrom(world);
+                        world.setTranslationFromFloats(0, 0, 0);
+                        return;
+                    }
+                    // Some nodes (like meshes) use getWorldMatrix to set matrix on ubo buffer
+                    const anyNode = node as any;
+                    if (anyNode.position) {
+                        anyNode
+                            .getWorldMatrix()
+                            .setTranslationFromFloats(
+                                anyNode.position.x - activeCamera.position.x,
+                                anyNode.position.y - activeCamera.position.y,
+                                anyNode.position.z - activeCamera.position.z
+                            );
+                    }
+                    // Some nodes (like lights) use absolutePosition instead of worldMatrix when setting the worldmatrix on ubo buffer
+                    if (anyNode.getAbsolutePosition) {
+                        anyNode.getAbsolutePosition().subtractToRef(activeCamera.position, anyNode.getAbsolutePosition());
+                    }
+                });
+            });
+
+            this.onAfterRenderObservable.add(() => {
+                const activeCamera = this.activeCamera;
+                if (!activeCamera) {
+                    return;
+                }
+                this.rootNodes.forEach((node) => {
+                    if (node == activeCamera) {
+                        activeCamera.getViewMatrix().copyFrom(tempWorld);
+                        return;
+                    }
+                    const anyNode = node as any;
+                    if (anyNode.position) {
+                        anyNode.getWorldMatrix().setTranslation(anyNode.position);
+                    }
+
+                    if (anyNode.getAbsolutePosition) {
+                        anyNode.getAbsolutePosition().addToRef(activeCamera.position, anyNode.getAbsolutePosition());
+                    }
+                });
+            });
+        } else {
+            // Remove observers
+        }
     }
 
     /**

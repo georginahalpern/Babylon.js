@@ -2,8 +2,7 @@ import { Vector3, Matrix } from "../Maths/math.vector";
 import type { Scene } from "../scene";
 import { GeospatialCameraInputsManager } from "./geospatialCameraInputsManager";
 import { Epsilon, Scalar, TmpVectors } from "../Maths";
-
-import { FloatingOriginCamera } from "./floatingOriginCamera";
+import { Camera } from "./camera";
 
 /**
  * @experimental
@@ -14,7 +13,7 @@ import { FloatingOriginCamera } from "./floatingOriginCamera";
  * Please note this is marked as experimental and the API (including the constructor!) will change until we remove that flag
  *
  */
-export class GeospatialCamera extends FloatingOriginCamera {
+export class GeospatialCamera extends Camera {
     public pitchPoint: Vector3;
     // Changed by the inputs, reset on every frame
     public _perFrameTranslation: Vector3;
@@ -29,18 +28,24 @@ export class GeospatialCamera extends FloatingOriginCamera {
     private _geocentricNormalOfPitchPoint: Vector3;
     private _rotationMatrix: Matrix;
 
+    protected _viewMatrix: Matrix;
+    protected _lookAtVector: Vector3;
+
+    private _isViewMatrixDirty: boolean;
+
     public override inputs: GeospatialCameraInputsManager;
 
     constructor(name: string, position: Vector3, scene: Scene) {
         super(name, position, scene);
-
+        this._resetToDefault();
         // Set up inputs
         this.inputs = new GeospatialCameraInputsManager(this);
         this.inputs.addMouse().addMouseWheel();
+
+        scene.floatingOriginMode = true;
     }
 
-    protected override _resetToDefault(): void {
-        super._resetToDefault();
+    private _resetToDefault(): void {
         this.pitchPoint = new Vector3(0, 0, 0); // What is the first point on geoWorld that a ray would hit if shot from camera in lookatDirection;
         this._lookAtVector = Vector3.Zero().subtractInPlace(this.position).normalize(); // Unit vector showing direction of camera before any rotation is applied
         this._geocentricNormalOfPitchPoint = this.pitchPoint.normalizeToNew();
@@ -55,7 +60,50 @@ export class GeospatialCamera extends FloatingOriginCamera {
         this._basisMatrix = Matrix.Identity();
         ComputeLocalBasisToRefs(this.position, this._eastTemp, this._northTemp, this._upTemp);
         Matrix.FromXYZAxesToRef(this._eastTemp, this._northTemp, this._upTemp, this._basisMatrix);
+
+        this.upVector = Vector3.Up(); // Up vector of the camera
+        this._lookAtVector = this.position.negate().normalize(); // Lookat vector of the camera
+        this._viewMatrix = Matrix.Identity();
+        this._setDirty();
     }
+
+    private _setDirty() {
+        if (!this._isViewMatrixDirty) {
+            this._isViewMatrixDirty = true;
+            for (const node of this.getScene().rootNodes) {
+                node.markAsDirty();
+            }
+        }
+    }
+
+    /** @internal */
+    public override _getViewMatrix() {
+        if (!this._isViewMatrixDirty) {
+            return this._viewMatrix;
+        }
+        this._isViewMatrixDirty = false;
+
+        // Ensure vectors are normalized
+        this.upVector.normalize();
+        this._lookAtVector.normalize();
+
+        // Calculate view matrix with actual position to maintain correct perspective
+        if (this.getScene().useRightHandedSystem) {
+            Matrix.LookAtRHToRef(this.position, this.position.add(this._lookAtVector), this.upVector, this._viewMatrix);
+        } else {
+            Matrix.LookAtLHToRef(this.position, this.position.add(this._lookAtVector), this.upVector, this._viewMatrix);
+        }
+
+        return this._viewMatrix;
+    }
+
+    // /** @internal */
+    // public override _isSynchronizedViewMatrix(): boolean {
+    //     if (!super._isSynchronizedViewMatrix() || this._isViewMatrixDirty) {
+    //         return false;
+    //     }
+    //     return true;
+    // }
 
     /**
      * Move the camera forward/back along the current look vector.
@@ -162,12 +210,12 @@ export class GeospatialCamera extends FloatingOriginCamera {
         if (this._perFrameTranslation.lengthSquared() > 0) {
             this._applyTranslationAndRotateCameraTowardsGeocentricNormal();
             this._perFrameTranslation.setAll(0);
-            super._setDirty();
+            this._setDirty();
         }
         if (this._perFrameRotation.lengthSquared() > 0) {
             this._applyRotation();
             this._perFrameRotation.setAll(0);
-            super._setDirty();
+            this._setDirty();
         }
         super._checkInputs();
     }

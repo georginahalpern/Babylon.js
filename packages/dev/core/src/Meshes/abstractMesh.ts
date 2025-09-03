@@ -1958,7 +1958,7 @@ export abstract class AbstractMesh extends TransformNode implements IDisposable,
      * @returns the current mesh
      */
     public moveWithCollisions(displacement: Vector3, slideOnCollide: boolean = true): AbstractMesh {
-        const globalPosition = this.getAbsolutePosition(); // Move with collisions refers to getabsoluteposition -- does movewithcollisiosn need our worldcooridnates near origin or the real world coordinates? i am conerned about debugability. maybe we just need a helper fn u can call to get the 'real world' coords? 
+        const globalPosition = this.getAbsolutePosition();
 
         globalPosition.addToRef(this.ellipsoidOffset, this._internalAbstractMeshDataInfo._meshCollisionData._oldPositionForCollisions);
         const coordinator = this.getScene().collisionCoordinator;
