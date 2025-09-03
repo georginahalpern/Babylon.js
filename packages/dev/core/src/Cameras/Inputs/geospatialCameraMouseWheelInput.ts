@@ -81,7 +81,14 @@ export class GeospatialCameraMouseWheelInput implements ICameraInput<GeospatialC
             }
 
             if (delta) {
-                this.camera.zoomAlongLook(delta);
+                const scene = this.camera.getScene();
+                const pickResult = scene.pick(scene.pointerX, scene.pointerY);
+                if (pickResult) {
+                    this.camera.zoomToCursor(delta);
+                } else {
+                    // default to zooming along look vector
+                    this.camera.zoomAlongLook(delta);
+                }
             }
 
             if (event.preventDefault) {

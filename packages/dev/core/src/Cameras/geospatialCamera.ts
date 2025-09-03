@@ -3,6 +3,7 @@ import type { Scene } from "../scene";
 import { GeospatialCameraInputsManager } from "./geospatialCameraInputsManager";
 import { Epsilon, Scalar, TmpVectors } from "../Maths";
 import { Camera } from "./camera";
+import { Ray } from "../Culling";
 
 /**
  * @experimental
@@ -28,6 +29,7 @@ export class GeospatialCamera extends Camera {
     private _geocentricNormalOfPitchPoint: Vector3;
     private _rotationMatrix: Matrix;
 
+    private _pickingRay: Ray;
     protected _viewMatrix: Matrix;
     protected _lookAtVector: Vector3;
 
@@ -64,6 +66,7 @@ export class GeospatialCamera extends Camera {
         this.upVector = Vector3.Up(); // Up vector of the camera
         this._lookAtVector = this.position.negate().normalize(); // Lookat vector of the camera
         this._viewMatrix = Matrix.Identity();
+        this._pickingRay = new Ray(this.position, this._lookAtVector);
         this._setDirty();
     }
 
@@ -97,25 +100,65 @@ export class GeospatialCamera extends Camera {
         return this._viewMatrix;
     }
 
-    // /** @internal */
-    // public override _isSynchronizedViewMatrix(): boolean {
-    //     if (!super._isSynchronizedViewMatrix() || this._isViewMatrixDirty) {
-    //         return false;
-    //     }
-    //     return true;
-    // }
+    /** @internal */
+    public override _isSynchronizedViewMatrix(): boolean {
+        if (!super._isSynchronizedViewMatrix() || this._isViewMatrixDirty) {
+            return false;
+        }
+        return true;
+    }
 
     /**
      * Move the camera forward/back along the current look vector.
      * @param distance positive = move forward (in direction of vector), negative = move backward
      */
     public zoomAlongLook(distance: number): void {
-        // move camera
-        MoveAlongVectorByDistanceToRef(this._lookAtVector, distance, TmpVectors.Vector3[7]);
-        this.position.addInPlace(TmpVectors.Vector3[7]);
-        this._setDirty();
+        this._pickingRay.origin = this.position;
+        this._pickingRay.direction = this._lookAtVector;
+        const pickResult = this._scene.pickWithRay(this._pickingRay, undefined, true);
+        if (pickResult?.distance != undefined && pickResult.distance > distance + 5) {
+            this._moveCameraAlongVectorByDistance(this._lookAtVector, distance);
+        }
     }
 
+    public zoomToCursor(distance: number): void {
+        const pickResult = this._scene.pick(this._scene.pointerX, this._scene.pointerY, undefined, true);
+        if (pickResult.ray && pickResult.distance > distance + 5) {
+            this._moveCameraAlongVectorByDistance(pickResult.ray.direction, distance);
+        }
+    }
+
+    private _moveCameraAlongVectorByDistance(vector: Vector3, distance: number) {
+        MoveAlongVectorByDistanceToRef(vector, distance, TmpVectors.Vector3[7]);
+        const newPos = TmpVectors.Vector3[6];
+        this.position.addToRef(TmpVectors.Vector3[7], newPos);
+        this._applyRotationCorrectionViaChangeOfBasis(newPos);
+    }
+
+    private _applyRotationCorrectionViaChangeOfBasis(newPos: Vector3): void {
+        // Recompute _basisMatrix based on current camera position
+        ComputeLocalBasisToRefs(this.position, this._eastTemp, this._northTemp, this._upTemp);
+        Matrix.FromXYZAxesToRef(this._eastTemp, this._northTemp, this._upTemp, this._basisMatrix);
+        // Calculate basis matrix off of the new position, then apply changeOfBasis to lookAt/up vectors
+        const newBasis = TmpVectors.Matrix[6];
+        const changeOfBasis = TmpVectors.Matrix[7];
+
+        ComputeLocalBasisToRefs(newPos, this._eastTemp, this._northTemp, this._upTemp);
+        Matrix.FromXYZAxesToRef(this._eastTemp, this._northTemp, this._upTemp, newBasis);
+
+        // Change of basis matrix = basis2 * basis1.inverse()
+        // (since orthonormal, inverse = transpose)
+        this._basisMatrix.transposeToRef(changeOfBasis).multiplyToRef(newBasis, changeOfBasis);
+
+        // Apply to vectors
+        Vector3.TransformNormalToRef(this._lookAtVector, changeOfBasis, this._lookAtVector);
+        Vector3.TransformNormalToRef(this.upVector, changeOfBasis, this.upVector);
+
+        // Apply position change
+        this.position.copyFrom(newPos);
+
+        this._setDirty();
+    }
     /**
      * When the geocentric normal has any translation change (due to dragging), we must ensure the camera remains orbiting around the world origin
      * We thus need to perform 2 correction steps
@@ -136,29 +179,7 @@ export class GeospatialCamera extends Camera {
 
         // 2. Calculate the rotation correction to keep camera facing earth
 
-        // Recompute _basisMatrix based on current camera position
-        ComputeLocalBasisToRefs(this.position, this._eastTemp, this._northTemp, this._upTemp);
-        Matrix.FromXYZAxesToRef(this._eastTemp, this._northTemp, this._upTemp, this._basisMatrix);
-        // Calculate basis matrix off of the new position, then apply changeOfBasis to lookAt/up vectors
-        const newBasis = TmpVectors.Matrix[6];
-        const changeOfBasis = TmpVectors.Matrix[7];
-
-        ComputeLocalBasisToRefs(newPos, this._eastTemp, this._northTemp, this._upTemp);
-        Matrix.FromXYZAxesToRef(this._eastTemp, this._northTemp, this._upTemp, newBasis);
-
-        // Change of basis matrix = basis2 * basis1.inverse()
-        // (since orthonormal, inverse = transpose)
-        this._basisMatrix.transposeToRef(changeOfBasis).multiplyToRef(newBasis, changeOfBasis);
-
-        // Apply to vectors
-        Vector3.TransformNormalToRef(this._lookAtVector, changeOfBasis, this._lookAtVector);
-        Vector3.TransformNormalToRef(this.upVector, changeOfBasis, this.upVector);
-
-        // Store basis for next time
-        this._basisMatrix.copyFrom(newBasis);
-
-        // Update the camera's position with all corrections applied
-        this.position.copyFrom(newPos);
+        this._applyRotationCorrectionViaChangeOfBasis(newPos);
     }
 
     private _applyRotation(): void {

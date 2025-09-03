@@ -2700,11 +2700,11 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
                 if (!activeCamera) {
                     return;
                 }
-                this.rootNodes.forEach((node) => {
+                this.getNodes().forEach((node) => {
                     if (node == activeCamera) {
-                        const world = activeCamera.getViewMatrix();
-                        tempWorld.copyFrom(world);
-                        world.setTranslationFromFloats(0, 0, 0);
+                        const view = activeCamera.getViewMatrix();
+                        tempWorld.copyFrom(view);
+                        view.setTranslationFromFloats(0, 0, 0);
                         return;
                     }
                     // Some nodes (like meshes) use getWorldMatrix to set matrix on ubo buffer
@@ -2730,7 +2730,7 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
                 if (!activeCamera) {
                     return;
                 }
-                this.rootNodes.forEach((node) => {
+                this.getNodes().forEach((node) => {
                     if (node == activeCamera) {
                         activeCamera.getViewMatrix().copyFrom(tempWorld);
                         return;
