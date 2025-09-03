@@ -1119,14 +1119,14 @@ export class TransformNode extends Node {
         // nodes in the scene via world matrix transform. We thus need to calculate the offset between mesh position and camera position
         // to offset the mesh by the appropriate amount. This must be done before the isDirty check so that we can recalculate worldMatrix if
         // either the camera position or mesh position has changed since the last frame and if so, mark the node as dirty
-        if (this._scene.floatingOriginOffsetRef && !this.parent) {
-            translation = TransformNode._TmpTranslation;
-            translation.copyFromFloats(
-                this._position.x - this._scene.floatingOriginOffsetRef.x,
-                this._position.y - this._scene.floatingOriginOffsetRef.y,
-                this._position.z - this._scene.floatingOriginOffsetRef.z
-            );
-        }
+        // if (this._scene.floatingOriginOffsetRef && !this.parent) {
+        //     translation = TransformNode._TmpTranslation;
+        //     translation.copyFromFloats(
+        //         this._position.x - this._scene.floatingOriginOffsetRef.x,
+        //         this._position.y - this._scene.floatingOriginOffsetRef.y,
+        //         this._position.z - this._scene.floatingOriginOffsetRef.z
+        //     );
+        // }
 
         // Scaling
         scaling.copyFromFloats(this._scaling.x * this.scalingDeterminant, this._scaling.y * this.scalingDeterminant, this._scaling.z * this.scalingDeterminant);

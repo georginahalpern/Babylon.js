@@ -31,7 +31,7 @@ export class GeospatialCamera extends FloatingOriginCamera {
 
     public override inputs: GeospatialCameraInputsManager;
 
-    constructor(name: string, scene: Scene, position: Vector3) {
+    constructor(name: string, position: Vector3, scene: Scene) {
         super(name, position, scene);
 
         // Set up inputs
