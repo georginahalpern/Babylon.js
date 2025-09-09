@@ -957,24 +957,29 @@ export class ShaderMaterial extends PushMaterial {
             return;
         }
 
+        // can do override of callsite here
         const uniforms = this._options.uniforms;
         if (uniforms.indexOf("world") !== -1) {
             effect.setMatrix("world", world);
+            // effect.setOffsetableMatrix("world", world);
         }
 
         const scene = this.getScene();
         if (uniforms.indexOf("worldView") !== -1) {
             world.multiplyToRef(scene.getViewMatrix(), this._cachedWorldViewMatrix);
             effect.setMatrix("worldView", this._cachedWorldViewMatrix);
+            // effect.setOffsetableMatrix("worldView", this._cachedWorldViewMatrix);
         }
 
         if (uniforms.indexOf("worldViewProjection") !== -1) {
             world.multiplyToRef(scene.getTransformMatrix(), this._cachedWorldViewProjectionMatrix);
             effect.setMatrix("worldViewProjection", this._cachedWorldViewProjectionMatrix);
+            // effect.setOffsetableMatrix("worldViewProjection", this._cachedWorldViewProjectionMatrix);
         }
 
         if (uniforms.indexOf("view") !== -1) {
             effect.setMatrix("view", scene.getViewMatrix());
+            // effect.setOffsetableMatrix("view", scene.getViewMatrix());
         }
     }
 
@@ -1020,6 +1025,7 @@ export class ShaderMaterial extends PushMaterial {
                 switch (bufferName) {
                     case "Mesh":
                         if (mesh) {
+                            // override the callsite not the effet level
                             mesh.getMeshUniformBuffer().bindToEffect(effect, "Mesh");
                             mesh.transferToEffect(world);
                         }

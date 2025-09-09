@@ -240,6 +240,7 @@ export class NodeMaterialBuildState {
      * @internal
      */
     public _getFreeVariableName(prefix: string): string {
+        // TODO add the lightdata from here
         prefix = this.sharedData.formatConfig.formatVariablename(prefix);
 
         if (this.sharedData.variableNames[prefix] === undefined) {

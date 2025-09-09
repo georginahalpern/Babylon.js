@@ -21,6 +21,7 @@ import type { KeyboardInfoPre, KeyboardInfo } from "./Events/keyboardEvents";
 import { ActionEvent } from "./Actions/actionEvent";
 import { PostProcessManager } from "./PostProcesses/postProcessManager";
 import type { IOfflineProvider } from "./Offline/IOfflineProvider";
+import { SetFloatingOriginEffectMethods, ResetOriginalEffectMethods } from "./Materials/effectFloatingOrigin";
 import type { RenderingGroupInfo, IRenderingManagerAutoClearSetup } from "./Rendering/renderingManager";
 import { RenderingManager } from "./Rendering/renderingManager";
 import type {
@@ -2687,66 +2688,26 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
     public get floatingOriginMode(): boolean {
         return this._floatingOriginMode;
     }
+
+    private _floatingOriginOffsetDefault: Vector3 = Vector3.Zero();
+
+    /**
+     * @experimental
+     */
+    public get floatingOriginOffset(): Vector3 {
+        return this.floatingOriginMode && this.activeCamera ? this.activeCamera.position : this._floatingOriginOffsetDefault;
+    }
+
     /**
      * @experimental
      */
     public set floatingOriginMode(value: boolean) {
         this._floatingOriginMode = value;
-        this.getEngine().getCreationOptions().useHighPrecisionMatrix = true;
+        this.getEngine().getCreationOptions().useHighPrecisionMatrix = value;
         if (value) {
-            const tempWorld = Matrix.Identity();
-            this.onBeforeRenderObservable.add(() => {
-                const activeCamera = this.activeCamera;
-                if (!activeCamera) {
-                    return;
-                }
-                this.getNodes().forEach((node) => {
-                    if (node == activeCamera) {
-                        const view = activeCamera.getViewMatrix();
-                        tempWorld.copyFrom(view);
-                        view.setTranslationFromFloats(0, 0, 0);
-                        return;
-                    }
-                    // Some nodes (like meshes) use getWorldMatrix to set matrix on ubo buffer
-                    const anyNode = node as any;
-                    if (anyNode.position) {
-                        anyNode
-                            .getWorldMatrix()
-                            .setTranslationFromFloats(
-                                anyNode.position.x - activeCamera.position.x,
-                                anyNode.position.y - activeCamera.position.y,
-                                anyNode.position.z - activeCamera.position.z
-                            );
-                    }
-                    // Some nodes (like lights) use absolutePosition instead of worldMatrix when setting the worldmatrix on ubo buffer
-                    if (anyNode.getAbsolutePosition) {
-                        anyNode.getAbsolutePosition().subtractToRef(activeCamera.position, anyNode.getAbsolutePosition());
-                    }
-                });
-            });
-
-            this.onAfterRenderObservable.add(() => {
-                const activeCamera = this.activeCamera;
-                if (!activeCamera) {
-                    return;
-                }
-                this.getNodes().forEach((node) => {
-                    if (node == activeCamera) {
-                        activeCamera.getViewMatrix().copyFrom(tempWorld);
-                        return;
-                    }
-                    const anyNode = node as any;
-                    if (anyNode.position) {
-                        anyNode.getWorldMatrix().setTranslation(anyNode.position);
-                    }
-
-                    if (anyNode.getAbsolutePosition) {
-                        anyNode.getAbsolutePosition().addToRef(activeCamera.position, anyNode.getAbsolutePosition());
-                    }
-                });
-            });
+            SetFloatingOriginEffectMethods(this);
         } else {
-            // Remove observers
+            ResetOriginalEffectMethods();
         }
     }
 

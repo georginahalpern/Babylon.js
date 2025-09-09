@@ -2257,6 +2257,7 @@ export abstract class PBRBaseMaterial extends PushMaterial {
                         if ((<any>reflectionTexture).boundingBoxSize) {
                             const cubeTexture = <CubeTexture>reflectionTexture;
 
+                            // ?
                             ubo.updateVector3("vReflectionPosition", cubeTexture.boundingBoxPosition);
                             ubo.updateVector3("vReflectionSize", cubeTexture.boundingBoxSize);
                         }

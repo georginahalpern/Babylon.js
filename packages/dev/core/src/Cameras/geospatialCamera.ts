@@ -37,14 +37,14 @@ export class GeospatialCamera extends Camera {
 
     public override inputs: GeospatialCameraInputsManager;
 
-    constructor(name: string, position: Vector3, scene: Scene) {
+    constructor(name: string, position: Vector3, scene: Scene, useFloatingOrigin: boolean = false) {
         super(name, position, scene);
         this._resetToDefault();
         // Set up inputs
         this.inputs = new GeospatialCameraInputsManager(this);
         this.inputs.addMouse().addMouseWheel();
 
-        scene.floatingOriginMode = true;
+        scene.floatingOriginMode = useFloatingOrigin;
     }
 
     private _resetToDefault(): void {

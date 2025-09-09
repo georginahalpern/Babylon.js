@@ -1313,6 +1313,7 @@ export class Effect implements IDisposable {
      * @returns this effect.
      */
     public setMatrices(uniformName: string, matrices: Float32Array | Array<number>): Effect {
+        // what about setMatrices?
         this._pipelineContext!.setMatrices(uniformName, matrices as Float32Array);
         return this;
     }
@@ -1324,6 +1325,18 @@ export class Effect implements IDisposable {
      * @returns this effect.
      */
     public setMatrix(uniformName: string, matrix: IMatrixLike): Effect {
+        this._pipelineContext!.setMatrix(uniformName, matrix);
+        return this;
+    }
+
+    /**
+     * Sets matrix on a uniform variable that is offsettable
+     * By default, will simply call setMatrix, but can be overridden to support specific offset behavior without needing to override every call to setMatrix.
+     * @param uniformName
+     * @param matrix
+     * @returns
+     */
+    public setOffsettableMatrix(uniformName: string, matrix: IMatrixLike): Effect {
         this._pipelineContext!.setMatrix(uniformName, matrix);
         return this;
     }
@@ -1421,6 +1434,11 @@ export class Effect implements IDisposable {
         return this;
     }
 
+    public setOffsettableFloat3(uniformName: string, x: number, y: number, z: number): Effect {
+        this._pipelineContext!.setFloat3(uniformName, x, y, z);
+        return this;
+    }
+
     /**
      * Sets a Vector4 on a uniform variable.
      * @param uniformName Name of the variable.
@@ -1432,6 +1450,17 @@ export class Effect implements IDisposable {
         return this;
     }
 
+    /**
+     * Sets vector4 on a uniform variable that is offsettable
+     * By default, will simply call setVector4, but can be overridden to support specific offset behavior without needing to override every call to setVector4.
+     * @param uniformName
+     * @param vector4
+     * @returns
+     */
+    public setOffsettableVector4(uniformName: string, vector4: IVector4Like): Effect {
+        this._pipelineContext!.setVector4(uniformName, vector4);
+        return this;
+    }
     /**
      * Sets a Quaternion on a uniform variable.
      * @param uniformName Name of the variable.
@@ -1453,6 +1482,11 @@ export class Effect implements IDisposable {
      * @returns this effect.
      */
     public setFloat4(uniformName: string, x: number, y: number, z: number, w: number): Effect {
+        this._pipelineContext!.setFloat4(uniformName, x, y, z, w);
+        return this;
+    }
+
+    public setOffsettableFloat4(uniformName: string, x: number, y: number, z: number, w: number): Effect {
         this._pipelineContext!.setFloat4(uniformName, x, y, z, w);
         return this;
     }

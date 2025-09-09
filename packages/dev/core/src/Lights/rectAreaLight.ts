@@ -115,6 +115,7 @@ export class RectAreaLight extends AreaLight {
      */
     public transferToEffect(effect: Effect, lightIndex: string): RectAreaLight {
         if (this._computeTransformedInformation()) {
+            // vlightData float4
             this._uniformBuffer.updateFloat4("vLightData", this._pointTransformedPosition.x, this._pointTransformedPosition.y, this._pointTransformedPosition.z, 0, lightIndex);
             this._uniformBuffer.updateFloat4("vLightWidth", this._pointTransformedWidth.x / 2, this._pointTransformedWidth.y / 2, this._pointTransformedWidth.z / 2, 0, lightIndex);
             this._uniformBuffer.updateFloat4(

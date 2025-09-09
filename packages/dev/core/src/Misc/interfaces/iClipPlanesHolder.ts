@@ -5,6 +5,7 @@ import type { Plane } from "../../Maths/math";
  * Interface used to define entities containing multiple clip planes
  */
 export interface IClipPlanesHolder {
+    // Clip plane normal ?
     /**
      * Gets or sets the active clipplane 1
      */
