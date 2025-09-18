@@ -967,8 +967,7 @@ export class ShaderMaterial extends PushMaterial {
         const scene = this.getScene();
         if (uniforms.indexOf("worldView") !== -1) {
             world.multiplyToRef(scene.getViewMatrix(), this._cachedWorldViewMatrix);
-            effect.setMatrix("worldView", this._cachedWorldViewMatrix);
-            // effect.setOffsetableMatrix("worldView", this._cachedWorldViewMatrix);
+            effect.setOffsettableMatrix("worldView", this._cachedWorldViewMatrix, this.getScene().floatingOriginOffset);
         }
 
         if (uniforms.indexOf("worldViewProjection") !== -1) {

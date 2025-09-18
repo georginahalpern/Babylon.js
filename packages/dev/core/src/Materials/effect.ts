@@ -1334,9 +1334,10 @@ export class Effect implements IDisposable {
      * By default, will simply call setMatrix, but can be overridden to support specific offset behavior without needing to override every call to setMatrix.
      * @param uniformName
      * @param matrix
+     * @param _offset
      * @returns
      */
-    public setOffsettableMatrix(uniformName: string, matrix: IMatrixLike): Effect {
+    public setOffsettableMatrix(uniformName: string, matrix: IMatrixLike, _offset?: IVector3Like): Effect {
         this._pipelineContext!.setMatrix(uniformName, matrix);
         return this;
     }
@@ -1434,7 +1435,7 @@ export class Effect implements IDisposable {
         return this;
     }
 
-    public setOffsettableFloat3(uniformName: string, x: number, y: number, z: number): Effect {
+    public setOffsettableFloat3(uniformName: string, x: number, y: number, z: number, _offset: IVector3Like): Effect {
         this._pipelineContext!.setFloat3(uniformName, x, y, z);
         return this;
     }
@@ -1455,9 +1456,10 @@ export class Effect implements IDisposable {
      * By default, will simply call setVector4, but can be overridden to support specific offset behavior without needing to override every call to setVector4.
      * @param uniformName
      * @param vector4
+     * @param _offset
      * @returns
      */
-    public setOffsettableVector4(uniformName: string, vector4: IVector4Like): Effect {
+    public setOffsettableVector4(uniformName: string, vector4: IVector4Like, _offset: IVector3Like): Effect {
         this._pipelineContext!.setVector4(uniformName, vector4);
         return this;
     }
@@ -1486,7 +1488,7 @@ export class Effect implements IDisposable {
         return this;
     }
 
-    public setOffsettableFloat4(uniformName: string, x: number, y: number, z: number, w: number): Effect {
+    public setOffsettableFloat4(uniformName: string, x: number, y: number, z: number, w: number, _offset: IVector3Like): Effect {
         this._pipelineContext!.setFloat4(uniformName, x, y, z, w);
         return this;
     }

@@ -90,6 +90,46 @@ export class UniformBuffer {
      */
     public updateFloat4: (name: string, x: number, y: number, z: number, w: number, suffix?: string) => void;
 
+    public updateFloat4Offset: (name: string, x: number, y: number, z: number, w: number, suffix: string | undefined, _offset: IVector3Like) => void;
+
+    public updateFloat3Offset: (name: string, x: number, y: number, z: number, suffix: string | undefined, _offset: IVector3Like) => void;
+
+    public updateMatrixOffset: (name: string, mat: IMatrixLike, _offset: IVector3Like) => void;
+
+    public updateVector4Offset: (name: string, vector: IVector4Like, _offset: IVector3Like) => void;
+
+    private _updateFloat4ForUniformOffset(name: string, x: number, y: number, z: number, w: number, _suffix: string | undefined, _offset: IVector3Like) {
+        this._updateFloat4ForUniform(name, x, y, z, w);
+    }
+
+    private _updateFloat3ForUniformOffset(name: string, x: number, y: number, z: number, _suffix: string | undefined, _offset: IVector3Like) {
+        this._updateFloat3ForUniform(name, x, y, z);
+    }
+
+    private _updateMatrixForUniformOffset(name: string, mat: IMatrixLike, _offset: IVector3Like) {
+        this._updateMatrixForUniform(name, mat);
+    }
+
+    private _updateVector4ForUniformOffset(name: string, vector: IVector4Like, _offset: IVector3Like) {
+        this._updateVector4ForUniform(name, vector);
+    }
+
+    private _updateFloat4ForEffectOffset(name: string, x: number, y: number, z: number, w: number, _suffix: string | undefined, _offset: IVector3Like) {
+        this._updateFloat4ForEffect(name, x, y, z, w);
+    }
+
+    private _updateFloat3ForEffectOffset(name: string, x: number, y: number, z: number, _suffix: string | undefined, _offset: IVector3Like) {
+        this._updateFloat3ForEffect(name, x, y, z);
+    }
+
+    private _updateMatrixForEffectOffset(name: string, mat: IMatrixLike, _offset: IVector3Like) {
+        this._updateMatrixForEffect(name, mat);
+    }
+
+    private _updateVector4ForEffectOffset(name: string, vector: IVector4Like, _offset: IVector3Like) {
+        this._updateVector4ForEffect(name, vector);
+    }
+
     /**
      * Lambda to Update an array of float in a uniform buffer.
      * This is dynamic to allow compat with webgl 1 and 2.
@@ -288,6 +328,11 @@ export class UniformBuffer {
             this.updateUInt2 = this._updateUInt2ForEffect;
             this.updateUInt3 = this._updateUInt3ForEffect;
             this.updateUInt4 = this._updateUInt4ForEffect;
+
+            this.updateFloat4Offset = this._updateFloat4ForEffectOffset;
+            this.updateFloat3Offset = this._updateFloat3ForEffectOffset;
+            this.updateVector4Offset = this._updateVector4ForEffectOffset;
+            this.updateMatrixOffset = this._updateMatrixForEffectOffset;
         } else {
             this._engine._uniformBuffers.push(this);
 
@@ -316,6 +361,11 @@ export class UniformBuffer {
             this.updateUInt2 = this._updateUInt2ForUniform;
             this.updateUInt3 = this._updateUInt3ForUniform;
             this.updateUInt4 = this._updateUInt4ForUniform;
+
+            this.updateFloat4Offset = this._updateFloat4ForUniformOffset;
+            this.updateFloat3Offset = this._updateFloat3ForUniformOffset;
+            this.updateVector4Offset = this._updateVector4ForUniformOffset;
+            this.updateMatrixOffset = this._updateMatrixForUniformOffset;
         }
     }
 

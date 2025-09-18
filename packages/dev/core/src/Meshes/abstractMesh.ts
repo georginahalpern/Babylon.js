@@ -1071,7 +1071,7 @@ export abstract class AbstractMesh extends TransformNode implements IDisposable,
     public transferToEffect(world: Matrix): void {
         const ubo = this._uniformBuffer;
 
-        ubo.updateMatrix("world", world);
+        ubo.updateMatrixOffset("world", world, this._scene.floatingOriginOffset);
         ubo.updateFloat("visibility", this._internalAbstractMeshDataInfo._visibility);
 
         ubo.update();

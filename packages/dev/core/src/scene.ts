@@ -21,7 +21,7 @@ import type { KeyboardInfoPre, KeyboardInfo } from "./Events/keyboardEvents";
 import { ActionEvent } from "./Actions/actionEvent";
 import { PostProcessManager } from "./PostProcesses/postProcessManager";
 import type { IOfflineProvider } from "./Offline/IOfflineProvider";
-import { SetFloatingOriginOffsets, ResetOriginalEffectMethods } from "./Materials/effectFloatingOrigin";
+import { ResetOriginalEffectMethods, OverrideOffsetableEffectMethods } from "./Materials/effectFloatingOrigin";
 import type { RenderingGroupInfo, IRenderingManagerAutoClearSetup } from "./Rendering/renderingManager";
 import { RenderingManager } from "./Rendering/renderingManager";
 import type {
@@ -1232,9 +1232,9 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
 
         if (effect) {
             if (isVector3) {
-                effect.setFloat3(variableName, TmpVectors.Vector4[0].x, TmpVectors.Vector4[0].y, TmpVectors.Vector4[0].z);
+                effect.setOffsettableFloat3(variableName, TmpVectors.Vector4[0].x, TmpVectors.Vector4[0].y, TmpVectors.Vector4[0].z, this.floatingOriginOffset);
             } else {
-                effect.setVector4(variableName, TmpVectors.Vector4[0]);
+                effect.setOffsettableVector4(variableName, TmpVectors.Vector4[0], this.floatingOriginOffset);
             }
         }
 
@@ -1248,7 +1248,7 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
     public finalizeSceneUbo(): UniformBuffer {
         const ubo = this.getSceneUniformBuffer();
         const eyePosition = this.bindEyePosition(null);
-        ubo.updateFloat4("vEyePosition", eyePosition.x, eyePosition.y, eyePosition.z, eyePosition.w);
+        ubo.updateFloat4Offset("vEyePosition", eyePosition.x, eyePosition.y, eyePosition.z, eyePosition.w, undefined, this.floatingOriginOffset);
 
         ubo.update();
 
@@ -2002,7 +2002,7 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
 
         if (options?.floatingOriginMode) {
             engine.getCreationOptions().useHighPrecisionMatrix = true;
-            SetFloatingOriginOffsets(this);
+            OverrideOffsetableEffectMethods(this);
             this._floatingOriginMode = true;
         }
 
