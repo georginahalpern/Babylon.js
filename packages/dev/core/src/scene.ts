@@ -21,7 +21,7 @@ import type { KeyboardInfoPre, KeyboardInfo } from "./Events/keyboardEvents";
 import { ActionEvent } from "./Actions/actionEvent";
 import { PostProcessManager } from "./PostProcesses/postProcessManager";
 import type { IOfflineProvider } from "./Offline/IOfflineProvider";
-import { SetFloatingOriginEffectMethods, ResetOriginalEffectMethods } from "./Materials/effectFloatingOrigin";
+import { SetFloatingOriginOffsets, ResetOriginalEffectMethods } from "./Materials/effectFloatingOrigin";
 import type { RenderingGroupInfo, IRenderingManagerAutoClearSetup } from "./Rendering/renderingManager";
 import { RenderingManager } from "./Rendering/renderingManager";
 import type {
@@ -138,6 +138,8 @@ export interface SceneOptions {
 
     /** Defines if the creation of the scene should impact the engine (Eg. UtilityLayer's scene) */
     virtual?: boolean;
+
+    floatingOriginMode?: boolean;
 }
 
 /**
@@ -1998,6 +2000,12 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
             engine.scenes.push(this);
         }
 
+        if (options?.floatingOriginMode) {
+            engine.getCreationOptions().useHighPrecisionMatrix = true;
+            SetFloatingOriginOffsets(this);
+            this._floatingOriginMode = true;
+        }
+
         this._uid = null;
 
         this._renderingManager = new RenderingManager(this);
@@ -2698,18 +2706,18 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
         return this.floatingOriginMode && this.activeCamera ? this.activeCamera.position : this._floatingOriginOffsetDefault;
     }
 
-    /**
-     * @experimental
-     */
-    public set floatingOriginMode(value: boolean) {
-        this._floatingOriginMode = value;
-        this.getEngine().getCreationOptions().useHighPrecisionMatrix = value;
-        if (value) {
-            SetFloatingOriginEffectMethods(this);
-        } else {
-            ResetOriginalEffectMethods();
-        }
-    }
+    // /**
+    //  * @experimental
+    //  */
+    // public set floatingOriginMode(value: boolean) {
+    //     this._floatingOriginMode = value;
+    //     this.getEngine().getCreationOptions().useHighPrecisionMatrix = value;
+    //     if (value) {
+    //         SetFloatingOriginOffsets(this);
+    //     } else {
+    //         ResetOriginalEffectMethods();
+    //     }
+    // }
 
     /**
      * Sets the current transform matrix
@@ -2745,8 +2753,15 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
         if (this._multiviewSceneUbo && this._multiviewSceneUbo.useUbo) {
             this._updateMultiviewUbo(viewR, projectionR);
         } else if (this._sceneUbo.useUbo) {
-            this._sceneUbo.updateMatrix("viewProjection", this._transformMatrix);
-            this._sceneUbo.updateMatrix("view", this._viewMatrix);
+            TmpVectors.Matrix[4].copyFrom(this._viewMatrix);
+            TmpVectors.Matrix[5].copyFrom(this._transformMatrix);
+            if (this.floatingOriginMode) {
+                TmpVectors.Matrix[4].setTranslationFromFloats(0, 0, 0);
+                TmpVectors.Matrix[4].multiplyToRef(this._projectionMatrix, TmpVectors.Matrix[5]);
+            }
+
+            this._sceneUbo.updateMatrix("viewProjection", TmpVectors.Matrix[5]);
+            this._sceneUbo.updateMatrix("view", TmpVectors.Matrix[4]);
             this._sceneUbo.updateMatrix("projection", this._projectionMatrix);
         }
     }
@@ -5741,6 +5756,8 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
         this.onClearColorChangedObservable.clear();
         this.onEnvironmentTextureChangedObservable.clear();
         this.onMeshUnderPointerUpdatedObservable.clear();
+
+        ResetOriginalEffectMethods();
         this._isDisposed = true;
     }
 

@@ -188,11 +188,9 @@ export class PointLight extends ShadowLight {
      * @returns The point light
      */
     public transferToEffect(effect: Effect, lightIndex: string): PointLight {
-        if (this.computeTransformedInformation()) {
-            this._uniformBuffer.updateFloat4("vLightData", this.transformedPosition.x, this.transformedPosition.y, this.transformedPosition.z, 0.0, lightIndex);
-        } else {
-            this._uniformBuffer.updateFloat4("vLightData", this.position.x, this.position.y, this.position.z, 0, lightIndex);
-        }
+        const pos = this.computeTransformedInformation() ? this.transformedPosition : this.position;
+        pos.subtractToRef(this._scene.floatingOriginOffset, pos);
+        this._uniformBuffer.updateFloat4("vLightData", pos.x, pos.y, pos.z, 0.0, lightIndex);
 
         this._uniformBuffer.updateFloat4("vLightFalloff", this.range, this._inverseSquaredRange, 0, 0, lightIndex);
         return this;
