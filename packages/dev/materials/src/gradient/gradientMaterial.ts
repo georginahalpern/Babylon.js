@@ -34,6 +34,7 @@ import {
     PrepareDefinesForMisc,
     PrepareUniformsAndSamplersList,
 } from "core/Materials/materialHelper.functions";
+import { ViewOffset } from "core/Materials/effectFloatingOrigin";
 
 class GradientMaterialDefines extends MaterialDefines {
     public EMISSIVE = false;
@@ -314,7 +315,7 @@ export class GradientMaterial extends PushMaterial {
 
         // View
         if (scene.fogEnabled && mesh.applyFog && scene.fogMode !== Scene.FOGMODE_NONE) {
-            this._activeEffect.setMatrix("view", scene.getViewMatrix());
+            this._activeEffect.setOffsetMatrix("view", scene.getViewMatrix(), () => ViewOffset(scene));
         }
 
         // Fog

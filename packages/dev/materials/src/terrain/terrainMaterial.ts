@@ -36,6 +36,7 @@ import {
     PrepareDefinesForMisc,
     PrepareUniformsAndSamplersList,
 } from "core/Materials/materialHelper.functions";
+import { ViewOffset, ViewProjectionOffset } from "../../../core/src/Materials/effectFloatingOrigin";
 
 class TerrainMaterialDefines extends MaterialDefines {
     public DIFFUSE = false;
@@ -360,8 +361,8 @@ export class TerrainMaterial extends PushMaterial {
 
         // Matrices
         this.bindOnlyWorldMatrix(world);
-        this._activeEffect.setMatrix("view", scene.getViewMatrix());
-        this._activeEffect.setMatrix("viewProjection", scene.getTransformMatrix());
+        this._activeEffect.setOffsetMatrix("view", scene.getViewMatrix(), () => ViewOffset(scene));
+        this._activeEffect.setOffsetMatrix("viewProjection", scene.getTransformMatrix(), () => ViewProjectionOffset(scene));
 
         // Bones
         BindBonesParameters(mesh, this._activeEffect);

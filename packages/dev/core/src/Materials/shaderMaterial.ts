@@ -34,7 +34,7 @@ import {
     PushAttributesForInstances,
 } from "./materialHelper.functions";
 import type { IColor3Like, IColor4Like, IVector2Like, IVector3Like, IVector4Like } from "core/Maths/math.like";
-import { OffsetMatrixLike } from "./effectFloatingOrigin";
+import { ViewOffset, WorldOffset, WorldViewOffset, WorldViewProjectionOffset } from "./effectFloatingOrigin";
 
 const OnCreatedEffectParameters = { effect: null as unknown as Effect, subMesh: null as unknown as Nullable<SubMesh> };
 
@@ -961,25 +961,22 @@ export class ShaderMaterial extends PushMaterial {
         // can do override of callsite here
         const uniforms = this._options.uniforms;
         if (uniforms.indexOf("world") !== -1) {
-            effect.setMatrix("world", world);
-            // effect.setOffsetableMatrix("world", world);
+            effect.setOffsetMatrix("world", world, () => WorldOffset(world, scene));
         }
 
         const scene = this.getScene();
         if (uniforms.indexOf("worldView") !== -1) {
             world.multiplyToRef(scene.getViewMatrix(), this._cachedWorldViewMatrix);
-            effect.setOffsettableMatrix("worldView", this._cachedWorldViewMatrix, () => OffsetMatrixLike(this._cachedWorldViewMatrix, scene.floatingOriginOffset));
+            effect.setOffsetMatrix("worldView", this._cachedWorldViewMatrix, () => WorldViewOffset(scene));
         }
 
         if (uniforms.indexOf("worldViewProjection") !== -1) {
             world.multiplyToRef(scene.getTransformMatrix(), this._cachedWorldViewProjectionMatrix);
-            effect.setMatrix("worldViewProjection", this._cachedWorldViewProjectionMatrix);
-            // effect.setOffsetableMatrix("worldViewProjection", this._cachedWorldViewProjectionMatrix);
+            effect.setOffsetMatrix("worldViewProjection", this._cachedWorldViewProjectionMatrix, () => WorldViewProjectionOffset(scene));
         }
 
         if (uniforms.indexOf("view") !== -1) {
-            effect.setMatrix("view", scene.getViewMatrix());
-            // effect.setOffsetableMatrix("view", scene.getViewMatrix());
+            effect.setOffsetMatrix("view", scene.getViewMatrix(), () => ViewOffset(scene));
         }
     }
 

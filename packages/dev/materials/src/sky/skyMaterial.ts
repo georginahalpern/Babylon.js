@@ -20,6 +20,7 @@ import "./sky.vertex";
 import { EffectFallbacks } from "core/Materials/effectFallbacks";
 import { AddClipPlaneUniforms, BindClipPlane } from "core/Materials/clipPlaneMaterialHelper";
 import { BindFogParameters, BindLogDepth, PrepareDefinesForAttributes, PrepareDefinesForMisc } from "core/Materials/materialHelper.functions";
+import { ViewOffset2 } from "core/Materials/effectFloatingOrigin";
 
 /** @internal */
 class SkyMaterialDefines extends MaterialDefines {
@@ -309,7 +310,7 @@ export class SkyMaterial extends PushMaterial {
 
         // View
         if (scene.fogEnabled && mesh.applyFog && scene.fogMode !== Scene.FOGMODE_NONE) {
-            this._activeEffect.setMatrix("view", scene.getViewMatrix());
+            this._activeEffect.setOffsetMatrix("view", scene.getViewMatrix(), () => ViewOffset2(scene.getViewMatrix()));
         }
 
         // Fog

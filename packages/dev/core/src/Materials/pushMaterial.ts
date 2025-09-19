@@ -6,6 +6,7 @@ import type { Mesh } from "../Meshes/mesh";
 import { Material } from "../Materials/material";
 import type { Effect } from "../Materials/effect";
 import type { SubMesh } from "../Meshes/subMesh";
+import { WorldOffset } from "./effectFloatingOrigin";
 /**
  * Base class of materials working in push mode in babylon JS
  * @internal
@@ -57,7 +58,7 @@ export class PushMaterial extends Material {
      * @param world the matrix to bind
      */
     public override bindOnlyWorldMatrix(world: Matrix): void {
-        this._activeEffect!.setMatrix("world", world);
+        this._activeEffect!.setOffsetMatrix("world", world, () => WorldOffset(world, this.getScene()));
     }
 
     /**

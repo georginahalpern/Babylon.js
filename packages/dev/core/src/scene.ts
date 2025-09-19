@@ -21,7 +21,7 @@ import type { KeyboardInfoPre, KeyboardInfo } from "./Events/keyboardEvents";
 import { ActionEvent } from "./Actions/actionEvent";
 import { PostProcessManager } from "./PostProcesses/postProcessManager";
 import type { IOfflineProvider } from "./Offline/IOfflineProvider";
-import { ResetOriginalEffectMethods, OverrideOffsetableEffectMethods, OffsetMatrixLike } from "./Materials/effectFloatingOrigin";
+import { ResetOriginalEffectMethods, OverrideOffsetableEffectMethods, ViewProjectionOffset, ViewOffset } from "./Materials/effectFloatingOrigin";
 import type { RenderingGroupInfo, IRenderingManagerAutoClearSetup } from "./Rendering/renderingManager";
 import { RenderingManager } from "./Rendering/renderingManager";
 import type {
@@ -2753,21 +2753,8 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
         if (this._multiviewSceneUbo && this._multiviewSceneUbo.useUbo) {
             this._updateMultiviewUbo(viewR, projectionR);
         } else if (this._sceneUbo.useUbo) {
-            const offsetView = () => {
-                TmpVectors.Matrix[4].copyFrom(this._viewMatrix);
-                TmpVectors.Matrix[4].setTranslationFromFloats(0, 0, 0);
-                return TmpVectors.Matrix[4];
-            };
-            // OffsetMatrixLike(this._viewMatrix, this.floatingOriginOffset.negate()
-            const offsetTransform = () => {
-                offsetView();
-                TmpVectors.Matrix[5].copyFrom(this._transformMatrix);
-                TmpVectors.Matrix[4].multiplyToRef(this._projectionMatrix, TmpVectors.Matrix[5]);
-                return TmpVectors.Matrix[5];
-            };
-
-            this._sceneUbo.updateMatrixOffset("viewProjection", this._transformMatrix, offsetTransform);
-            this._sceneUbo.updateMatrixOffset("view", this._viewMatrix, offsetView);
+            this._sceneUbo.updateMatrixOffset("viewProjection", this._transformMatrix, () => ViewProjectionOffset(this));
+            this._sceneUbo.updateMatrixOffset("view", this._viewMatrix, () => ViewOffset(this));
             this._sceneUbo.updateMatrix("projection", this._projectionMatrix);
         }
     }

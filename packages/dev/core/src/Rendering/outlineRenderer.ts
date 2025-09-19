@@ -14,6 +14,7 @@ import { BindBonesParameters, BindMorphTargetParameters, PrepareDefinesAndAttrib
 import { EffectFallbacks } from "core/Materials/effectFallbacks";
 import type { IEffectCreationOptions } from "core/Materials/effect";
 import { ShaderLanguage } from "core/Materials/shaderLanguage";
+import { WorldOffset2 } from "../Materials/effectFloatingOrigin";
 
 declare module "../scene" {
     // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -259,7 +260,7 @@ export class OutlineRenderer implements ISceneComponent {
         engine.setZOffsetUnits(-this.zOffsetUnits);
 
         renderingMesh._processRendering(effectiveMesh, subMesh, effect, material.fillMode, batch, hardwareInstancedRendering, (isInstance, world) => {
-            effect.setMatrix("world", world);
+            effect.setOffsetMatrix("world", world, () => WorldOffset2(world, scene.floatingOriginOffset));
         });
 
         engine.setZOffset(0);

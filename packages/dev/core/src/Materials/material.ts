@@ -53,6 +53,7 @@ import { SerializationHelper } from "../Misc/decorators.serialization";
 import { ShaderLanguage } from "./shaderLanguage";
 import type { IAssetContainer } from "core/IAssetContainer";
 import { IsWrapper } from "./drawWrapper.functions";
+import { ViewOffset, ViewProjectionOffset } from "./effectFloatingOrigin";
 
 declare let BABYLON: any;
 
@@ -1381,7 +1382,7 @@ export class Material implements IAnimatable, IClipPlanesHolder {
      */
     public bindView(effect: Effect): void {
         if (!this._useUBO) {
-            effect.setMatrix("view", this.getScene().getViewMatrix());
+            effect.setOffsetMatrix("view", this._scene.getViewMatrix(), () => ViewOffset(this._scene));
         } else {
             this._needToBindSceneUbo = true;
         }
@@ -1393,7 +1394,7 @@ export class Material implements IAnimatable, IClipPlanesHolder {
      */
     public bindViewProjection(effect: Effect): void {
         if (!this._useUBO) {
-            effect.setMatrix("viewProjection", this.getScene().getTransformMatrix());
+            effect.setOffsetMatrix("viewProjection", this.getScene().getTransformMatrix(), () => ViewProjectionOffset(this.getScene()));
             effect.setMatrix("projection", this.getScene().getProjectionMatrix());
         } else {
             this._needToBindSceneUbo = true;

@@ -26,6 +26,7 @@ import { ShaderLanguage } from "core/Materials/shaderLanguage";
 import { ObjectRenderer } from "core/Rendering/objectRenderer";
 import type { Vector2 } from "../Maths/math.vector";
 import { Engine } from "core/Engines/engine";
+import { ViewProjectionOffset, WorldOffset } from "../Materials/effectFloatingOrigin";
 
 /**
  * Special Glow Blur post process only blurring the alpha channel
@@ -930,8 +931,8 @@ export class ThinEffectLayer {
             }
 
             if (!renderingMaterial) {
-                effect.setMatrix("viewProjection", scene.getTransformMatrix());
-                effect.setMatrix("world", effectiveMesh.getWorldMatrix());
+                effect.setOffsetMatrix("viewProjection", scene.getTransformMatrix(), () => ViewProjectionOffset(scene));
+                effect.setOffsetMatrix("world", effectiveMesh.getWorldMatrix(), () => WorldOffset(effectiveMesh.getWorldMatrix(), scene));
                 effect.setFloat4(
                     "glowColor",
                     this._emissiveTextureAndColor.color.r,
@@ -1012,7 +1013,7 @@ export class ThinEffectLayer {
 
             // Draw
             renderingMesh._processRendering(effectiveMesh, subMesh, effect, material.fillMode, batch, hardwareInstancedRendering, (isInstance, world) =>
-                effect.setMatrix("world", world)
+                effect.setOffsetMatrix("world", world, () => WorldOffset(world, this._scene))
             );
         } else {
             // Need to reset refresh rate of the main map

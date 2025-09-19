@@ -46,7 +46,7 @@ import type { MorphTarget } from "../Morph/morphTarget";
 import type { Geometry } from "./geometry";
 import { nativeOverride } from "../Misc/decorators";
 import { AbstractEngine } from "core/Engines/abstractEngine";
-import { OffsetMatrixLike } from "../Materials/effectFloatingOrigin";
+import { WorldOffset } from "../Materials/effectFloatingOrigin";
 
 function ApplyMorph(data: FloatArray, kind: string, morphTargetManager: MorphTargetManager): void {
     let getTargetData: Nullable<(target: MorphTarget) => Nullable<FloatArray>> = null;
@@ -1072,7 +1072,7 @@ export abstract class AbstractMesh extends TransformNode implements IDisposable,
     public transferToEffect(world: Matrix): void {
         const ubo = this._uniformBuffer;
 
-        ubo.updateMatrixOffset("world", world, () => OffsetMatrixLike(world, this._scene.floatingOriginOffset));
+        ubo.updateMatrixOffset("world", world, () => WorldOffset(world, this._scene));
         ubo.updateFloat("visibility", this._internalAbstractMeshDataInfo._visibility);
 
         ubo.update();

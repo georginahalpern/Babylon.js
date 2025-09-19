@@ -47,6 +47,7 @@ import {
 } from "../materialHelper.functions";
 import { SerializationHelper } from "../../Misc/decorators.serialization";
 import { ShaderLanguage } from "../shaderLanguage";
+import { WorldOffset2, WorldOffset } from "../effectFloatingOrigin";
 
 /**
  * Background material defines definition.
@@ -1120,7 +1121,7 @@ export class BackgroundMaterial extends PushMaterial {
      * @param world The world matrix to bind.
      */
     public override bindOnlyWorldMatrix(world: Matrix): void {
-        this._activeEffect!.setMatrix("world", world);
+        this._activeEffect!.setOffsetMatrix("world", world, () => WorldOffset(world, this.getScene()));
     }
 
     /**

@@ -1331,13 +1331,17 @@ export class Effect implements IDisposable {
 
     /**
      * Sets matrix on a uniform variable that is offsettable
-     * By default, will simply call setMatrix, but can be overridden to support specific offset behavior without needing to override every call to setMatrix.
+     * By default, will simply call setMatrix and ignore the passed in offset function
+     * To apply offset, turn on floatingOriginMode which overrides the setOffsetMatrix prototype to call the offset function
+     *
+     * This approach avoids any runtime impact when floatingOriginMode is disabled, and avoids any prototype overriding of effect.setMatrix that
+     * don't need offset behavior.
      * @param uniformName
      * @param matrix
      * @param _offset
      * @returns
      */
-    public setOffsettableMatrix(uniformName: string, matrix: IMatrixLike, _offset: () => IMatrixLike): Effect {
+    public setOffsetMatrix(uniformName: string, matrix: IMatrixLike, _offset: () => IMatrixLike): Effect {
         this._pipelineContext!.setMatrix(uniformName, matrix);
         return this;
     }

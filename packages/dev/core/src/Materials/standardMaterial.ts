@@ -1375,10 +1375,10 @@ export class StandardMaterial extends PushMaterial {
             let shaderName = "default";
 
             const uniforms = [
-                "world", // needed
-                "view", // needed
-                "viewProjection", // needed
-                "vEyePosition", // needed
+                "world",
+                "view",
+                "viewProjection",
+                "vEyePosition",
                 "vLightsType",
                 "vAmbientColor",
                 "vDiffuseColor",

@@ -16,6 +16,7 @@ import { RegisterClass } from "../Misc/typeStore";
 import type { AbstractEngine } from "../Engines/abstractEngine";
 import type { Scene } from "../scene";
 import { Logger } from "core/Misc/logger";
+import { ViewOffset } from "../Materials/effectFloatingOrigin";
 
 /**
  * The ScreenSpaceReflectionPostProcess performs realtime reflections using only and only the available informations on the screen (positions and normals).
@@ -185,7 +186,7 @@ export class ScreenSpaceReflectionPostProcess extends PostProcess {
             const projectionMatrix = camera.getProjectionMatrix(true);
 
             effect.setMatrix("projection", projectionMatrix);
-            effect.setMatrix("view", viewMatrix);
+            effect.setOffsetMatrix("view", viewMatrix, () => ViewOffset(scene));
             effect.setFloat("threshold", this.threshold);
             effect.setFloat("reflectionSpecularFalloffExponent", this.reflectionSpecularFalloffExponent);
             effect.setFloat("strength", this.strength);

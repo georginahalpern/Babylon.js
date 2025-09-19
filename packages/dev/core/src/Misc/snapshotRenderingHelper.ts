@@ -393,6 +393,7 @@ export class SnapshotRenderingHelper {
                     if (dataBuffer && ubLeftOver && ubLeftOver.setDataBuffer(dataBuffer)) {
                         effect.setMatrix("viewProjection", sceneTransformationMatrix);
                         effect.setMatrix("world", mesh.computeWorldMatrix());
+                        // TODO georgie what about here? and thininstancemesh?
                         ubLeftOver.update();
                     }
                 }
