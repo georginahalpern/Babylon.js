@@ -1337,7 +1337,7 @@ export class Effect implements IDisposable {
      * @param _offset
      * @returns
      */
-    public setOffsettableMatrix(uniformName: string, matrix: IMatrixLike, _offset?: IVector3Like): Effect {
+    public setOffsettableMatrix(uniformName: string, matrix: IMatrixLike, _offset: () => IMatrixLike): Effect {
         this._pipelineContext!.setMatrix(uniformName, matrix);
         return this;
     }

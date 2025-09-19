@@ -34,6 +34,7 @@ import {
     PushAttributesForInstances,
 } from "./materialHelper.functions";
 import type { IColor3Like, IColor4Like, IVector2Like, IVector3Like, IVector4Like } from "core/Maths/math.like";
+import { OffsetMatrixLike } from "./effectFloatingOrigin";
 
 const OnCreatedEffectParameters = { effect: null as unknown as Effect, subMesh: null as unknown as Nullable<SubMesh> };
 
@@ -967,7 +968,7 @@ export class ShaderMaterial extends PushMaterial {
         const scene = this.getScene();
         if (uniforms.indexOf("worldView") !== -1) {
             world.multiplyToRef(scene.getViewMatrix(), this._cachedWorldViewMatrix);
-            effect.setOffsettableMatrix("worldView", this._cachedWorldViewMatrix, this.getScene().floatingOriginOffset);
+            effect.setOffsettableMatrix("worldView", this._cachedWorldViewMatrix, () => OffsetMatrixLike(this._cachedWorldViewMatrix, scene.floatingOriginOffset));
         }
 
         if (uniforms.indexOf("worldViewProjection") !== -1) {

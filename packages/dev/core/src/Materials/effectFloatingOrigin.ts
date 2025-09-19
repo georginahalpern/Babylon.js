@@ -1,7 +1,7 @@
 import type { Scene } from "../scene";
 import { Effect } from "../Materials/effect";
-import type { IMatrixLike, IVector3Like, IVector4Like } from "../Maths";
-import { Vector3 } from "../Maths";
+import type { IMatrixLike, IVector3Like, IVector4Like, Matrix } from "../Maths";
+import { TmpVectors, Vector3 } from "../Maths";
 import type { Tuple } from "../types";
 import { UniformBuffer } from "./uniformBuffer";
 
@@ -134,7 +134,7 @@ function UniformOffsetMatrix(uniformName: string, matrix: IMatrixLike, offset: V
     }
     return matrix;
 }
-function ApplyMatOffsetToRef(offset: IVector3Like, mat: Tuple<number, 16>, ref: Tuple<number, 16>): Tuple<number, 16> {
+export function ApplyMatOffsetToRef(offset: IVector3Like, mat: Tuple<number, 16>, ref: Tuple<number, 16>): Tuple<number, 16> {
     for (let i = 0; i < 16; i++) {
         ref[i] = mat[i];
     }
@@ -144,7 +144,7 @@ function ApplyMatOffsetToRef(offset: IVector3Like, mat: Tuple<number, 16>, ref: 
     return ref;
 }
 
-function OffsetMatrix2(matrix: IMatrixLike, offset: IVector3Like): IMatrixLike {
+export function OffsetMatrixLike(matrix: IMatrixLike, offset: IVector3Like): IMatrixLike {
     ApplyMatOffsetToRef(offset, matrix.asArray(), TempMatArray);
     TempMat.updateFlag = matrix.updateFlag;
     return TempMat;
@@ -160,27 +160,35 @@ function OffsetVector42(vector4: IVector4Like, offset: IVector3Like): IVector4Li
 }
 
 export function OverrideOffsetableEffectMethods(scene: Scene) {
-    Effect.prototype.setOffsettableMatrix = function (uniformName: string, matrix: IMatrixLike, offset: IVector3Like) {
-        this._pipelineContext!.setMatrix(uniformName, OffsetMatrix2(matrix, offset));
+    Effect.prototype.setOffsettableMatrix = function (uniformName: string, matrix: IMatrixLike, _offset: () => IMatrixLike) {
+        this._pipelineContext!.setMatrix(uniformName, _offset());
         return this;
     };
 
-    Effect.prototype.setOffsettableVector4 = function (uniformName: string, vector4: IVector4Like, offset: IVector3Like) {
+    Effect.prototype.setOffsettableVector4 = function (uniformName: string, vector4: IVector4Like, _o: IVector3Like) {
+        const offset = scene.floatingOriginOffset;
+
         this._pipelineContext!.setVector4(uniformName, OffsetVector42(vector4, offset));
         return this;
     };
 
-    Effect.prototype.setOffsettableFloat3 = function (uniformName: string, x: number, y: number, z: number, offset: IVector3Like) {
+    Effect.prototype.setOffsettableFloat3 = function (uniformName: string, x: number, y: number, z: number, _o: IVector3Like) {
+        const offset = scene.floatingOriginOffset;
+
         this._pipelineContext!.setFloat3(uniformName, x - offset.x, y - offset.y, z - offset.z);
         return this;
     };
 
-    Effect.prototype.setOffsettableFloat4 = function (uniformName: string, x: number, y: number, z: number, w: number, offset: IVector3Like) {
+    Effect.prototype.setOffsettableFloat4 = function (uniformName: string, x: number, y: number, z: number, w: number, _o: IVector3Like) {
+        const offset = scene.floatingOriginOffset;
+
         this._pipelineContext!.setFloat4(uniformName, x - offset.x, y - offset.y, z - offset.z, w);
         return this;
     };
 
-    UniformBufferInternal.prototype._updateFloat3ForUniformOffset = function (name: string, x: number, y: number, z: number, suffix: string | undefined, offset: IVector3Like) {
+    UniformBufferInternal.prototype._updateFloat3ForUniformOffset = function (name: string, x: number, y: number, z: number, suffix: string | undefined, _o: IVector3Like) {
+        const offset = scene.floatingOriginOffset;
+
         OriginalUpdateFloat3ForUniform.call(this, name, x - offset.x, y - offset.y, z - offset.z, suffix);
     };
 
@@ -191,20 +199,27 @@ export function OverrideOffsetableEffectMethods(scene: Scene) {
         z: number,
         w: number,
         suffix: string | undefined,
-        offset: IVector3Like
+        _o: IVector3Like
     ) {
+        const offset = scene.floatingOriginOffset;
         OriginalUpdateFloat4ForUniform.call(this, name, x - offset.x, y - offset.y, z - offset.z, w, suffix);
     };
 
-    UniformBufferInternal.prototype._updateVector4ForUniformOffset = function (name: string, vector: IVector4Like, offset: IVector3Like) {
+    UniformBufferInternal.prototype._updateVector4ForUniformOffset = function (name: string, vector: IVector4Like, _o: IVector3Like) {
+        const offset = scene.floatingOriginOffset;
+
         OriginalUpdateVector4ForUniform.call(this, name, OffsetVector42(vector, offset));
     };
 
-    UniformBufferInternal.prototype._updateMatrixForUniformOffset = function (name: string, mat: IMatrixLike, offset: IVector3Like) {
-        OriginalUpdateMatrixForUniform.call(this, name, OffsetMatrix2(mat, offset));
+    UniformBufferInternal.prototype._updateMatrixForUniformOffset = function (name: string, mat: IMatrixLike, _o: IVector3Like) {
+        const offset = scene.floatingOriginOffset;
+
+        OriginalUpdateMatrixForUniform.call(this, name, OffsetMatrixLike(mat, offset));
     };
 
-    UniformBufferInternal.prototype._updateFloat3ForEffectOffset = function (name: string, x: number, y: number, z: number, suffix: string | undefined, offset: IVector3Like) {
+    UniformBufferInternal.prototype._updateFloat3ForEffectOffset = function (name: string, x: number, y: number, z: number, suffix: string | undefined, _o: IVector3Like) {
+        const offset = scene.floatingOriginOffset;
+
         OriginalUpdateFloat3ForEffect.call(this, name, x - offset.x, y - offset.y, z - offset.z, suffix);
     };
 
@@ -215,17 +230,23 @@ export function OverrideOffsetableEffectMethods(scene: Scene) {
         z: number,
         w: number,
         suffix: string | undefined,
-        offset: IVector3Like
+        _o: IVector3Like
     ) {
+        const offset = scene.floatingOriginOffset;
+
         OriginalUpdateFloat4ForEffect.call(this, name, x - offset.x, y - offset.y, z - offset.z, w, suffix);
     };
 
-    UniformBufferInternal.prototype._updateVector4ForEffectOffset = function (name: string, vector: IVector4Like, offset: IVector3Like) {
+    UniformBufferInternal.prototype._updateVector4ForEffectOffset = function (name: string, vector: IVector4Like, _o: IVector3Like) {
+        const offset = scene.floatingOriginOffset;
+
         OriginalUpdateVector4ForEffect.call(this, name, OffsetVector42(vector, offset));
     };
 
-    UniformBufferInternal.prototype._updateMatrixForEffectOffset = function (name: string, mat: IMatrixLike, offset: IVector3Like) {
-        OriginalUpdateMatrixForEffect.call(this, name, OffsetMatrix2(mat, offset));
+    UniformBufferInternal.prototype._updateMatrixForEffectOffset = function (name: string, mat: IMatrixLike, _o: IVector3Like) {
+        const offset = scene.floatingOriginOffset;
+
+        OriginalUpdateMatrixForEffect.call(this, name, OffsetMatrixLike(mat, offset));
     };
 }
 
@@ -410,3 +431,29 @@ export function SetFloatingOriginOffsets(scene: Scene) {
     // this.updateUniform(name, TempBuffer, 3);
     // };
 }
+
+// const worldMatrixOffset = (world: IMatrixLike, offset: IVector3Like) => {
+//     TempMat.copyFrom(world).addTranslationFromFloats(-offset.x, -offset.y, -offset.z);
+//     return TmpVectors.Matrix[0];
+// };
+
+export const WorldOffset = (world: Matrix, offset: IVector3Like) => {
+    TmpVectors.Matrix[4].copyFrom(world);
+    TmpVectors.Matrix[4].addTranslationFromFloats(-offset.x, -offset.y, -offset.z);
+    return TmpVectors.Matrix[4];
+};
+export const ViewOffset = (view: Matrix) => TmpVectors.Matrix[4].copyFrom(view).setTranslationFromFloats(0, 0, 0);
+// OffsetMatrixLike(this._viewMatrix, this.floatingOriginOffset.negate()
+export const WorldViewOffset = (worldView: Matrix, offset: IVector3Like) => {
+    TmpVectors.Matrix[4].copyFrom(worldView);
+    TmpVectors.Matrix[4].addTranslationFromFloats(-offset.x, -offset.y, -offset.z);
+    return TmpVectors.Matrix[4];
+};
+export const WorldViewProjectionOffset = (worldView: Matrix, projection: Matrix, offset: IVector3Like) => {
+    WorldViewOffset(worldView, offset).multiplyToRef(projection, TmpVectors.Matrix[5]);
+    return TmpVectors.Matrix[5];
+};
+export const ViewProjectionOffset = (view: Matrix, projection: Matrix) => {
+    ViewOffset(view).multiplyToRef(projection, TmpVectors.Matrix[5]);
+    return TmpVectors.Matrix[5];
+};

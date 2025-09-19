@@ -94,7 +94,7 @@ export class UniformBuffer {
 
     public updateFloat3Offset: (name: string, x: number, y: number, z: number, suffix: string | undefined, _offset: IVector3Like) => void;
 
-    public updateMatrixOffset: (name: string, mat: IMatrixLike, _offset: IVector3Like) => void;
+    public updateMatrixOffset: (name: string, mat: IMatrixLike, _offset: () => IMatrixLike) => void;
 
     public updateVector4Offset: (name: string, vector: IVector4Like, _offset: IVector3Like) => void;
 
@@ -106,7 +106,7 @@ export class UniformBuffer {
         this._updateFloat3ForUniform(name, x, y, z);
     }
 
-    private _updateMatrixForUniformOffset(name: string, mat: IMatrixLike, _offset: IVector3Like) {
+    private _updateMatrixForUniformOffset(name: string, mat: IMatrixLike, _offset: () => IMatrixLike) {
         this._updateMatrixForUniform(name, mat);
     }
 
@@ -122,7 +122,7 @@ export class UniformBuffer {
         this._updateFloat3ForEffect(name, x, y, z);
     }
 
-    private _updateMatrixForEffectOffset(name: string, mat: IMatrixLike, _offset: IVector3Like) {
+    private _updateMatrixForEffectOffset(name: string, mat: IMatrixLike, _offset: () => IMatrixLike) {
         this._updateMatrixForEffect(name, mat);
     }
 
