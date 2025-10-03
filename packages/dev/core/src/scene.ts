@@ -979,7 +979,6 @@ export class Scene implements IAnimatable, IClipPlanesHolder, IAssetContainer {
 
     /**
      * An event triggered when the activeCamera property is updated.
-     * Note that userInfo property on EventState contains the previous active camera (and the new activeCamera can be read directly from the scene).
      */
     public onActiveCameraChanged = new Observable<Scene>();
 
