@@ -1,12 +1,12 @@
-import type { Scene } from "../scene";
 import { Effect } from "../Materials/effect";
-import type { IMatrixLike, IVector3Like } from "../Maths/math.like";
-import type { Matrix } from "../Maths/math.vector";
 import { TmpVectors } from "../Maths/math.vector";
+import type { Matrix } from "../Maths/math.vector";
+import type { IMatrixLike, IVector3Like } from "../Maths/math.like";
 import { InvertMatrixToRef, MultiplyMatricesToRef } from "../Maths/ThinMaths/thinMath.matrix.functions";
-import type { AbstractMesh } from "../Meshes";
+import type { Scene } from "../scene";
 import type { DeepImmutable } from "../types";
 import { UniformBuffer } from "./uniformBuffer";
+import type { AbstractMesh } from "../Meshes/abstractMesh";
 import type { EventState } from "../Misc/observable";
 
 const TempFinalMat: Matrix = TmpVectors.Matrix[4];
@@ -104,7 +104,6 @@ export function ResetFloatingOriginOverrides(scene: Scene) {
     UniformBufferInternal.prototype._updateMatrixForUniform = OriginalUpdateMatrixForUniform;
     UniformBufferInternal.prototype._updateMatrixForUniformOverride = undefined;
 
-    // Camera overrides
     const sceneInternal = scene as any;
     scene.activeCamera?.onViewMatrixChangedObservable?.remove(sceneInternal._activeCamViewMatChanged);
     sceneInternal._activeCamViewMatChanged = undefined;
@@ -120,8 +119,9 @@ export function SetFloatingOriginOverrides(scene: Scene) {
         this._updateMatrixForUniformOverride(uniformName, GetOffsetMatrix(uniformName, matrix, scene));
     };
 
+    const sceneInternal = scene as any;
     scene.onActiveCameraChanged.add((_s: Scene, eventState: EventState) => {
-        const sceneInternal = scene as any;
+        // onActiveCameraChanged EventState.userInfo holds the previous active camera
         sceneInternal._activeCamViewMatChanged && eventState.userInfo?.onViewMatrixChangedObservable?.remove(sceneInternal._activeCamViewMatChanged);
         sceneInternal._activeCamViewMatChanged = () => {
             sceneInternal._activeMeshes.forEach((mesh: AbstractMesh) => {
