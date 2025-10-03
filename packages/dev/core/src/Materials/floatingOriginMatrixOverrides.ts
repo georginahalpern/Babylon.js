@@ -3,10 +3,8 @@ import { Effect } from "../Materials/effect";
 import type { IMatrixLike, IVector3Like } from "../Maths/math.like";
 import { Matrix } from "../Maths/math.vector";
 import { InvertMatrixToRef, MultiplyMatricesToRef } from "../Maths/ThinMaths/thinMath.matrix.functions";
-import type { AbstractMesh } from "../Meshes";
 import type { DeepImmutable } from "../types";
 import { UniformBuffer } from "./uniformBuffer";
-import type { EventState } from "../Misc/observable";
 
 const TempFinalMat: Matrix = new Matrix();
 const TempMat1: Matrix = new Matrix();
@@ -97,39 +95,25 @@ function GetOffsetMatrix(uniformName: string, mat: IMatrixLike, scene: Scene): I
 
 // ---- Overriding the prototypes of effect and uniformBuffer's setMatrix functions ----
 const UniformBufferInternal = UniformBuffer as any;
+const EffectInternal = Effect as any;
 const OriginalUpdateMatrixForUniform = UniformBufferInternal.prototype._updateMatrixForUniform;
 const OriginalSetMatrix = Effect.prototype.setMatrix;
 
 export function ResetFloatingOriginOverrides(scene: Scene) {
     Effect.prototype.setMatrix = OriginalSetMatrix;
+    EffectInternal._setMatrixOverride = undefined;
     UniformBufferInternal.prototype._updateMatrixForUniform = OriginalUpdateMatrixForUniform;
     UniformBufferInternal.prototype._updateMatrixForUniformOverride = undefined;
-
-    // Camera overrides
-    const sceneInternal = scene as any;
-    scene.activeCamera?.onViewMatrixChangedObservable?.remove(sceneInternal._activeCamViewMatChanged);
-    sceneInternal._activeCamViewMatChanged = undefined;
 }
 
 export function SetFloatingOriginOverrides(scene: Scene) {
-    Effect.prototype.setMatrix = function (uniformName: string, matrix: IMatrixLike) {
-        this._pipelineContext!.setMatrix(uniformName, GetOffsetMatrix(uniformName, matrix, scene));
+    EffectInternal.prototype._setMatrixOverride = Effect.prototype.setMatrix;
+    EffectInternal.prototype.setMatrix = function (uniformName: string, matrix: IMatrixLike) {
+        this._setMatrixOverride(uniformName, GetOffsetMatrix(uniformName, matrix, scene));
         return this;
     };
     UniformBufferInternal.prototype._updateMatrixForUniformOverride = UniformBufferInternal.prototype._updateMatrixForUniform;
     UniformBufferInternal.prototype._updateMatrixForUniform = function (uniformName: string, matrix: IMatrixLike) {
         this._updateMatrixForUniformOverride(uniformName, GetOffsetMatrix(uniformName, matrix, scene));
     };
-
-    scene.onActiveCameraChanged.add((_s: Scene, eventState: EventState) => {
-        const sceneInternal = scene as any;
-        sceneInternal._activeCamViewMatChanged && eventState.userInfo?.onViewMatrixChangedObservable?.remove(sceneInternal._activeCamViewMatChanged);
-        sceneInternal._activeCamViewMatChanged = () => {
-            sceneInternal._activeMeshes.forEach((mesh: AbstractMesh) => {
-                // Only mark as dirty if active mesh and root node
-                !mesh.parent && mesh.markAsDirty();
-            });
-        };
-        scene.activeCamera?.onViewMatrixChangedObservable?.add(sceneInternal._activeCamViewMatChanged);
-    });
 }
