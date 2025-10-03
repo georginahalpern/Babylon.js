@@ -1,17 +1,16 @@
 import type { Scene } from "../scene";
 import { Effect } from "../Materials/effect";
 import type { IMatrixLike, IVector3Like } from "../Maths/math.like";
-import type { Matrix } from "../Maths/math.vector";
-import { TmpVectors } from "../Maths/math.vector";
+import { Matrix } from "../Maths/math.vector";
 import { InvertMatrixToRef, MultiplyMatricesToRef } from "../Maths/ThinMaths/thinMath.matrix.functions";
 import type { AbstractMesh } from "../Meshes";
 import type { DeepImmutable } from "../types";
 import { UniformBuffer } from "./uniformBuffer";
 import type { EventState } from "../Misc/observable";
 
-const TempFinalMat: Matrix = TmpVectors.Matrix[4];
-const TempMat1: Matrix = TmpVectors.Matrix[5];
-const TempMat2: Matrix = TmpVectors.Matrix[6];
+const TempFinalMat: Matrix = new Matrix();
+const TempMat1: Matrix = new Matrix();
+const TempMat2: Matrix = new Matrix();
 
 function OffsetWorldToRef(offset: IVector3Like, world: DeepImmutable<IMatrixLike>, ref: Matrix): DeepImmutable<IMatrixLike> {
     const refArray = ref.asArray();
@@ -22,6 +21,7 @@ function OffsetWorldToRef(offset: IVector3Like, world: DeepImmutable<IMatrixLike
     refArray[12] -= offset.x;
     refArray[13] -= offset.y;
     refArray[14] -= offset.z;
+    Matrix.FromArrayToRef(refArray, 0, ref);
     return ref;
 }
 
@@ -34,6 +34,7 @@ function OffsetViewToRef(view: DeepImmutable<IMatrixLike>, ref: Matrix): DeepImm
     refArray[12] = 0;
     refArray[13] = 0;
     refArray[14] = 0;
+    Matrix.FromArrayToRef(refArray, 0, ref);
     return ref;
 }
 
