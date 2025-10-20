@@ -21,6 +21,7 @@ import { RegisterDebugSupport } from "./graphSystem/registerDebugSupport";
 import { SerializationTools } from "./serializationTools";
 import type { RenderTargetTexture } from "core/Materials/Textures/renderTargetTexture";
 import type { NodeMaterialDebugBlock } from "core/Materials/Node/Blocks/debugBlock";
+import { createContext } from "react";
 
 export class GlobalState {
     hostElement: HTMLElement;
@@ -161,3 +162,5 @@ export class GlobalState {
         this.stateManager.storeEditorData(serializationObject, frame);
     }
 }
+
+export const GlobalStateContext = createContext<GlobalState>(new GlobalState());

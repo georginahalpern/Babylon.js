@@ -2159,6 +2159,8 @@ export class Mesh extends AbstractMesh implements IGetSetVerticesData {
 
         if (!this._instanceDataStorage.manualUpdate && (!instanceDataStorage.isFrozen || needUpdateBuffer)) {
             const world = this.getWorldMatrix();
+            // Get floating origin offset (replace with your actual offset source)
+            const floatingOriginOffset = this._scene.floatingOriginOffset || { x: 0, y: 0, z: 0 };
             if (renderSelf) {
                 if (this._scene.needsPreviousWorldMatrices) {
                     if (!instanceDataStorage.masterMeshPreviousWorldMatrix) {
@@ -2169,7 +2171,14 @@ export class Mesh extends AbstractMesh implements IGetSetVerticesData {
                         instanceDataStorage.masterMeshPreviousWorldMatrix.copyFrom(world);
                     }
                 }
-                world.copyToArray(instanceStorage.instancesData, offset);
+                // Offset translation for floating origin
+                const worldArray = world.toArray();
+                worldArray[12] -= floatingOriginOffset.x;
+                worldArray[13] -= floatingOriginOffset.y;
+                worldArray[14] -= floatingOriginOffset.z;
+                for (let i = 0; i < 16; ++i) {
+                    instanceStorage.instancesData[offset + i] = worldArray[i];
+                }
                 offset += 16;
                 instancesCount++;
             }
@@ -2188,7 +2197,14 @@ export class Mesh extends AbstractMesh implements IGetSetVerticesData {
                 for (let instanceIndex = 0; instanceIndex < visibleInstances.length; instanceIndex++) {
                     const instance = visibleInstances[instanceIndex];
                     const matrix = instance.getWorldMatrix();
-                    matrix.copyToArray(instanceStorage.instancesData, offset);
+                    // Offset translation for floating origin
+                    const matrixArray = matrix.asArray();
+                    matrixArray[12] -= floatingOriginOffset.x;
+                    matrixArray[13] -= floatingOriginOffset.y;
+                    matrixArray[14] -= floatingOriginOffset.z;
+                    for (let i = 0; i < 16; ++i) {
+                        instanceStorage.instancesData[offset + i] = matrixArray[i];
+                    }
 
                     if (this._scene.needsPreviousWorldMatrices) {
                         if (!instance._previousWorldMatrix) {

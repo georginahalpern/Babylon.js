@@ -16,12 +16,12 @@ const useStyles = makeStyles({
         height: "100%",
     },
     divider: {
-        paddingTop: CustomTokens.dividerGap,
-        paddingBottom: CustomTokens.dividerGap,
+        // paddingTop: CustomTokens.dividerGap,
+        // paddingBottom: CustomTokens.dividerGap,
     },
     dividerSmall: {
-        paddingTop: CustomTokens.dividerGapSmall,
-        paddingBottom: CustomTokens.dividerGapSmall,
+        // paddingTop: CustomTokens.dividerGapSmall,
+        // paddingBottom: CustomTokens.dividerGapSmall,
     },
     panelDiv: {
         display: "flex",
