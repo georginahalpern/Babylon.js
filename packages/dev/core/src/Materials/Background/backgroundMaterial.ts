@@ -974,8 +974,7 @@ export class BackgroundMaterial extends BackgroundMaterialBase {
                     BindIBLSamplers(scene, defines, this._uniformBuffer, reflectionTexture);
 
                     if (defines.REFLECTIONFRESNEL) {
-                        const offset = scene.floatingOriginOffset;
-                        this._uniformBuffer.updateFloat3("vBackgroundCenter", this.sceneCenter.x - offset.x, this.sceneCenter.y - offset.y, this.sceneCenter.z - offset.z);
+                        this._uniformBuffer.updateFloat3("vBackgroundCenter", this.sceneCenter.x, this.sceneCenter.y, this.sceneCenter.z);
                         this._uniformBuffer.updateFloat4(
                             "vReflectionControl",
                             this._reflectionControls.x,
