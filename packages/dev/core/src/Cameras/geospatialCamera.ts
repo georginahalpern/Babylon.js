@@ -13,6 +13,7 @@ import { Clamp } from "../Maths/math.scalar.functions";
 import type { AllowedAnimValue } from "../Behaviors/Cameras/interpolatingBehavior";
 import { InterpolatingBehavior } from "../Behaviors/Cameras/interpolatingBehavior";
 import type { EasingFunction } from "../Animations/easing";
+import type { Collider } from "../Collisions/collider";
 
 type CameraOptions = {
     planetRadius: number; // Radius of the planet
@@ -182,9 +183,33 @@ export class GeospatialCamera extends Camera {
         this._tempVect.copyFrom(this._lookAtVector).scaleInPlace(-this._radius);
         this._tempPosition.copyFrom(this._center).addInPlace(this._tempVect);
 
-        this._position.copyFrom(this._tempPosition);
+        this._position.copyFrom(this._applyCollisions(this._tempPosition));
+        // TODO update yaw/pitch/radius/center
 
         this._isViewMatrixDirty = true;
+    }
+
+    // Collision properties
+    public checkCollisions = true;
+    public collisionRadius = new Vector3(0.1, 0.1, 0.1);
+    private _collider?: Collider;
+    private _collisionVelocity: Vector3 = new Vector3();
+
+    protected _applyCollisions(newPosition: Vector3): Vector3 {
+        const coordinator = this.getScene().collisionCoordinator;
+        if (!coordinator || !this.checkCollisions || !this._scene.collisionsEnabled) {
+            return newPosition;
+        }
+
+        if (!this._collider) {
+            this._collider = coordinator.createCollider();
+        }
+        this._collider._radius = this.collisionRadius;
+
+        // Calculate velocity from old position to new position
+        newPosition.subtractToRef(this._position, this._collisionVelocity);
+
+        return coordinator.getNewPosition(this._position, this._collisionVelocity, this._collider, 3, null, () => {}, this.uniqueId);
     }
 
     /** The point around which the camera will geocentrically rotate. Uses center (pt we are anchored to) if no alternateRotationPt is defined */
