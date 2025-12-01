@@ -18,6 +18,7 @@ const usePreviewStyles = makeStyles({
     container: {
         display: "flex",
         flexDirection: "column",
+        height: "100%",
     },
     toolbar: {
         display: "flex",
@@ -62,7 +63,9 @@ const PreviewComponent: FunctionComponent<PropsWithChildren<PreviewComponentProp
                 <props.topToolbar />
                 <Button icon={WindowNewRegular} title="Open preview in new window" onClick={props.onTogglePopout ?? (() => {})} />
             </Toolbar>
-            <CanvasComponent />
+            <div style={{ flex: 1, minHeight: 0 }}>
+                <CanvasComponent />
+            </div>
             <Toolbar>
                 <props.bottomToolbar />
             </Toolbar>

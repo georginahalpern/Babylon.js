@@ -9,6 +9,11 @@ const useCanvasStyles = makeStyles({
         width: "100%",
         height: "100%",
     },
+    canvas: {
+        width: "100%",
+        height: "100%",
+        display: "block",
+    },
     hidden: {
         visibility: "hidden",
     },
@@ -81,7 +86,14 @@ export const CanvasComponent: FunctionComponent<{}> = () => {
     // IMPORTANT: Right now preview-canvas id is used to pass canvas to previewManager
     return (
         <div className={classes.container}>
-            <canvas id="preview-canvas" onPointerOver={onPointerOverCanvas} onPointerOut={onPointerOutCanvas} onKeyUp={onKeyUp} onPointerMove={processPointerMoveAsync} />
+            <canvas
+                className={classes.canvas}
+                id="preview-canvas"
+                onPointerOver={onPointerOverCanvas}
+                onPointerOut={onPointerOutCanvas}
+                onKeyUp={onKeyUp}
+                onPointerMove={processPointerMoveAsync}
+            />
             <div className={isLoading ? classes.loading : classes.hidden}>Please wait, loading...</div>
             <div ref={consoleRef} />
         </div>

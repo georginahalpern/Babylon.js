@@ -2151,7 +2151,6 @@ export class Mesh extends AbstractMesh implements IGetSetVerticesData {
         let instancesCount = 0;
 
         const renderSelf = batch.renderSelf[subMesh._id];
-        const floatingOriginOffset = this._scene.floatingOriginOffset;
 
         const needUpdateBuffer =
             !instancesBuffer ||

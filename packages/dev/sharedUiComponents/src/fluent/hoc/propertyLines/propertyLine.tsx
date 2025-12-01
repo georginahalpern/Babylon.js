@@ -1,4 +1,4 @@
-import { Body1, InfoLabel, Checkbox, makeStyles, Body1Strong, tokens, mergeClasses } from "@fluentui/react-components";
+import { Body1, InfoLabel, Checkbox, makeStyles, tokens, mergeClasses } from "@fluentui/react-components";
 import {
     ChevronCircleDown20Regular,
     ChevronCircleDown16Regular,
