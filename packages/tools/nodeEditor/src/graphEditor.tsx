@@ -685,7 +685,7 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
                         <PropertyTabComponent lockObject={this.props.globalState.lockObject} globalState={this.props.globalState} />
                         <Splitter size={8} minSize={200} initialSize={300} maxSize={500} controlledSide={ControlledSize.Second} />
                         <div className="nme-preview-part">
-                            {this.state.showPreviewPopUp ? (
+                            {!this.state.showPreviewPopUp ? (
                                 <PreviewMeshControlComponent globalState={this.props.globalState} togglePreviewAreaComponent={this.handlePopUp} />
                             ) : null}
                             {!this.state.showPreviewPopUp ? <PreviewAreaComponent globalState={this.props.globalState} /> : null}
@@ -702,53 +702,51 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
     private _renderFluent() {
         return (
             <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-                <GlobalStateContext.Provider value={this.props.globalState}>
-                    <FluentSplitContainer>
-                        <ResizablePanel initialSize={200} minSize={180} maxSize={350} storageKey="graphEditor-leftPanel">
-                            <NodeListComponent globalState={this.props.globalState} />
-                        </ResizablePanel>
+                <FluentSplitContainer>
+                    <ResizablePanel initialSize={200} minSize={180} maxSize={350} storageKey="graphEditor-leftPanel">
+                        <NodeListComponent globalState={this.props.globalState} />
+                    </ResizablePanel>
 
-                        <ResizablePanel initialSize={800} minSize={400} maxSize={3000} storageKey="graphEditor-middlePanel" fillRemaining={true}>
-                            <FluentSplitContainer
-                                vertical={true}
-                                containerRef={this._diagramContainerRef}
-                                onDrop={(event) => {
-                                    this.dropNewBlock(event);
-                                }}
-                                onDragOver={(event) => {
-                                    event.preventDefault();
-                                }}
-                            >
-                                <ResizablePanel initialSize={400} minSize={150} maxSize={1200} storageKey="graphEditor-canvasPanel" fillRemaining={true}>
-                                    <GraphCanvasComponent
-                                        ref={this._graphCanvasRef}
-                                        stateManager={this.props.globalState.stateManager}
-                                        onEmitNewNode={(nodeData) => {
-                                            return this.appendBlock(nodeData.data as NodeMaterialBlock);
-                                        }}
-                                    />
-                                </ResizablePanel>
-                                <ResizablePanel initialSize={120} minSize={40} maxSize={500} storageKey="graphEditor-logPanel">
-                                    <LogComponent globalState={this.props.globalState} />
-                                </ResizablePanel>
-                            </FluentSplitContainer>
-                        </ResizablePanel>
+                    <ResizablePanel initialSize={800} minSize={400} maxSize={3000} storageKey="graphEditor-middlePanel" fillRemaining={true}>
+                        <FluentSplitContainer
+                            vertical={true}
+                            containerRef={this._diagramContainerRef}
+                            onDrop={(event) => {
+                                this.dropNewBlock(event);
+                            }}
+                            onDragOver={(event) => {
+                                event.preventDefault();
+                            }}
+                        >
+                            <ResizablePanel initialSize={400} minSize={150} maxSize={1200} storageKey="graphEditor-canvasPanel" fillRemaining={true}>
+                                <GraphCanvasComponent
+                                    ref={this._graphCanvasRef}
+                                    stateManager={this.props.globalState.stateManager}
+                                    onEmitNewNode={(nodeData) => {
+                                        return this.appendBlock(nodeData.data as NodeMaterialBlock);
+                                    }}
+                                />
+                            </ResizablePanel>
+                            <ResizablePanel initialSize={120} minSize={40} maxSize={500} storageKey="graphEditor-logPanel">
+                                <LogComponent globalState={this.props.globalState} />
+                            </ResizablePanel>
+                        </FluentSplitContainer>
+                    </ResizablePanel>
 
-                        <ResizablePanel initialSize={300} minSize={250} maxSize={500} storageKey="graphEditor-rightPanel">
-                            <FluentSplitContainer vertical={true}>
-                                <ResizablePanel initialSize={300} minSize={150} maxSize={800} storageKey="graphEditor-propertyPanel">
-                                    <PropertyTabComponent lockObject={this.props.globalState.lockObject} globalState={this.props.globalState} />
-                                </ResizablePanel>
-                                <ResizablePanel initialSize={300} minSize={200} maxSize={500} storageKey="graphEditor-previewPanel" fillRemaining={true}>
-                                    <NodeEditorPreview onTogglePopout={this.handlePopUp} />
-                                </ResizablePanel>
-                            </FluentSplitContainer>
-                        </ResizablePanel>
-                    </FluentSplitContainer>
-                    <MessageDialog message={this.state.message} isError={this.state.isError} onClose={() => this.setState({ message: "" })} />
-                    <div className="blocker">Node Material Editor needs a horizontal resolution of at least 900px</div>
-                    <div className="wait-screen hidden">Processing...please wait</div>
-                </GlobalStateContext.Provider>
+                    <ResizablePanel initialSize={300} minSize={250} maxSize={500} storageKey="graphEditor-rightPanel">
+                        <FluentSplitContainer vertical={true}>
+                            <ResizablePanel initialSize={300} minSize={150} maxSize={800} storageKey="graphEditor-propertyPanel">
+                                <PropertyTabComponent lockObject={this.props.globalState.lockObject} globalState={this.props.globalState} />
+                            </ResizablePanel>
+                            <ResizablePanel initialSize={300} minSize={200} maxSize={500} storageKey="graphEditor-previewPanel" fillRemaining={true}>
+                                <NodeEditorPreview onTogglePopout={this.handlePopUp} />
+                            </ResizablePanel>
+                        </FluentSplitContainer>
+                    </ResizablePanel>
+                </FluentSplitContainer>
+                <MessageDialog message={this.state.message} isError={this.state.isError} onClose={() => this.setState({ message: "" })} />
+                <div className="blocker">Node Material Editor needs a horizontal resolution of at least 900px</div>
+                <div className="wait-screen hidden">Processing...please wait</div>
             </div>
         );
     }
@@ -756,7 +754,9 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
         return (
             <Portal globalState={this.props.globalState}>
                 <FluentToolWrapper toolName="NODE MATERIAL EDITOR" disableCopy={true} size="small">
-                    <ToolContext.Consumer>{({ useFluent }) => (useFluent ? this._renderFluent() : this._renderOriginal())}</ToolContext.Consumer>
+                    <GlobalStateContext.Provider value={this.props.globalState}>
+                        <ToolContext.Consumer>{({ useFluent }) => (useFluent ? this._renderFluent() : this._renderOriginal())}</ToolContext.Consumer>
+                    </GlobalStateContext.Provider>
                 </FluentToolWrapper>
             </Portal>
         );
