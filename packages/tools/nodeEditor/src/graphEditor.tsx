@@ -755,7 +755,7 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
     override render() {
         return (
             <Portal globalState={this.props.globalState}>
-                <FluentToolWrapper toolName="NODE MATERIAL EDITOR" disableCopy={true}>
+                <FluentToolWrapper toolName="NODE MATERIAL EDITOR" disableCopy={true} size="small">
                     <ToolContext.Consumer>{({ useFluent }) => (useFluent ? this._renderFluent() : this._renderOriginal())}</ToolContext.Consumer>
                 </FluentToolWrapper>
             </Portal>
