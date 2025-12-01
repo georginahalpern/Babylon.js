@@ -48,6 +48,6 @@ export const DefaultInspectorExtensionFeed = new BuiltInsExtensionFeed("Inspecto
         keywords: ["creation", "tools"],
         ...BabylonWebResources,
         author: { name: "Jason Carter", forumUserName: "PirateJC" },
-        getExtensionModuleAsync: async () => await import("../services/quickCreate/quickCreateToolsService"),
+        getExtensionModuleAsync: async () => await import("./extensions/quickCreate/quickCreateToolsService"),
     },
 ]);

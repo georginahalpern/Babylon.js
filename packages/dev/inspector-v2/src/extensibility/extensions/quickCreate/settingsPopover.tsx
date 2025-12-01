@@ -3,6 +3,11 @@ import { useState } from "react";
 import { Popover, PopoverTrigger, PopoverSurface } from "@fluentui/react-components";
 import { Settings20Regular } from "@fluentui/react-icons";
 
+/**
+ * Settings popover component, can be updated to use shared popover once it exists
+ * @param props
+ * @returns
+ */
 export const SettingsPopover: FunctionComponent<PropsWithChildren<{}>> = (props) => {
     const { children } = props;
     const [popoverOpen, setPopoverOpen] = useState(false);
