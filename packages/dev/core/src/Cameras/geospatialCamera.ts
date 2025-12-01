@@ -12,6 +12,7 @@ import { Vector3CopyToRef, Vector3Distance } from "../Maths/math.vector.function
 import { Clamp, NormalizeRadians } from "../Maths/math.scalar.functions";
 import type { AllowedAnimValue } from "../Behaviors/Cameras/interpolatingBehavior";
 import { InterpolatingBehavior } from "../Behaviors/Cameras/interpolatingBehavior";
+import type { Collider } from "../Collisions/collider";
 import type { EasingFunction } from "../Animations/easing";
 import type { Animation } from "../Animations/animation";
 
@@ -45,6 +46,12 @@ export class GeospatialCamera extends Camera {
     /** Behavior used for smooth flying animations */
     private _flyingBehavior: InterpolatingBehavior<GeospatialCamera>;
     private _flyToTargets: Map<keyof GeospatialCamera, AllowedAnimValue> = new Map();
+
+    // Collision properties
+    public checkCollisions = true;
+    public collisionRadius = new Vector3(0.1, 0.1, 0.1);
+    private _collider?: Collider;
+    private _collisionVelocity: Vector3 = new Vector3();
 
     constructor(name: string, scene: Scene, options: CameraOptions, pickPredicate?: MeshPredicate) {
         super(name, new Vector3(), scene);
@@ -184,7 +191,7 @@ export class GeospatialCamera extends Camera {
         this._tempVect.copyFrom(this._lookAtVector).scaleInPlace(-this._radius);
         this._tempPosition.copyFrom(this._center).addInPlace(this._tempVect);
 
-        this._position.copyFrom(this._tempPosition);
+        this._applyCollisions(this._tempPosition);
 
         this._isViewMatrixDirty = true;
     }
@@ -288,6 +295,22 @@ export class GeospatialCamera extends Camera {
         const zoomDistance = this.radius * radiusScale;
         const newRadius = this._getCenterAndRadiusFromZoomToPoint(destination, zoomDistance, this._tempCenter);
         await this.flyToAsync(undefined, undefined, newRadius, this._tempCenter, durationMs, easingFn, overshootRadiusScale);
+        //     const zoomDistance = this.radius * radiusScale;
+        //     const newRadius = Clamp(this.radius - zoomDistance, this.limits.radiusMin, this.limits.radiusMax);
+        //     const actualZoomDistance = this.radius - newRadius;
+        //     const zoomRatio = actualZoomDistance / this.radius;
+
+        //     // Move center toward destination by the zoom ratio
+        //     const directionToDestination = TmpVectors.Vector3[0];
+        //     destination.subtractToRef(this._center, directionToDestination);
+
+        //     const centerOffset = TmpVectors.Vector3[1];
+        //     directionToDestination.scaleToRef(zoomRatio, centerOffset);
+
+        //     const newCenter = new Vector3();
+        //     this._center.addToRef(centerOffset, newCenter);
+
+        //     await this.flyToAsync(undefined, undefined, newRadius, newCenter, durationMs, easingFn, overshootRadiusScale);
     }
 
     private _limits: GeospatialLimits;
@@ -320,6 +343,7 @@ export class GeospatialCamera extends Camera {
         if (!this._isViewMatrixDirty) {
             return this._viewMatrix;
         }
+
         this._isViewMatrixDirty = false;
 
         // Ensure vectors are normalized
@@ -342,6 +366,37 @@ export class GeospatialCamera extends Camera {
             return false;
         }
         return true;
+    }
+    /**
+     * Rebuild yaw, pitch, center, and radius from the current position
+     * This is the inverse of _setOrientation and ensures internal state stays synchronized
+     */
+    private _rebuildOrientationFromPosition(): void {
+        // Vector from center to camera
+        // const toCameraVector = this._position.subtractToRef(this._center ?? new Vector3(), new Vector3());
+        // this._radius = toCameraVector.length();
+        // if (this._radius === 0) {
+        //     this._radius = 0.0001; // Avoid division by zero
+        // }
+        // // Get local basis at center
+        // const tempEast = new Vector3();
+        // const tempNorth = new Vector3();
+        // const tempUp = new Vector3();
+        // ComputeLocalBasisToRefs(this._center, tempEast, tempNorth, tempUp);
+        // // Normalize vector for angle calculations
+        // toCameraVector.normalize();
+        // // Calculate pitch (angle from looking at center)
+        // const upDot = Vector3Dot(toCameraVector, tempUp);
+        // this._pitch = Math.acos(Clamp(upDot, -1, 1));
+        // // Project onto horizontal plane for yaw calculation
+        // const horizontalComponent = toCameraVector.subtract(tempUp.scale(upDot));
+        // horizontalComponent.normalize();
+        // // Calculate yaw from north
+        // const northDot = Vector3Dot(horizontalComponent, tempNorth);
+        // const eastDot = Vector3Dot(horizontalComponent, tempEast);
+        // this._yaw = Math.atan2(eastDot, northDot);
+        // this._checkLimits();
+        // this._isViewMatrixDirty = true;
     }
 
     private _applyGeocentricTranslation() {
@@ -432,6 +487,8 @@ export class GeospatialCamera extends Camera {
     override _checkInputs(): void {
         this.inputs.checkInputs();
 
+        // Check if position is dirty and rebuild angles if needed ? or just limit to using a position setter
+
         // Let movement class handle all per-frame logic
         this.movement.computeCurrentFrameDeltas();
 
@@ -475,6 +532,26 @@ export class GeospatialCamera extends Camera {
             }
         }
     }
+
+    protected _applyCollisions(newPosition: Vector3): void {
+        const coordinator = this.getScene().collisionCoordinator;
+        if (!coordinator || !this.checkCollisions || !this._scene.collisionsEnabled) {
+            this._position.copyFrom(newPosition);
+            return;
+        }
+
+        if (!this._collider) {
+            this._collider = coordinator.createCollider();
+        }
+        this._collider._radius = this.collisionRadius;
+
+        // Calculate velocity from old position to new position
+        newPosition.subtractToRef(this._position, this._collisionVelocity);
+
+        this._position.copyFrom(coordinator.getNewPosition(this._position, this._collisionVelocity, this._collider, 3, null, () => {}, this.uniqueId));
+        this._rebuildOrientationFromPosition();
+    }
+
     override attachControl(noPreventDefault?: boolean): void {
         this.inputs.attachElement(noPreventDefault);
     }
