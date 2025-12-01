@@ -2151,6 +2151,7 @@ export class Mesh extends AbstractMesh implements IGetSetVerticesData {
         let instancesCount = 0;
 
         const renderSelf = batch.renderSelf[subMesh._id];
+        const floatingOriginOffset = this._scene.floatingOriginOffset;
 
         const needUpdateBuffer =
             !instancesBuffer ||
@@ -2171,14 +2172,13 @@ export class Mesh extends AbstractMesh implements IGetSetVerticesData {
                         instanceDataStorage.masterMeshPreviousWorldMatrix.copyFrom(world);
                     }
                 }
-                // Offset translation for floating origin
-                const worldArray = world.toArray();
-                worldArray[12] -= floatingOriginOffset.x;
-                worldArray[13] -= floatingOriginOffset.y;
-                worldArray[14] -= floatingOriginOffset.z;
-                for (let i = 0; i < 16; ++i) {
-                    instanceStorage.instancesData[offset + i] = worldArray[i];
-                }
+                world.copyToArray(instanceStorage.instancesData, offset);
+
+                // Apply floatingOriginOffset to underlying data sent to buffer
+                instanceStorage.instancesData[offset + 12] -= floatingOriginOffset.x;
+                instanceStorage.instancesData[offset + 13] -= floatingOriginOffset.y;
+                instanceStorage.instancesData[offset + 14] -= floatingOriginOffset.z;
+
                 offset += 16;
                 instancesCount++;
             }
@@ -2215,6 +2215,11 @@ export class Mesh extends AbstractMesh implements IGetSetVerticesData {
                             instance._previousWorldMatrix.copyFrom(matrix);
                         }
                     }
+
+                    // Apply floatingOriginOffset to underlying data sent to buffer
+                    instanceStorage.instancesData[offset + 12] -= floatingOriginOffset.x;
+                    instanceStorage.instancesData[offset + 13] -= floatingOriginOffset.y;
+                    instanceStorage.instancesData[offset + 14] -= floatingOriginOffset.z;
 
                     offset += 16;
                     instancesCount++;
@@ -2693,7 +2698,7 @@ export class Mesh extends AbstractMesh implements IGetSetVerticesData {
             !instanceDataStorage.isFrozen &&
             (this._internalMeshDataInfo._effectiveMaterial.backFaceCulling ||
                 this._internalMeshDataInfo._effectiveMaterial.sideOrientation !== null ||
-                (this._internalMeshDataInfo._effectiveMaterial as any).twoSidedLighting)
+                (this._internalMeshDataInfo._effectiveMaterial as any)._twoSidedLighting)
         ) {
             // Note: if two sided lighting is enabled, we need to ensure that the normal will point in the right direction even if the determinant of the world matrix is negative
             const mainDeterminant = effectiveMesh._getWorldMatrixDeterminant();
@@ -3430,7 +3435,7 @@ export class Mesh extends AbstractMesh implements IGetSetVerticesData {
 
     private _convertToUnIndexedMesh(flattenNormals: boolean = false): Mesh {
         const kinds = this.getVerticesDataKinds().filter((kind) => !this.getVertexBuffer(kind)?.getIsInstanced());
-        const indices = this.getIndices()!;
+        const indices = this.getIndices(false, true)!;
         const data: { [kind: string]: FloatArray } = {};
 
         const separateVertices = (data: FloatArray, size: number): Float32Array => {

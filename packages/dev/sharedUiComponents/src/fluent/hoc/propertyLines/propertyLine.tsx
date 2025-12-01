@@ -1,11 +1,19 @@
-import { Body1, InfoLabel, Link, Checkbox, makeStyles, tokens, mergeClasses } from "@fluentui/react-components";
-import { ChevronCircleDown16Regular, ChevronCircleRight16Regular, Copy16Regular } from "@fluentui/react-icons";
+import { Body1, InfoLabel, Checkbox, makeStyles, Body1Strong, tokens, mergeClasses } from "@fluentui/react-components";
+import {
+    ChevronCircleDown20Regular,
+    ChevronCircleDown16Regular,
+    ChevronCircleRight16Regular,
+    ChevronCircleRight20Regular,
+    Copy16Regular,
+    Copy20Regular,
+} from "@fluentui/react-icons";
 import type { FunctionComponent, HTMLProps, PropsWithChildren } from "react";
 import { useContext, useState, forwardRef, cloneElement, isValidElement, useRef } from "react";
 import { Collapse } from "../../primitives/collapse";
 import { copyCommandToClipboard } from "../../../copyCommandToClipboard";
 import { ToolContext } from "../fluentToolWrapper";
 import type { PrimitiveProps } from "../../primitives/primitive";
+import { Link } from "../../primitives/link";
 import { ToggleButton } from "../../primitives/toggleButton";
 import { Button } from "../../primitives/button";
 import { CustomTokens } from "../../primitives/utils";
@@ -129,7 +137,7 @@ export const PropertyLine = forwardRef<HTMLDivElement, PropsWithChildren<Propert
     const [expanded, setExpanded] = useState("expandByDefault" in props ? props.expandByDefault : false);
     const cachedVal = useRef(nullable ? props.value : null);
 
-    const description = props.docLink ? <Link href={props.docLink}>{props.description ?? "Docs"}</Link> : props.description;
+    const description = props.docLink ? <Link url={props.docLink} value={props.description ?? "Docs"} /> : props.description;
 
     // Process children to handle nullable state -- creating component in disabled state with default value in lieu of null value
     const processedChildren =
@@ -159,8 +167,8 @@ export const PropertyLine = forwardRef<HTMLDivElement, PropsWithChildren<Propert
                         <ToggleButton
                             title="Expand/Collapse property"
                             appearance="transparent"
-                            checkedIcon={ChevronCircleDown16Regular}
-                            uncheckedIcon={ChevronCircleRight16Regular}
+                            checkedIcon={size === "small" ? ChevronCircleDown16Regular : ChevronCircleDown20Regular}
+                            uncheckedIcon={size === "small" ? ChevronCircleRight16Regular : ChevronCircleRight20Regular}
                             value={expanded === true}
                             onChange={setExpanded}
                         />
@@ -185,7 +193,13 @@ export const PropertyLine = forwardRef<HTMLDivElement, PropsWithChildren<Propert
                     )}
                     {processedChildren}
                     {onCopy && !disableCopy && (
-                        <Button className={classes.copy} title="Copy to clipboard" appearance="transparent" icon={Copy16Regular} onClick={() => copyCommandToClipboard(onCopy())} />
+                        <Button
+                            className={classes.copy}
+                            title="Copy to clipboard"
+                            appearance="transparent"
+                            icon={size === "small" ? Copy16Regular : Copy20Regular}
+                            onClick={() => copyCommandToClipboard(onCopy())}
+                        />
                     )}
                 </div>
             </div>
