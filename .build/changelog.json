@@ -1,6 +1,74 @@
 {
-    "fromTag": "8.39.0",
+    "fromTag": "8.39.1",
     "changelog": {
+        "8.39.2": [
+            {
+                "pr": "17518",
+                "title": "Add addons package's NOTICE.md to published output",
+                "description": null,
+                "author": {
+                    "name": "docEdub",
+                    "url": "https://github.com/docEdub"
+                },
+                "files": [
+                    "packages/public/@babylonjs/addons/package.json"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17516",
+                "title": "Volumetric Lighting: fix lighting volume when light direction changes",
+                "description": "I also removed the **buildFullVolume** property (at least from the public interface), as there's no point to have it at the time being (maybe we will need it when cascaded shadow generators are supported, that's why I didn't remove it completely).\r\n\r\n",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/lightingVolumeBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/volumetricLightingTask.ts",
+                    "packages/dev/core/src/Lights/lightingVolume.ts",
+                    "packages/tools/tests/test/visualization/ReferenceImages/Lighting-Volume.png"
+                ],
+                "tags": [
+                    "bug",
+                    "rendering engine"
+                ]
+            },
+            {
+                "pr": "17517",
+                "title": "Revert to old arcrotatecamera behavior where alpha/beta does not scale inertialLimit by speed",
+                "description": "[This PR ](https://github.com/BabylonJS/Babylon.js/commit/1808908d802449319b8b7f3ee8a6ca2931bbcf4a#diff-058148631353bb90134f4cecf195b8ea72bfc7c791d70de6015e331aa381ff51) exposed overrideable rotationEpsilon and panningEpsilon to enable modifying these values on a per-frame basis (so that they can be scaled based on frame rate). However the change also modified the check for alpha/beta to be speed*epsilon to match what radius check did (which was treated as a bug fix)). However this changed behavior of alpha/beta movement on the camera.\r\n\r\nThis PR moves us back to the old alpha/beta behavior. The plan is to address confusion around camera limits / movement behavior all at once when addressing framerate-independent inertia at the camera level, vs causing an intermediate change in behavior now.",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/core/src/Cameras/arcRotateCamera.ts"
+                ],
+                "tags": [
+                    "camera"
+                ]
+            },
+            {
+                "pr": "17499",
+                "title": "Inspector v2: Back compat for DebugLayer.openedPanes and DebugLayer.setAsActiveScene",
+                "description": "This PR implements `Inspector._OpenedPane` and `Inspector._SetNewScene` to make `DebugLayer.openedPanes` and `DebugLayer.setAsActiveScene` work.\r\n\r\nThe short term implementation for `_SetNewScene` is to just hide and reshow Inspector. This is because we already know we want to have multi-scene support, so we'll need to do more thinking about what `_SetNewScene` would mean in that context and whether there is something better than hiding/showing Inspector in this scenario.\r\n\r\nHowever, doing this revealed some subtle timing bugs when hiding/showing Inspector back to back synchronously. Ultimately the problem is that React render/unmount both do hidden async work, and it must be sequentialized for everything to work correctly. So the biggest change in this PR is really just about managing all this internal asynchrony in a robust way that hides the complexity from the user. The new `ShowInspector` API still just synchronously returns a dispose token to keep things simple. Calling dispose on that token internally manages the async sequentialization. I like this because it makes the API simple, but I'm also not 100% sure hiding this asynchrony from the user will be the long term best solution, so I may still revisit the actual API before the 9.0 release (e.g. it may become async), but all the logic for managing the asynchrony (the hard part) should not need to change.\r\n\r\nI'm creating this PR in draft as I will be OOF next week. If we don't want to leave it in draft for a week, we can also close it and re-open when I'm back.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/legacy/debugLayer.ts",
+                    "packages/dev/inspector-v2/src/legacy/inspector.tsx",
+                    "packages/dev/inspector-v2/src/modularTool.tsx",
+                    "packages/dev/inspector-v2/src/services/shellService.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            }
+        ],
         "8.39.1": [
             {
                 "pr": "17457",
