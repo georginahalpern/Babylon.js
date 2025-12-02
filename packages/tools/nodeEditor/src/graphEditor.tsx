@@ -10,6 +10,7 @@ import { CustomBlock } from "core/Materials/Node/Blocks/customBlock";
 import { InputBlock } from "core/Materials/Node/Blocks/Input/inputBlock";
 import type { Nullable } from "core/types";
 import { MessageDialog } from "shared-ui-components/components/MessageDialog";
+import { FluentDialog } from "./fluentDialog";
 import { BlockTools } from "./blockTools";
 import { PreviewManager } from "./components/preview/previewManager";
 import { PreviewMeshControlComponent } from "./components/preview/previewMeshControlComponent";
@@ -359,8 +360,14 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
         this.showWaitScreen();
         this._graphCanvas._isLoading = true; // Will help loading large graphes
 
-        this._graphCanvas.reOrganize(editorData, isImportingAFrame);
-        this.hideWaitScreen();
+        // Use setTimeout to allow the wait screen to render before the heavy operation
+        setTimeout(() => {
+            try {
+                this._graphCanvas.reOrganize(editorData, isImportingAFrame);
+            } finally {
+                this.hideWaitScreen();
+            }
+        }, 10);
     }
 
     onWheel = (evt: WheelEvent) => {
@@ -744,9 +751,9 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
                         </FluentSplitContainer>
                     </ResizablePanel>
                 </FluentSplitContainer>
-                <MessageDialog message={this.state.message} isError={this.state.isError} onClose={() => this.setState({ message: "" })} />
+                <FluentDialog open={!!this.state.message} message={this.state.message} isError={this.state.isError} onClose={() => this.setState({ message: "" })} />
                 <div className="blocker">Node Material Editor needs a horizontal resolution of at least 900px</div>
-                <div className="wait-screen hidden">Processing...please wait</div>
+                {/* <div className="wait-screen hidden">Processing...please wait</div> */}
             </div>
         );
     }

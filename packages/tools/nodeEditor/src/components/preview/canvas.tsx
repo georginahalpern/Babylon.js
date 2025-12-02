@@ -34,7 +34,11 @@ const useCanvasStyles = makeStyles({
     },
 });
 
-export const CanvasComponent: FunctionComponent<{}> = () => {
+type CanvasComponentProps = {
+    canvasId?: string;
+};
+
+export const CanvasComponent: FunctionComponent<CanvasComponentProps> = ({ canvasId = "preview-canvas" }) => {
     const classes = useCanvasStyles();
     const globalState = useContext(GlobalStateContext);
     const [isLoading, setIsLoading] = useState(true);
@@ -83,12 +87,12 @@ export const CanvasComponent: FunctionComponent<{}> = () => {
         e.preventDefault();
     };
 
-    // IMPORTANT: Right now preview-canvas id is used to pass canvas to previewManager
+    // IMPORTANT: preview-canvas id is used to pass canvas to previewManager
     return (
         <div className={classes.container}>
             <canvas
                 className={classes.canvas}
-                id="preview-canvas"
+                id={canvasId}
                 onPointerOver={onPointerOverCanvas}
                 onPointerOut={onPointerOutCanvas}
                 onKeyUp={onKeyUp}

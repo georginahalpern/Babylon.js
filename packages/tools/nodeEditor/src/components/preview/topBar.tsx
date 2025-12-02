@@ -153,12 +153,13 @@ export const TopBar: FunctionComponent<{}> = () => {
             )}
             {globalState.mode === NodeMaterialModes.Material && (
                 <>
-                    <Button icon={WeatherSunnyLowRegular} title="Environment image" onClick={() => envPickerRef.current?.click()} />
+                    <Button appearance="transparent" icon={WeatherSunnyLowRegular} title="Environment image" onClick={() => envPickerRef.current?.click()} />
                     <BoundProperty
                         component={ToggleButton}
                         target={globalState}
                         propertyKey="rotatePreview"
                         title="Rotate Preview"
+                        appearance="transparent"
                         checkedIcon={PlayRegular}
                         uncheckedIcon={PauseRegular}
                         customChange={() => globalState.onAnimationCommandActivated.notifyObservers()}

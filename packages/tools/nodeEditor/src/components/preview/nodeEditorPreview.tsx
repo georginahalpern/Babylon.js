@@ -4,6 +4,7 @@ import { WindowNewRegular } from "@fluentui/react-icons";
 import { tokens } from "@fluentui/tokens";
 import { makeStyles, Toolbar } from "@fluentui/react-components";
 import { Button } from "shared-ui-components/fluent/primitives/button";
+import { ToolContext } from "shared-ui-components/fluent/hoc/fluentToolWrapper";
 import { TopBar } from "./topBar";
 import { BottomBar } from "./bottomBar";
 import { CanvasComponent } from "./canvas";
@@ -21,11 +22,26 @@ const usePreviewStyles = makeStyles({
         height: "100%",
     },
     toolbar: {
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        padding: tokens.spacingHorizontalS,
-        gap: tokens.spacingHorizontalS,
+        padding: `${tokens.spacingVerticalM} ${tokens.spacingHorizontalS}`,
+        justifyContent: "space-between",
+    },
+    canvasContainer: {
+        position: "relative",
+        flex: 1,
+        minHeight: 0,
+    },
+    waitPanel: {
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        backgroundColor: tokens.colorNeutralBackground1,
+        padding: tokens.spacingVerticalXL,
+        borderRadius: tokens.borderRadiusMedium,
+        boxShadow: tokens.shadow16,
+    },
+    hidden: {
+        display: "none",
     },
 });
 
@@ -41,15 +57,15 @@ const PreviewComponent: FunctionComponent<PropsWithChildren<PreviewComponentProp
     const { onMounted } = props;
     const globalState = useContext(GlobalStateContext);
 
-    const [, forceUpdate] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         onMounted?.();
         const isLoadingObs = globalState?.onIsLoadingChanged.add((state) => {
-            forceUpdate((prev) => prev + 1);
+            setIsLoading(state);
         });
         const resetObs = globalState?.onResetRequiredObservable.add(() => {
-            forceUpdate((prev) => prev + 1);
+            setIsLoading(false);
         });
         return () => {
             isLoadingObs && globalState?.onIsLoadingChanged.remove(isLoadingObs);
@@ -59,14 +75,15 @@ const PreviewComponent: FunctionComponent<PropsWithChildren<PreviewComponentProp
 
     return (
         <div className={classes.container}>
-            <Toolbar>
+            <Toolbar size="medium" className={classes.toolbar}>
                 <props.topToolbar />
-                <Button icon={WindowNewRegular} title="Open preview in new window" onClick={props.onTogglePopout ?? (() => {})} />
+                <Button appearance="transparent" icon={WindowNewRegular} title="Open preview in new window" onClick={props.onTogglePopout ?? (() => {})} />
             </Toolbar>
-            <div style={{ flex: 1, minHeight: 0 }}>
+            <div className={classes.canvasContainer}>
                 <CanvasComponent />
+                {isLoading && <div className={classes.waitPanel}>Please wait, loading...</div>}
             </div>
-            <Toolbar>
+            <Toolbar size="medium" className={classes.toolbar}>
                 <props.bottomToolbar />
             </Toolbar>
         </div>
@@ -74,5 +91,9 @@ const PreviewComponent: FunctionComponent<PropsWithChildren<PreviewComponentProp
 };
 
 export const NodeEditorPreview: FunctionComponent<PreviewAreaComponentProps> = (props) => {
-    return <PreviewComponent topToolbar={TopBar} bottomToolbar={BottomBar} {...props} />;
+    return (
+        <ToolContext.Provider value={{ useFluent: true, disableCopy: false, toolName: "", size: "medium" }}>
+            <PreviewComponent topToolbar={TopBar} bottomToolbar={BottomBar} {...props} />
+        </ToolContext.Provider>
+    );
 };

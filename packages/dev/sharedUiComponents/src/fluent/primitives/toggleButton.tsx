@@ -21,7 +21,7 @@ type ToggleButtonProps = Omit<ButtonProps, "icon" | "onClick"> & {
  */
 export const ToggleButton: FunctionComponent<ToggleButtonProps> = (props) => {
     ToggleButton.displayName = "ToggleButton";
-    const { value, onChange, title, appearance = "subtle" } = props;
+    const { value, onChange, title, appearance = "transparent" } = props;
     const { size } = useContext(ToolContext);
     const [checked, setChecked] = useState(value);
     const toggle = useCallback(() => {

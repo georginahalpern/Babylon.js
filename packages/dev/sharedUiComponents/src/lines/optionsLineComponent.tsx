@@ -4,10 +4,9 @@ import type { PropertyChangedEvent } from "../propertyChangedEvent";
 import { copyCommandToClipboard, getClassNameWithNamespace } from "../copyCommandToClipboard";
 import type { IInspectableOptions } from "core/Misc/iInspectable";
 import copyIcon from "../imgs/copy.svg";
-import { PropertyLine } from "../fluent/hoc/propertyLines/propertyLine";
-import { Dropdown } from "../fluent/primitives/dropdown";
 import type { AcceptedDropdownValue } from "../fluent/primitives/dropdown";
 import { ToolContext } from "../fluent/hoc/fluentToolWrapper";
+import { DropdownPropertyLine } from "../fluent/hoc/propertyLines/dropdownPropertyLine";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const Null_Value = Number.MAX_SAFE_INTEGER;
@@ -122,16 +121,16 @@ export class OptionsLine extends React.Component<IOptionsLineProps, { value: num
 
     private _renderFluent() {
         return (
-            <PropertyLine label={this.props.label} onCopy={() => this.onCopyClickStr()}>
-                <Dropdown
-                    options={this.props.options}
-                    onChange={(val: AcceptedDropdownValue) => {
-                        // val != null captures both null and undefined cases
-                        val != null && this.updateValue(val.toString());
-                    }}
-                    value={this.state.value}
-                />
-            </PropertyLine>
+            <DropdownPropertyLine
+                label={this.props.label}
+                onCopy={() => this.onCopyClickStr()}
+                options={this.props.options}
+                onChange={(val: AcceptedDropdownValue) => {
+                    // val != null captures both null and undefined cases
+                    val != null && this.updateValue(val.toString());
+                }}
+                value={this.state.value}
+            />
         );
     }
 

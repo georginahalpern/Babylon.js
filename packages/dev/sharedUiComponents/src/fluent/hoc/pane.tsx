@@ -1,4 +1,4 @@
-import { Body1Strong, makeStyles, tokens } from "@fluentui/react-components";
+import { Subtitle2Stronger, makeStyles, tokens } from "@fluentui/react-components";
 import type { FluentIcon } from "@fluentui/react-icons";
 import type { FunctionComponent, PropsWithChildren } from "react";
 
@@ -10,15 +10,20 @@ const useStyles = makeStyles({
         flexDirection: "column",
     },
     icon: {
-        width: tokens.fontSizeBase400,
-        height: tokens.fontSizeBase400,
-        verticalAlign: "middle",
+        height: "100%",
+        padding: tokens.spacingHorizontalS,
     },
     header: {
-        height: tokens.fontSizeBase400,
-        fontSize: tokens.fontSizeBase400,
-        textAlign: "center",
-        verticalAlign: "middle",
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "36px",
+        backgroundColor: tokens.colorBackgroundOverlay,
+        padding: tokens.spacingHorizontalS,
+    },
+    headerText: {
+        marginLeft: tokens.spacingHorizontalM,
     },
 });
 
@@ -36,7 +41,9 @@ export const Pane: FunctionComponent<PropsWithChildren<PaneProps>> = (props) => 
                 ) : (
                     <img className={classes.icon} id="logo" src="https://www.babylonjs.com/Assets/logo-babylonjs-social-twitter.png" />
                 )}
-                <Body1Strong id="title">{props.title}</Body1Strong>
+                <Subtitle2Stronger id="title" className={classes.headerText}>
+                    {props.title}
+                </Subtitle2Stronger>
             </div>
             {props.children}
         </div>

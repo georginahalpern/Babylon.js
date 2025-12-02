@@ -44,51 +44,58 @@ export const BottomBar: FunctionComponent<{}> = () => {
                 <>
                     <BoundProperty
                         component={ToggleButton}
-                        title="Render without back face culling"
+                        title="Turn on/off direction light #0"
                         target={globalState}
-                        propertyKey="backFaceCulling"
-                        checkedIcon={ArrowAutofitContentRegular}
-                        customChange={(val: boolean) => onChange(val, "BackFaceCulling", globalState.onBackFaceCullingChanged)}
-                    />
-                    <BoundProperty
-                        component={ToggleButton}
-                        title="Render with depth pre-pass"
-                        target={globalState}
-                        propertyKey="depthPrePass"
-                        checkedIcon={StackRegular}
-                        customChange={(val: boolean) => onChange(val, "DepthPrePass", globalState.onDepthPrePassChanged)}
-                    />
-                    <BoundProperty
-                        component={ToggleButton}
-                        title="Turn on/off hemispheric light"
-                        target={globalState}
-                        propertyKey="hemisphericLight"
+                        propertyKey="directionalLight0"
+                        appearance="transparent"
                         checkedIcon={LightbulbFilamentRegular}
-                        customChange={(val: boolean) => onChange(val, "HemisphericLight", globalState.onLightUpdated)}
+                        customChange={(val: boolean) => onChange(val, "DirectionalLight0", globalState.onLightUpdated)}
                     />
                     <BoundProperty
                         component={ToggleButton}
                         title="Turn on/off direction light #1"
                         target={globalState}
                         propertyKey="directionalLight1"
+                        appearance="transparent"
                         checkedIcon={LightbulbFilamentRegular}
                         customChange={(val: boolean) => onChange(val, "DirectionalLight1", globalState.onLightUpdated)}
                     />
                     <BoundProperty
                         component={ToggleButton}
-                        title="Turn on/off direction light #0"
+                        title="Turn on/off hemispheric light"
                         target={globalState}
-                        propertyKey="directionalLight0"
+                        propertyKey="hemisphericLight"
+                        appearance="transparent"
                         checkedIcon={LightbulbFilamentRegular}
-                        customChange={(val: boolean) => onChange(val, "DirectionalLight0", globalState.onLightUpdated)}
+                        customChange={(val: boolean) => onChange(val, "HemisphericLight", globalState.onLightUpdated)}
                     />
                     <BoundProperty
                         component={ToggleButton}
                         title="Turn on/off environment"
                         target={globalState}
                         propertyKey="backgroundHDR"
+                        appearance="transparent"
                         checkedIcon={LightbulbFilamentRegular}
                         customChange={(val: boolean) => onChange(val, "BackgroundHDR", globalState.onBackgroundHDRUpdated)}
+                    />
+
+                    <BoundProperty
+                        component={ToggleButton}
+                        title="Render with depth pre-pass"
+                        target={globalState}
+                        propertyKey="depthPrePass"
+                        appearance="transparent"
+                        checkedIcon={StackRegular}
+                        customChange={(val: boolean) => onChange(val, "DepthPrePass", globalState.onDepthPrePassChanged)}
+                    />
+                    <BoundProperty
+                        component={ToggleButton}
+                        title="Render without back face culling"
+                        target={globalState}
+                        propertyKey="backFaceCulling"
+                        appearance="transparent"
+                        checkedIcon={ArrowAutofitContentRegular}
+                        customChange={(val: boolean) => onChange(val, "BackFaceCulling", globalState.onBackFaceCullingChanged)}
                     />
                 </>
             )}
