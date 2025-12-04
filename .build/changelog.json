@@ -1,6 +1,218 @@
 {
-    "fromTag": "8.39.0",
+    "fromTag": "8.39.3",
     "changelog": {
+        "8.40.0": [
+            {
+                "pr": "17525",
+                "title": "Fixes invalid import path @babylonjs/core/Lights/Clustered.js",
+                "description": "Fixes invalid import path @babylonjs/core/Lights/Clustered.js in the inspector-v2 package introduced in #17520. This is the same class of bug as the Meshes.js issue fixed in #17282.\r\n\r\nThe Problem\r\n\r\nWhen importing from a directory barrel (e.g., core/Lights/Clustered), the build tooling's pathTransform appends .js to create @babylonjs/core/Lights/Clustered.js. However, Clustered is a directory with an index.js, not a standalone file, causing module resolution to fail for consumers.\r\n\r\nThe Fix\r\n\r\nChanged the import to reference the specific file directly:\r\n\r\n```\r\n-import { ClusteredLightContainer } from \"core/Lights/Clustered\";\r\n+import { ClusteredLightContainer } from \"core/Lights/Clustered/clusteredLightContainer\";\r\n```",
+                "author": {
+                    "name": "marns",
+                    "url": "https://github.com/marns"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/services/panes/scene/nodeExplorerService.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17524",
+                "title": "ThinEngine: Replace window with globalThis",
+                "description": "Fixes `ThinEngine.IsSupported` incorrectly returning false in worker contexts, from https://forum.babylonjs.com/t/issue-with-recent-dumptools-changes-in-web-worker-context/61638. ",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/core/src/Engines/thinEngine.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17523",
+                "title": "Fix: Node drop position accuracy",
+                "description": "Fixed incorrect node positioning when dropping nodes onto the canvas. Replaced offsetLeft/offsetTop with getBoundingClientRect().left/top in dropNewBlock method to accurately calculate drop coordinates, accounting for all parent positioning, transforms, and nested containers.\r\n\r\nIssue demonstration: https://soullnik.github.io/npe-guide/",
+                "author": {
+                    "name": "Soullnik",
+                    "url": "https://github.com/Soullnik"
+                },
+                "files": [
+                    "packages/tools/nodeParticleEditor/src/graphEditor.tsx"
+                ],
+                "tags": []
+            }
+        ],
+        "8.39.3": [
+            {
+                "pr": "17521",
+                "title": "Inspector v2: Back compat for \"attaching\" UMD globals and Scene.debugLayer",
+                "description": "This change is mostly about making it possible to \"attach/detach\" Inspector v2 to the global scope (e.g. `globalThis.BABYLON.Inspector` for the class and `globalThis.INSPECTOR` for the module) and `Scene.debugLayer` *dynamically* via explicit function calls, while also calling those `Attach*` functions by default as side effects. This enables the following:\r\n- Side effect back compat.\r\n- Ability to \"detach\" dynamically, which will enable swapping between Inspector v1 and v2 at runtime, which we still need to be able to do until the 9.0 release. This will let us switch to using the UMD package to support versioning (e.g. using an older version of the platform, including an older version of Inspector v2) which by default will override the globals and Scene.debugLayer, but we can dynamically detach to restore v1.\r\n- A future way to be able to explicitly \"attach\" without relying on side effects, which we'll want when we get to all the side effects work anyway.\r\n\r\nI also snuck in a few unrelated small changes:\r\n- With a recent change Inspector v2 is more asynchronous internally to deal with React asynchrony. This means we now need switching from Inspector v2 to Inspector v1 to be more asynchronous as well. Fixed this in Playground and Sandbox. The ugly code is temporary and will be removed as part of the 9.0 release.\r\n- Remove the use of makeStyles in the inline \"Canvas Injector\" service definition. The style definition must be determined inside the function because it is dynamic and depends on the `canvasContainerDisplay`, but `makeStyles` incorrectly detects that it is being used within a function component and emits a warning. Since the style is tiny and won't be re-used, just making it an inline React style is fine and gets rid of the annoying runtime warning.\r\n- In the Inspector v2 test app, add a `div` layer so that React doesn't mount directly to the body. This gets rid of a distracting \"error\" displayed in the console for the test app.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/core/src/Debug/debugLayer.ts",
+                    "packages/dev/inspector-v2/src/index.ts",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/legacy/debugLayer.ts",
+                    "packages/dev/inspector-v2/src/legacy/legacy.ts",
+                    "packages/dev/inspector-v2/test/app/index.html",
+                    "packages/public/umd/babylonjs-inspector-v2/test.html",
+                    "packages/tools/playground/src/components/rendererComponent.tsx",
+                    "packages/tools/sandbox/src/globalState.ts"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "17520",
+                "title": "Inspector v2: Show unparented nodes as root nodes",
+                "description": "In some cases, nodes can be either unparented or parented to something outside of the nodes section. In both these cases, those nodes won't show up anywhere in scene explorer. This PR addresses that for the cases we have discovered so far.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/services/panes/scene/nodeExplorerService.tsx"
+                ],
+                "tags": [
+                    "bug",
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "17492",
+                "title": "Add parsing for adobe splat meta fields in PLYs",
+                "description": "This PR adds support for reading the up_axis, chirality, safe_orbit_camera_elevation_min_max_radians, and safe_orbit_camera_radius_min header values and applies them if the active camera is a ArcRotateCamera.\r\n\r\n<img width=\"729\" height=\"393\" alt=\"image\" src=\"https://github.com/user-attachments/assets/ee100ea5-f5ac-4f1d-b717-00c40be1372c\" />\r\n",
+                "author": {
+                    "name": "spsDrop",
+                    "url": "https://github.com/spsDrop"
+                },
+                "files": [
+                    ".vscode/settings.json",
+                    "packages/dev/loaders/src/SPLAT/sog.ts",
+                    "packages/dev/loaders/src/SPLAT/splatDefs.ts",
+                    "packages/dev/loaders/src/SPLAT/splatFileLoader.ts",
+                    "packages/dev/loaders/src/SPLAT/splatLoadingOptions.ts",
+                    "packages/dev/loaders/src/SPLAT/spz.ts"
+                ],
+                "tags": [
+                    "new feature",
+                    "Gaussian Splatting"
+                ]
+            },
+            {
+                "pr": "17519",
+                "title": "GS fix active cameras list",
+                "description": null,
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "packages/dev/core/src/Meshes/GaussianSplatting/gaussianSplattingMesh.ts"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "17500",
+                "title": "Particles noise",
+                "description": "- Adds a new UpdateNoiseBlock to support migrating noise from old system to NPE.\r\n- Minor changes required to handle a ProceduralTexture.\r\n- Resets particle randomNoiseCoordinates1 and 2.\r\n\r\nPG to test: #R1JWLA#151\r\n<img width=\"1095\" height=\"995\" alt=\"image\" src=\"https://github.com/user-attachments/assets/35f002b2-4fa1-473f-b597-ad129834ca0e\" />\r\n",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/Update/updateFlowMapBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/Update/updateNoiseBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/index.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/particleSourceTextureBlock.ts",
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.helper.ts",
+                    "packages/dev/core/src/Particles/particle.ts",
+                    "packages/dev/core/src/Particles/thinParticleSystem.function.ts",
+                    "packages/dev/core/src/Particles/thinParticleSystem.ts",
+                    "packages/tools/nodeParticleEditor/src/blockTools.ts",
+                    "packages/tools/nodeParticleEditor/src/components/nodeList/nodeListComponent.tsx",
+                    "packages/tools/nodeParticleEditor/src/graphSystem/registerToDisplayLedger.ts"
+                ],
+                "tags": [
+                    "enhancement",
+                    "npe"
+                ]
+            }
+        ],
+        "8.39.2": [
+            {
+                "pr": "17518",
+                "title": "Add addons package's NOTICE.md to published output",
+                "description": null,
+                "author": {
+                    "name": "docEdub",
+                    "url": "https://github.com/docEdub"
+                },
+                "files": [
+                    "packages/public/@babylonjs/addons/package.json"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17516",
+                "title": "Volumetric Lighting: fix lighting volume when light direction changes",
+                "description": "I also removed the **buildFullVolume** property (at least from the public interface), as there's no point to have it at the time being (maybe we will need it when cascaded shadow generators are supported, that's why I didn't remove it completely).\r\n\r\n",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/lightingVolumeBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/volumetricLightingTask.ts",
+                    "packages/dev/core/src/Lights/lightingVolume.ts",
+                    "packages/tools/tests/test/visualization/ReferenceImages/Lighting-Volume.png"
+                ],
+                "tags": [
+                    "bug",
+                    "rendering engine"
+                ]
+            },
+            {
+                "pr": "17517",
+                "title": "Revert to old arcrotatecamera behavior where alpha/beta does not scale inertialLimit by speed",
+                "description": "[This PR ](https://github.com/BabylonJS/Babylon.js/commit/1808908d802449319b8b7f3ee8a6ca2931bbcf4a#diff-058148631353bb90134f4cecf195b8ea72bfc7c791d70de6015e331aa381ff51) exposed overrideable rotationEpsilon and panningEpsilon to enable modifying these values on a per-frame basis (so that they can be scaled based on frame rate). However the change also modified the check for alpha/beta to be speed*epsilon to match what radius check did (which was treated as a bug fix)). However this changed behavior of alpha/beta movement on the camera.\r\n\r\nThis PR moves us back to the old alpha/beta behavior. The plan is to address confusion around camera limits / movement behavior all at once when addressing framerate-independent inertia at the camera level, vs causing an intermediate change in behavior now.",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/core/src/Cameras/arcRotateCamera.ts"
+                ],
+                "tags": [
+                    "camera"
+                ]
+            },
+            {
+                "pr": "17499",
+                "title": "Inspector v2: Back compat for DebugLayer.openedPanes and DebugLayer.setAsActiveScene",
+                "description": "This PR implements `Inspector._OpenedPane` and `Inspector._SetNewScene` to make `DebugLayer.openedPanes` and `DebugLayer.setAsActiveScene` work.\r\n\r\nThe short term implementation for `_SetNewScene` is to just hide and reshow Inspector. This is because we already know we want to have multi-scene support, so we'll need to do more thinking about what `_SetNewScene` would mean in that context and whether there is something better than hiding/showing Inspector in this scenario.\r\n\r\nHowever, doing this revealed some subtle timing bugs when hiding/showing Inspector back to back synchronously. Ultimately the problem is that React render/unmount both do hidden async work, and it must be sequentialized for everything to work correctly. So the biggest change in this PR is really just about managing all this internal asynchrony in a robust way that hides the complexity from the user. The new `ShowInspector` API still just synchronously returns a dispose token to keep things simple. Calling dispose on that token internally manages the async sequentialization. I like this because it makes the API simple, but I'm also not 100% sure hiding this asynchrony from the user will be the long term best solution, so I may still revisit the actual API before the 9.0 release (e.g. it may become async), but all the logic for managing the asynchrony (the hard part) should not need to change.\r\n\r\nI'm creating this PR in draft as I will be OOF next week. If we don't want to leave it in draft for a week, we can also close it and re-open when I'm back.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/legacy/debugLayer.ts",
+                    "packages/dev/inspector-v2/src/legacy/inspector.tsx",
+                    "packages/dev/inspector-v2/src/modularTool.tsx",
+                    "packages/dev/inspector-v2/src/services/shellService.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            }
+        ],
         "8.39.1": [
             {
                 "pr": "17457",
