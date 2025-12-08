@@ -1,6 +1,290 @@
 {
-    "fromTag": "8.39.1",
+    "fromTag": "8.40.0",
     "changelog": {
+        "8.40.1": [
+            {
+                "pr": "17532",
+                "title": "Inspector v2: Export ConvertOptions",
+                "description": "`ConvertOptions` is a helper function that converts Inspector v1 options to Inspector v2 options. It is mostly used internally for the `Inspector` class that exists for back compat. However, it is also used in Playground. Since I'm changing Playground to consume the Inspector v2 umd bundle, the `ConvertOptions` function needs to be exported and visible from the umd bundle. This just adds a doc comment and adds it to the top level exports.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/index.ts",
+                    "packages/dev/inspector-v2/src/legacy/inspector.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "17531",
+                "title": "ViewerConfig fallback to WebGL if WebGPU unavailable",
+                "description": null,
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/tools/viewer/src/viewerFactory.ts"
+                ],
+                "tags": [
+                    "bug"
+                ]
+            },
+            {
+                "pr": "17530",
+                "title": "FrameGraph: Fix crash in WebGPU when using volumetric lighting",
+                "description": null,
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/volumetricLightingTask.ts",
+                    "packages/dev/core/src/Lights/lightingVolume.ts"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "17526",
+                "title": "Added no-directory-barrel-imports rule",
+                "description": "Added a new ESLint rule `babylonjs/no-directory-barrel-imports` that detects imports resolving to directories with index files when using path mappings.\r\n\r\nRelated: #17525 \r\n\r\nRule by Claude",
+                "author": {
+                    "name": "marns",
+                    "url": "https://github.com/marns"
+                },
+                "files": [
+                    ".eslintrc.js",
+                    "packages/tools/eslintBabylonPlugin/src/index.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17528",
+                "title": "FrameGraph: optimize lighting volume updates + misc changes and fixes",
+                "description": "In this PR:\r\n* Optimize lighting volume updates for the volumetric lighting task. Use computer shaders in WebGPU.\r\n* Improve debug messages in PIX when using frame graphs (WebGPU only)\r\n* Copy texture to texture task: Support depth texture copy\r\n* Fix wrong compute shader being used when having multiple entry points in a single file\r\n",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Compute/computeEffect.ts",
+                    "packages/dev/core/src/Compute/computeShader.ts",
+                    "packages/dev/core/src/FrameGraph/Passes/renderPass.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Layers/baseLayerTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Layers/glowLayerTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Layers/highlightLayerTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Misc/computeShaderTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Misc/cullObjectsTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Misc/executeTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Misc/lightingVolumeTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/anaglyphTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/blackAndWhiteTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/bloomMergeTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/bloomTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/blurTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/chromaticAberrationTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/circleOfConfusionTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/colorCorrectionTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/convolutionTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/customPostProcessTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/depthOfFieldBlurTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/depthOfFieldMergeTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/depthOfFieldTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/extractHighlightsTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/filterTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/fxaaTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/grainTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/imageProcessingTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/motionBlurTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/passTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/postProcessTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/screenSpaceCurvatureTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/sharpenTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/ssao2BlurTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/ssao2RenderingPipelineTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/ssao2Task.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/ssrBlurTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/ssrRenderingPipelineTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/ssrTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/taaTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/tonemapTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/volumetricLightingBlendVolumeTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/volumetricLightingTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/csmShadowGeneratorTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/geometryRendererTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/objectRendererTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/shadowGeneratorTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/utilityLayerRendererTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Texture/clearTextureTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Texture/copyToBackbufferColorTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Texture/copyToTextureTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Texture/generateMipMapsTask.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphRenderContext.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphTask.ts",
+                    "packages/dev/core/src/Lights/lightingVolume.ts",
+                    "packages/dev/core/src/Meshes/geometry.ts",
+                    "packages/dev/core/src/Meshes/mesh.ts",
+                    "packages/dev/core/src/Shaders/volumetricLightingRenderVolume.fragment.fx",
+                    "packages/dev/core/src/ShadersWGSL/lightingVolume.compute.fx",
+                    "packages/dev/core/src/ShadersWGSL/volumetricLightingRenderVolume.fragment.fx",
+                    "packages/dev/core/src/States/alphaCullingState.ts",
+                    "packages/dev/gui/src/2D/FrameGraph/guiTask.ts"
+                ],
+                "tags": [
+                    "enhancement",
+                    "frame graph"
+                ]
+            }
+        ],
+        "8.40.0": [
+            {
+                "pr": "17525",
+                "title": "Fixes invalid import path @babylonjs/core/Lights/Clustered.js",
+                "description": "Fixes invalid import path @babylonjs/core/Lights/Clustered.js in the inspector-v2 package introduced in #17520. This is the same class of bug as the Meshes.js issue fixed in #17282.\r\n\r\nThe Problem\r\n\r\nWhen importing from a directory barrel (e.g., core/Lights/Clustered), the build tooling's pathTransform appends .js to create @babylonjs/core/Lights/Clustered.js. However, Clustered is a directory with an index.js, not a standalone file, causing module resolution to fail for consumers.\r\n\r\nThe Fix\r\n\r\nChanged the import to reference the specific file directly:\r\n\r\n```\r\n-import { ClusteredLightContainer } from \"core/Lights/Clustered\";\r\n+import { ClusteredLightContainer } from \"core/Lights/Clustered/clusteredLightContainer\";\r\n```",
+                "author": {
+                    "name": "marns",
+                    "url": "https://github.com/marns"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/services/panes/scene/nodeExplorerService.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17524",
+                "title": "ThinEngine: Replace window with globalThis",
+                "description": "Fixes `ThinEngine.IsSupported` incorrectly returning false in worker contexts, from https://forum.babylonjs.com/t/issue-with-recent-dumptools-changes-in-web-worker-context/61638. ",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/core/src/Engines/thinEngine.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17523",
+                "title": "Fix: Node drop position accuracy",
+                "description": "Fixed incorrect node positioning when dropping nodes onto the canvas. Replaced offsetLeft/offsetTop with getBoundingClientRect().left/top in dropNewBlock method to accurately calculate drop coordinates, accounting for all parent positioning, transforms, and nested containers.\r\n\r\nIssue demonstration: https://soullnik.github.io/npe-guide/",
+                "author": {
+                    "name": "Soullnik",
+                    "url": "https://github.com/Soullnik"
+                },
+                "files": [
+                    "packages/tools/nodeParticleEditor/src/graphEditor.tsx"
+                ],
+                "tags": []
+            }
+        ],
+        "8.39.3": [
+            {
+                "pr": "17521",
+                "title": "Inspector v2: Back compat for \"attaching\" UMD globals and Scene.debugLayer",
+                "description": "This change is mostly about making it possible to \"attach/detach\" Inspector v2 to the global scope (e.g. `globalThis.BABYLON.Inspector` for the class and `globalThis.INSPECTOR` for the module) and `Scene.debugLayer` *dynamically* via explicit function calls, while also calling those `Attach*` functions by default as side effects. This enables the following:\r\n- Side effect back compat.\r\n- Ability to \"detach\" dynamically, which will enable swapping between Inspector v1 and v2 at runtime, which we still need to be able to do until the 9.0 release. This will let us switch to using the UMD package to support versioning (e.g. using an older version of the platform, including an older version of Inspector v2) which by default will override the globals and Scene.debugLayer, but we can dynamically detach to restore v1.\r\n- A future way to be able to explicitly \"attach\" without relying on side effects, which we'll want when we get to all the side effects work anyway.\r\n\r\nI also snuck in a few unrelated small changes:\r\n- With a recent change Inspector v2 is more asynchronous internally to deal with React asynchrony. This means we now need switching from Inspector v2 to Inspector v1 to be more asynchronous as well. Fixed this in Playground and Sandbox. The ugly code is temporary and will be removed as part of the 9.0 release.\r\n- Remove the use of makeStyles in the inline \"Canvas Injector\" service definition. The style definition must be determined inside the function because it is dynamic and depends on the `canvasContainerDisplay`, but `makeStyles` incorrectly detects that it is being used within a function component and emits a warning. Since the style is tiny and won't be re-used, just making it an inline React style is fine and gets rid of the annoying runtime warning.\r\n- In the Inspector v2 test app, add a `div` layer so that React doesn't mount directly to the body. This gets rid of a distracting \"error\" displayed in the console for the test app.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/core/src/Debug/debugLayer.ts",
+                    "packages/dev/inspector-v2/src/index.ts",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/legacy/debugLayer.ts",
+                    "packages/dev/inspector-v2/src/legacy/legacy.ts",
+                    "packages/dev/inspector-v2/test/app/index.html",
+                    "packages/public/umd/babylonjs-inspector-v2/test.html",
+                    "packages/tools/playground/src/components/rendererComponent.tsx",
+                    "packages/tools/sandbox/src/globalState.ts"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "17520",
+                "title": "Inspector v2: Show unparented nodes as root nodes",
+                "description": "In some cases, nodes can be either unparented or parented to something outside of the nodes section. In both these cases, those nodes won't show up anywhere in scene explorer. This PR addresses that for the cases we have discovered so far.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/services/panes/scene/nodeExplorerService.tsx"
+                ],
+                "tags": [
+                    "bug",
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "17492",
+                "title": "Add parsing for adobe splat meta fields in PLYs",
+                "description": "This PR adds support for reading the up_axis, chirality, safe_orbit_camera_elevation_min_max_radians, and safe_orbit_camera_radius_min header values and applies them if the active camera is a ArcRotateCamera.\r\n\r\n<img width=\"729\" height=\"393\" alt=\"image\" src=\"https://github.com/user-attachments/assets/ee100ea5-f5ac-4f1d-b717-00c40be1372c\" />\r\n",
+                "author": {
+                    "name": "spsDrop",
+                    "url": "https://github.com/spsDrop"
+                },
+                "files": [
+                    ".vscode/settings.json",
+                    "packages/dev/loaders/src/SPLAT/sog.ts",
+                    "packages/dev/loaders/src/SPLAT/splatDefs.ts",
+                    "packages/dev/loaders/src/SPLAT/splatFileLoader.ts",
+                    "packages/dev/loaders/src/SPLAT/splatLoadingOptions.ts",
+                    "packages/dev/loaders/src/SPLAT/spz.ts"
+                ],
+                "tags": [
+                    "new feature",
+                    "Gaussian Splatting"
+                ]
+            },
+            {
+                "pr": "17519",
+                "title": "GS fix active cameras list",
+                "description": null,
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "packages/dev/core/src/Meshes/GaussianSplatting/gaussianSplattingMesh.ts"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "17500",
+                "title": "Particles noise",
+                "description": "- Adds a new UpdateNoiseBlock to support migrating noise from old system to NPE.\r\n- Minor changes required to handle a ProceduralTexture.\r\n- Resets particle randomNoiseCoordinates1 and 2.\r\n\r\nPG to test: #R1JWLA#151\r\n<img width=\"1095\" height=\"995\" alt=\"image\" src=\"https://github.com/user-attachments/assets/35f002b2-4fa1-473f-b597-ad129834ca0e\" />\r\n",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/Update/updateFlowMapBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/Update/updateNoiseBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/index.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/particleSourceTextureBlock.ts",
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.helper.ts",
+                    "packages/dev/core/src/Particles/particle.ts",
+                    "packages/dev/core/src/Particles/thinParticleSystem.function.ts",
+                    "packages/dev/core/src/Particles/thinParticleSystem.ts",
+                    "packages/tools/nodeParticleEditor/src/blockTools.ts",
+                    "packages/tools/nodeParticleEditor/src/components/nodeList/nodeListComponent.tsx",
+                    "packages/tools/nodeParticleEditor/src/graphSystem/registerToDisplayLedger.ts"
+                ],
+                "tags": [
+                    "enhancement",
+                    "npe"
+                ]
+            }
+        ],
         "8.39.2": [
             {
                 "pr": "17518",
