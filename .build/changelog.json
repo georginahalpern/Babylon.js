@@ -1,6 +1,254 @@
 {
-    "fromTag": "8.40.0",
+    "fromTag": "8.40.1",
     "changelog": {
+        "8.41.0": [
+            {
+                "pr": "17527",
+                "title": "Smart Filter Editor: added fixed size preview option",
+                "description": "This change allows the user to pick a fixed resolution for the preview window",
+                "author": {
+                    "name": "AmoebaChant",
+                    "url": "https://github.com/AmoebaChant"
+                },
+                "files": [
+                    "packages/tools/smartFiltersEditorControl/src/assets/styles/main.scss",
+                    "packages/tools/smartFiltersEditorControl/src/components/preview/previewAreaComponent.tsx",
+                    "packages/tools/smartFiltersEditorControl/src/components/preview/previewAreaControlComponent.tsx",
+                    "packages/tools/smartFiltersEditorControl/src/globalState.ts",
+                    "packages/tools/smartFiltersEditorControl/src/graphEditor.tsx",
+                    "packages/tools/smartFiltersEditorControl/src/helpers/observableProperty.ts",
+                    "packages/tools/smartFiltersEditorControl/src/previewSizeManager.ts"
+                ],
+                "tags": [
+                    "new feature"
+                ]
+            },
+            {
+                "pr": "17257",
+                "title": "new feature: importing metadata for animations from gltf extras",
+                "description": "Not tested, because testing relies on assets",
+                "author": {
+                    "name": "qwiglydee",
+                    "url": "https://github.com/qwiglydee"
+                },
+                "files": [
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/ExtrasAsMetadata.ts"
+                ],
+                "tags": [
+                    "stale"
+                ]
+            },
+            {
+                "pr": "17541",
+                "title": "Fix sandbox pan behavior when zoomed close to a large model",
+                "description": "When zoomed in close to a model, the sandbox code will increase the panning sensitivity so that small mouse motions don't result in large unexpected camera movement. However, if you get very close to a model, the check to see if the inertia should be clamped to zero would start clamping all slow user movement to zero.  Then when the user moved slightly faster, all of a sudden it wouldn't hit the clamp, and it would feel like it sped up unexpectedly all of a sudden.\r\n\r\nWith this fix, we do the same thing that viewer does - scale the speed parameter as well with radius, so that the clamp gets smaller when close up to the model.",
+                "author": {
+                    "name": "AmoebaChant",
+                    "url": "https://github.com/AmoebaChant"
+                },
+                "files": [
+                    "packages/tools/sandbox/src/components/renderingZone.tsx",
+                    "packages/tools/viewer/src/viewer.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17543",
+                "title": "FrameGraph: optimization of the geometry renderer task",
+                "description": "The geometry renderer task can now also generate the “beauty” texture, i.e., render the scene with normal materials.\r\n\r\nWhen applicable, this is an optimization, as you don't need to set up a geometry renderer for geometry textures and an object render to render the scene. You can use a single geometry renderer to generate all textures.\r\n\r\nAlso in this PR:\r\n* Clear texture task: disable MSAA resolution, as there is no need to resolve the texture immediately after clearing.\r\n* Clear texture task: check compatibility between target and depth textures.\r\n* Add a **renderMeshes** property to the object renderer class.\r\n",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Engines/webgpuEngine.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Rendering/baseObjectRendererBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Rendering/geometryRendererBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Passes/renderPass.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/geometryRendererTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/objectRendererTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Texture/clearTextureTask.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphContext.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphRenderContext.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphTask.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphUtils.ts",
+                    "packages/dev/core/src/Materials/materialHelper.geometryrendering.ts",
+                    "packages/dev/core/src/Rendering/objectRenderer.ts",
+                    "packages/tools/nodeRenderGraphEditor/src/graphEditor.tsx",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": [
+                    "enhancement",
+                    "frame graph"
+                ]
+            },
+            {
+                "pr": "17529",
+                "title": "Update eslint to 9.39.1 from 8.57.1",
+                "description": null,
+                "author": {
+                    "name": "docEdub",
+                    "url": "https://github.com/docEdub"
+                },
+                "files": [
+                    ".eslintignore",
+                    ".eslintrc.js",
+                    "eslint.config.mjs",
+                    "package-lock.json",
+                    "package.json",
+                    "packages/dev/core/src/Engines/Extensions/engine.computeShader.ts",
+                    "packages/dev/core/src/Engines/ICanvas.ts",
+                    "packages/dev/inspector/src/components/actionTabs/tabs/propertyGrids/materials/pbrMaterialPropertyGridComponent.tsx",
+                    "packages/dev/lottiePlayer/src/nodes/node.ts",
+                    "packages/dev/serializers/src/glTF/2.0/glTFExporterExtension.ts",
+                    "packages/tools/babylonServer/scripts/generateScripts.js",
+                    "packages/tools/eslintBabylonPlugin/package.json",
+                    "packages/tools/eslintBabylonPlugin/src/index.ts",
+                    "packages/tools/playground/src/components/rendererComponent.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17542",
+                "title": "Prep for webgpu support (atmosphere add-on)",
+                "description": "* Refactoring shader code uniform locations and apply inlining where needed.\r\n* Using defines for more precise control of what's included per Effect.\r\n* Header cleanup and move tests out of /src.",
+                "author": {
+                    "name": "kircher1",
+                    "url": "https://github.com/kircher1"
+                },
+                "files": [
+                    "packages/dev/addons/src/atmosphere/Shaders/ShadersInclude/atmosphereFragmentDeclaration.fx",
+                    "packages/dev/addons/src/atmosphere/Shaders/ShadersInclude/atmosphereFunctions.fx",
+                    "packages/dev/addons/src/atmosphere/Shaders/ShadersInclude/atmosphereUboDeclaration.fx",
+                    "packages/dev/addons/src/atmosphere/Shaders/ShadersInclude/atmosphereVertexDeclaration.fx",
+                    "packages/dev/addons/src/atmosphere/Shaders/ShadersInclude/depthFunctions.fx",
+                    "packages/dev/addons/src/atmosphere/Shaders/aerialPerspective.fragment.fx",
+                    "packages/dev/addons/src/atmosphere/Shaders/compositeAerialPerspective.fragment.fx",
+                    "packages/dev/addons/src/atmosphere/Shaders/compositeGlobeAtmosphere.fragment.fx",
+                    "packages/dev/addons/src/atmosphere/Shaders/compositeSky.fragment.fx",
+                    "packages/dev/addons/src/atmosphere/Shaders/diffuseSkyIrradiance.fragment.fx",
+                    "packages/dev/addons/src/atmosphere/Shaders/fullscreenTriangle.vertex.fx",
+                    "packages/dev/addons/src/atmosphere/Shaders/multiScattering.fragment.fx",
+                    "packages/dev/addons/src/atmosphere/Shaders/skyView.fragment.fx",
+                    "packages/dev/addons/src/atmosphere/Shaders/transmittance.fragment.fx",
+                    "packages/dev/addons/src/atmosphere/atmosphere.ts",
+                    "packages/dev/addons/src/atmosphere/atmosphereOptions.ts",
+                    "packages/dev/addons/src/atmosphere/atmospherePBRMaterialPlugin.ts",
+                    "packages/dev/addons/src/atmosphere/atmospherePerCameraVariables.ts",
+                    "packages/dev/addons/src/atmosphere/atmospherePhysicalProperties.ts",
+                    "packages/dev/addons/src/atmosphere/atmospherePhysicalPropertiesOptions.ts",
+                    "packages/dev/addons/src/atmosphere/diffuseSkyIrradianceLut.ts",
+                    "packages/dev/addons/src/atmosphere/index.ts",
+                    "packages/dev/addons/src/atmosphere/sampling.ts",
+                    "packages/dev/addons/src/atmosphere/transmittanceLut.ts",
+                    "packages/dev/addons/test/unit/atmosphere/sampling.test.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17535",
+                "title": "no-directory-barrel-imports: also enforce rule for relative paths",
+                "description": null,
+                "author": {
+                    "name": "marns",
+                    "url": "https://github.com/marns"
+                },
+                "files": [
+                    "packages/dev/core/src/Loading/Plugins/babylonFileLoader.ts",
+                    "packages/tools/eslintBabylonPlugin/src/index.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17539",
+                "title": "Make sure Inspector v2 theme matches Playground theme",
+                "description": "Before the Playground \"Editor v2\" changes, when the Playground theme would change, Inspector would get reloaded. This no longer happens, which on the one hand is nice, but also means the theme of Inspector v2 does not stay in sync with the theme in Playground. For now the easy fix for this is to just hide and re-show Inspector v2 when the Playground theme changes. I don't think people do this super often, so losing your current Inspector state when swapping the theme shouldn't be too disruptive. What would be better would be to programmatically tell Inspector v2 to change its theme dynamically, but this would be more challenging with the current Playground architecture since we'd need version dependent conditional code (e.g. different Inspector v2 APIs being available depending on the version). I don't think this approach would scale at all. We should note that this is another signal for the value of a newer Playground architecture where we simply rely on dynamic imports and whole site snapshots for versioning, which would make handling this trivial.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/tools/playground/src/components/rendererComponent.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "Playground"
+                ]
+            },
+            {
+                "pr": "17538",
+                "title": "Inspector v2: Consume Inspector v2 umd bundle in Sandbox/Playground",
+                "description": "The initial integration of Inspector v2 into Sandbox/Playground was done before we had the umd bundle being built and published, and so it was bundled directly into the host app (Sandbox/Playground). However, to support versioning (e.g. loading Sandbox/Playground with older versions), we need to rely on the umd bundle (at least with the current Sandbox/Playground architecture). This PR changes both apps so that Inspector v2 is no longer bundled into the host app, but rather the umd bundle is loaded similar to Inspector v1 and other Babylon dependencies.\r\n\r\nBecause the umd bundle is being loaded now, when running locally it loads from dev server, so I also needed to add Inspector v2 to dev server.\r\n\r\nAlso because the umd bundle is being loaded now, it means everything is being loaded, including the back compat for the INSPECTOR global, BABYLON.Inspector, and Scene.debugLayer. At the same time, we are still at a point where we need to support switching between v1 and v2. To handle this, we cache the Inspector v2 module, which already has support for attaching/detaching these globals, and we dynamically attach/detach when switching between v1 and v2. Once Inspector v2 is at full parity with v1, we can simplify this a lot, and simply use v1 when we are before 8.40.1, and v2 after. I'll make this change within the next couple of months, before the 9.0 release.\r\n\r\nI also updated Playground to include explicit `instantResolve` and `minVersion` flags for scripts, just like Sandbox.\r\n\r\nI also rolled back the webpack configuration for Sandbox and Playground that allowed us to bundle Inspector v2 (and other dependencies) into the Sandbox/Playground app bundle (as it is no longer needed).",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/tools/babylonServer/src/inspector-v2/index.ts",
+                    "packages/tools/babylonServer/webpack.config.js",
+                    "packages/tools/playground/public/index.js",
+                    "packages/tools/playground/src/components/rendererComponent.tsx",
+                    "packages/tools/playground/src/globalState.ts",
+                    "packages/tools/playground/src/playground.tsx",
+                    "packages/tools/playground/webpack.config.js",
+                    "packages/tools/sandbox/public/index.js",
+                    "packages/tools/sandbox/src/globalState.ts",
+                    "packages/tools/sandbox/src/sandbox.tsx",
+                    "packages/tools/sandbox/webpack.config.js"
+                ],
+                "tags": [
+                    "inspector",
+                    "Playground",
+                    "sandbox"
+                ]
+            },
+            {
+                "pr": "17536",
+                "title": "GS Fix too frequent update",
+                "description": null,
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "packages/dev/core/src/Meshes/GaussianSplatting/gaussianSplattingMesh.ts"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "17533",
+                "title": "Add alpha support for splats",
+                "description": "\r\nhttps://github.com/user-attachments/assets/e5a951b6-d713-4ab6-8c86-5d3822e47ce5\r\n\r\n",
+                "author": {
+                    "name": "spsDrop",
+                    "url": "https://github.com/spsDrop"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/GaussianSplatting/gaussianSplattingMaterial.ts",
+                    "packages/dev/core/src/Shaders/gaussianSplatting.vertex.fx",
+                    "packages/dev/core/src/ShadersWGSL/gaussianSplatting.vertex.fx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17534",
+                "title": "Inspector v2: Fix bug where all SceneExplorer sections can't be collapsed when an item is selected",
+                "description": "This is to address a bug reported on the forum: https://forum.babylonjs.com/t/introducing-inspector-v2/60937/105\r\n\r\nSceneExplorer selects the currently selected entity when it is first mounted. The logic for this is wrong and makes it so that if you try to collapse all top level sections of SceneExplorer, it will trigger re-selecting and showing the currently selected item, which re-expands the collapsed section. The intent is to just have this happen when the component is first mounted. This can just be in a useEffect with no dependencies, so I'm not sure why I didn't do it this way to start. 🤷🏻‍♂️",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/scene/sceneExplorer.tsx"
+                ],
+                "tags": [
+                    "bug",
+                    "inspector"
+                ]
+            }
+        ],
         "8.40.1": [
             {
                 "pr": "17532",
