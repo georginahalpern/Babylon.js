@@ -430,7 +430,9 @@ export class GeospatialCamera extends Camera {
         const requestedRadius = this._radius - distance;
         const newRadius = Clamp(requestedRadius, this.limits.radiusMin, this.limits.radiusMax);
         const actualDistance = this._radius - newRadius;
-        const actualRatio = actualDistance / this._radius;
+        // When at min radius and zooming in, still allow center movement (slide along surface)
+        // This enables "zoom to cursor" to continue sliding toward the target even at min zoom
+        const actualRatio = actualDistance === 0 && distance > 0 && this._radius <= this.limits.radiusMin + Epsilon ? distance / this._radius : actualDistance / this._radius;
 
         // Direction from current center to target point
         const directionToTarget = TmpVectors.Vector3[0];
@@ -492,10 +494,9 @@ export class GeospatialCamera extends Camera {
         // Let movement class handle all per-frame logic
         this.movement.computeCurrentFrameDeltas();
 
-        let recalculateCenter = false;
         if (this.movement.panDeltaCurrentFrame.lengthSquared() > 0) {
             this._applyGeocentricTranslation();
-            recalculateCenter = true;
+            this._recalculateCenter();
         }
         if (this.movement.rotationDeltaCurrentFrame.lengthSquared() > 0) {
             this._applyGeocentricRotation();
@@ -503,11 +504,7 @@ export class GeospatialCamera extends Camera {
 
         if (Math.abs(this.movement.zoomDeltaCurrentFrame) > Epsilon) {
             this._applyZoom();
-            recalculateCenter = true;
         }
-
-        // After a movement impacting center or radius, recalculate the center point to ensure it's still on the surface.
-        recalculateCenter && this._recalculateCenter();
 
         super._checkInputs();
     }
