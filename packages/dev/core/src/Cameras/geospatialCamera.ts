@@ -191,7 +191,12 @@ export class GeospatialCamera extends Camera {
         this._tempVect.copyFrom(this._lookAtVector).scaleInPlace(-this._radius);
         this._tempPosition.copyFrom(this._center).addInPlace(this._tempVect);
 
-        this._applyCollisions(this._tempPosition);
+        const collisionOffset = this._getCollisionOffset(this._tempPosition);
+
+        // Apply the same offset to both position and center to preserve orbital relationship
+        // This keeps yaw/pitch/radius intact - just lifts the whole "rig"
+        this._position.copyFrom(this._tempPosition).addInPlace(collisionOffset);
+        this._center.addInPlace(collisionOffset);
 
         this._isViewMatrixDirty = true;
     }
@@ -295,22 +300,6 @@ export class GeospatialCamera extends Camera {
         const zoomDistance = this.radius * radiusScale;
         const newRadius = this._getCenterAndRadiusFromZoomToPoint(destination, zoomDistance, this._tempCenter);
         await this.flyToAsync(undefined, undefined, newRadius, this._tempCenter, durationMs, easingFn, overshootRadiusScale);
-        //     const zoomDistance = this.radius * radiusScale;
-        //     const newRadius = Clamp(this.radius - zoomDistance, this.limits.radiusMin, this.limits.radiusMax);
-        //     const actualZoomDistance = this.radius - newRadius;
-        //     const zoomRatio = actualZoomDistance / this.radius;
-
-        //     // Move center toward destination by the zoom ratio
-        //     const directionToDestination = TmpVectors.Vector3[0];
-        //     destination.subtractToRef(this._center, directionToDestination);
-
-        //     const centerOffset = TmpVectors.Vector3[1];
-        //     directionToDestination.scaleToRef(zoomRatio, centerOffset);
-
-        //     const newCenter = new Vector3();
-        //     this._center.addToRef(centerOffset, newCenter);
-
-        //     await this.flyToAsync(undefined, undefined, newRadius, newCenter, durationMs, easingFn, overshootRadiusScale);
     }
 
     private _limits: GeospatialLimits;
@@ -366,37 +355,6 @@ export class GeospatialCamera extends Camera {
             return false;
         }
         return true;
-    }
-    /**
-     * Rebuild yaw, pitch, center, and radius from the current position
-     * This is the inverse of _setOrientation and ensures internal state stays synchronized
-     */
-    private _rebuildOrientationFromPosition(): void {
-        // Vector from center to camera
-        // const toCameraVector = this._position.subtractToRef(this._center ?? new Vector3(), new Vector3());
-        // this._radius = toCameraVector.length();
-        // if (this._radius === 0) {
-        //     this._radius = 0.0001; // Avoid division by zero
-        // }
-        // // Get local basis at center
-        // const tempEast = new Vector3();
-        // const tempNorth = new Vector3();
-        // const tempUp = new Vector3();
-        // ComputeLocalBasisToRefs(this._center, tempEast, tempNorth, tempUp);
-        // // Normalize vector for angle calculations
-        // toCameraVector.normalize();
-        // // Calculate pitch (angle from looking at center)
-        // const upDot = Vector3Dot(toCameraVector, tempUp);
-        // this._pitch = Math.acos(Clamp(upDot, -1, 1));
-        // // Project onto horizontal plane for yaw calculation
-        // const horizontalComponent = toCameraVector.subtract(tempUp.scale(upDot));
-        // horizontalComponent.normalize();
-        // // Calculate yaw from north
-        // const northDot = Vector3Dot(horizontalComponent, tempNorth);
-        // const eastDot = Vector3Dot(horizontalComponent, tempEast);
-        // this._yaw = Math.atan2(eastDot, northDot);
-        // this._checkLimits();
-        // this._isViewMatrixDirty = true;
     }
 
     private _applyGeocentricTranslation() {
@@ -496,6 +454,7 @@ export class GeospatialCamera extends Camera {
 
         if (this.movement.panDeltaCurrentFrame.lengthSquared() > 0) {
             this._applyGeocentricTranslation();
+            // After a drag, recalculate the center point to ensure it's still on the surface.
             this._recalculateCenter();
         }
         if (this.movement.rotationDeltaCurrentFrame.lengthSquared() > 0) {
@@ -530,11 +489,11 @@ export class GeospatialCamera extends Camera {
         }
     }
 
-    protected _applyCollisions(newPosition: Vector3): void {
+    protected _getCollisionOffset(newPosition: Vector3): Vector3 {
         const coordinator = this.getScene().collisionCoordinator;
+        const collisionOffset = TmpVectors.Vector3[6].setAll(0);
         if (!coordinator || !this.checkCollisions || !this._scene.collisionsEnabled) {
-            this._position.copyFrom(newPosition);
-            return;
+            return collisionOffset;
         }
 
         if (!this._collider) {
@@ -545,8 +504,13 @@ export class GeospatialCamera extends Camera {
         // Calculate velocity from old position to new position
         newPosition.subtractToRef(this._position, this._collisionVelocity);
 
-        this._position.copyFrom(coordinator.getNewPosition(this._position, this._collisionVelocity, this._collider, 3, null, () => {}, this.uniqueId));
-        this._rebuildOrientationFromPosition();
+        // Get the collision-adjusted position
+        const adjustedPosition = coordinator.getNewPosition(this._position, this._collisionVelocity, this._collider, 3, null, () => {}, this.uniqueId);
+
+        // Calculate the collision offset (how much the position was pushed)
+        adjustedPosition.subtractToRef(newPosition, collisionOffset);
+
+        return collisionOffset;
     }
 
     override attachControl(noPreventDefault?: boolean): void {
