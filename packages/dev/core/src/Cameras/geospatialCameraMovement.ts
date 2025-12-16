@@ -37,14 +37,8 @@ export class GeospatialCameraMovement extends CameraMovement {
 
     public zoomToCursor: boolean = true;
 
-    /**
-     * Enables rotation around a specific point, instead of default rotation around center
-     * @internal
-     */
-    public alternateRotationPt?: Vector3;
-
     private _tempPickingRay: Ray;
-    private _storedZoomPickDistance: number | undefined;
+    private _storedZoomPickPoint?: Vector3;
 
     private _hitPointRadius?: number = undefined;
     private _dragPlane: Plane = new Plane(0, 0, 0, 0);
@@ -157,54 +151,70 @@ export class GeospatialCameraMovement extends CameraMovement {
         }
 
         // If a pan drag is occurring, stop zooming.
+        // Compute `activeZoom` (and optionally pick) before `super.computeCurrentFrameDeltas()`
+        // because that call will zero out `zoomAccumulatedPixels`.
+        const activeZoom = this._hasActiveZoomInput();
+
+        let zoomTargetDistance: number | undefined;
         if (this.isDragging) {
             this._zoomSpeedMultiplier = 0;
             this._zoomVelocity = 0;
         } else {
-            // Scales zoom movement speed based on camera distance to origin (so long as no active pan is occurring)
-            this._zoomSpeedMultiplier = Vector3Distance(this._cameraPosition, cameraCenter) * 0.01;
+            zoomTargetDistance = this._getZoomTargetDistanceForFrame(activeZoom);
+
+            // Scales zoom movement speed based on camera distance to zoom target.
+            this._zoomSpeedMultiplier = (zoomTargetDistance ?? Vector3Distance(this._cameraPosition, cameraCenter)) * 0.01;
         }
 
-        // Before zero-ing out pixel deltas, capture if we have any active zoom in this frame (compared to zoom from inertia)
-        const activeZoom = Math.abs(this.zoomAccumulatedPixels) > 0;
         super.computeCurrentFrameDeltas();
 
-        this._handleZoom(activeZoom);
+        if (Math.abs(this.zoomDeltaCurrentFrame) > Epsilon) {
+            this._clampZoomDistance(this.zoomDeltaCurrentFrame, zoomTargetDistance);
+        }
     }
 
     public get isDragging() {
         return this._hitPointRadius !== undefined;
     }
 
-    private _handleZoom(activeZoom: boolean) {
-        if (Math.abs(this.zoomDeltaCurrentFrame) > Epsilon) {
-            let pickDistance: number | undefined;
+    private _hasActiveZoomInput(): boolean {
+        return !this.isDragging && Math.abs(this.zoomAccumulatedPixels) > 0;
+    }
 
-            if (!activeZoom) {
-                // During inertia, use the previously stored pick distance
-                // TODO fix this to work with raycasting
-                pickDistance = this._storedZoomPickDistance;
+    private _getZoomTargetDistanceForFrame(activeZoom: boolean): number | undefined {
+        return activeZoom ? this._updateZoomPickFromInput().pickDistance : this._storedZoomPickPoint ? Vector3Distance(this._cameraPosition, this._storedZoomPickPoint) : undefined;
+    }
+
+    private _updateZoomPickFromInput(): { pickDistance: number | undefined } {
+        const pickResult = this._scene.pick(this._scene.pointerX, this._scene.pointerY, this.pickPredicate);
+
+        // Zoom to cursor if we hit something under the cursor
+        if (pickResult.hit && pickResult.pickedPoint && pickResult.ray && this.zoomToCursor) {
+            const pickDistance = Vector3Distance(this._cameraPosition, pickResult.pickedPoint);
+            if (!this._storedZoomPickPoint) {
+                this._storedZoomPickPoint = pickResult.pickedPoint.clone();
             } else {
-                // Active zoom - pick and store the distance
-                const pickResult = this._scene.pick(this._scene.pointerX, this._scene.pointerY, this.pickPredicate);
-
-                if (pickResult.hit && pickResult.pickedPoint && pickResult.ray && this.zoomToCursor) {
-                    // Store both the zoom picked point and the pick distance for use during inertia
-                    pickDistance = pickResult.distance;
-                    this._storedZoomPickDistance = pickDistance;
-                    this.computedPerFrameZoomPickPoint = pickResult.pickedPoint;
-                } else {
-                    // If no hit under cursor, zoom along lookVector instead
-                    const lookPickResult = this.pickAlongVector(this._cameraLookAt);
-                    pickDistance = lookPickResult?.distance;
-                    this._storedZoomPickDistance = pickDistance;
-                    this.computedPerFrameZoomPickPoint = undefined;
-                }
+                this._storedZoomPickPoint.copyFrom(pickResult.pickedPoint);
             }
-
-            // Clamp distance based on limits and update center
-            this._clampZoomDistance(this.zoomDeltaCurrentFrame, pickDistance);
+            this.computedPerFrameZoomPickPoint = pickResult.pickedPoint;
+            return { pickDistance };
         }
+
+        // If no hit under cursor (or zoomToCursor disabled), zoom along lookVector instead
+        const lookPickResult = this.pickAlongVector(this._cameraLookAt);
+        if (lookPickResult?.hit && lookPickResult.pickedPoint) {
+            const pickDistance = Vector3Distance(this._cameraPosition, lookPickResult.pickedPoint);
+            if (!this._storedZoomPickPoint) {
+                this._storedZoomPickPoint = lookPickResult.pickedPoint.clone();
+            } else {
+                this._storedZoomPickPoint.copyFrom(lookPickResult.pickedPoint);
+            }
+            return { pickDistance };
+        }
+
+        // No pick available
+        this.computedPerFrameZoomPickPoint = undefined;
+        return { pickDistance: this._storedZoomPickPoint ? Vector3Distance(this._cameraPosition, this._storedZoomPickPoint) : undefined };
     }
 
     private _clampZoomDistance(requestedDistance: number, pickResultDistance: number | undefined): number {
