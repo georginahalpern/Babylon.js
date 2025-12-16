@@ -90,7 +90,7 @@ export class CameraMovement {
      */
     /**
      * Accumulated pixel delta (by input classes) for zoom this frame
-     * Read by computeCurrentFrameDeltas() function and converted into panDeltaCurrentFrame (taking speed into account)
+     * Read by computeCurrentFrameDeltas() function and converted into zoomDeltaCurrentFrame (taking speed into account)
      * Reset to zero after each frame
      */
     public zoomAccumulatedPixels: number = 0;
@@ -102,7 +102,7 @@ export class CameraMovement {
     public panAccumulatedPixels: Vector3 = new Vector3();
     /**
      * Accumulated pixel delta (by input classes) for rotation this frame
-     * Read by computeCurrentFrameDeltas() function and converted into panDeltaCurrentFrame (taking speed into account)
+     * Read by computeCurrentFrameDeltas() function and converted into rotationDeltaCurrentFrame (taking speed into account)
      * Reset to zero after each frame
      */
     public rotationAccumulatedPixels: Vector3 = new Vector3();
