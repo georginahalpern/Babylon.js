@@ -131,7 +131,7 @@ export class CameraMovement {
      * -----------------------------------
      */
     /**
-     * Zoom velocity used for inertia calculations (movement / time)
+     * Zoom pixel velocity used for inertia calculations (pixels / ms).
      */
     protected _zoomVelocity: number = 0;
     /**
@@ -188,8 +188,20 @@ export class CameraMovement {
         );
         this._rotationVelocity.scaleToRef(deltaTimeMs, this.rotationDeltaCurrentFrame);
 
-        this._zoomVelocity = this._calculateCurrentVelocity(this._zoomVelocity, this.zoomAccumulatedPixels, this.zoomSpeed * this._zoomSpeedMultiplier, this.zoomInertia);
-        this.zoomDeltaCurrentFrame = this._zoomVelocity * deltaTimeMs;
+        const shouldUpdateZoomVelocity = this.zoomAccumulatedPixels !== 0 || this.activeInput;
+        if (shouldUpdateZoomVelocity) {
+            // Inertia does not apply.
+            this._zoomVelocity = this.zoomAccumulatedPixels / deltaTimeMs;
+        } else if (this._zoomVelocity !== 0) {
+            // Apply inertia decay.
+            const frameIndependentDecay = Math.pow(this.zoomInertia, this._prevFrameTimeMs / FrameDurationAt60FPS);
+            this._zoomVelocity *= frameIndependentDecay;
+            if (Math.abs(this._zoomVelocity) <= Epsilon) {
+                this._zoomVelocity = 0;
+            }
+        }
+
+        this.zoomDeltaCurrentFrame = this._zoomVelocity * (this.zoomSpeed * this._zoomSpeedMultiplier) * deltaTimeMs;
 
         this._prevFrameTimeMs = deltaTimeMs;
         this.zoomAccumulatedPixels = 0;
