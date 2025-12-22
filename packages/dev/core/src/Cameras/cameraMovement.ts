@@ -175,32 +175,24 @@ export class CameraMovement {
         }
 
         this._panVelocity.copyFromFloats(
-            this._calculateCurrentVelocity(this._panVelocity.x, this.panAccumulatedPixels.x, this.panSpeed * this._panSpeedMultiplier, this.panInertia),
-            this._calculateCurrentVelocity(this._panVelocity.y, this.panAccumulatedPixels.y, this.panSpeed * this._panSpeedMultiplier, this.panInertia),
-            this._calculateCurrentVelocity(this._panVelocity.z, this.panAccumulatedPixels.z, this.panSpeed * this._panSpeedMultiplier, this.panInertia)
+            this._calculateCurrentVelocity(this._panVelocity.x, this.panAccumulatedPixels.x, this.panInertia),
+            this._calculateCurrentVelocity(this._panVelocity.y, this.panAccumulatedPixels.y, this.panInertia),
+            this._calculateCurrentVelocity(this._panVelocity.z, this.panAccumulatedPixels.z, this.panInertia)
         );
-        this._panVelocity.scaleToRef(deltaTimeMs, this.panDeltaCurrentFrame);
+        this._panVelocity.scaleToRef(this.panSpeed * this._panSpeedMultiplier * deltaTimeMs, this.panDeltaCurrentFrame);
 
         this._rotationVelocity.copyFromFloats(
-            this._calculateCurrentVelocity(this._rotationVelocity.x, this.rotationAccumulatedPixels.x, this.rotationXSpeed, this.rotationInertia),
-            this._calculateCurrentVelocity(this._rotationVelocity.y, this.rotationAccumulatedPixels.y, this.rotationYSpeed, this.rotationInertia),
-            this._calculateCurrentVelocity(this._rotationVelocity.z, this.rotationAccumulatedPixels.z, this.rotationYSpeed, this.rotationInertia)
+            this._calculateCurrentVelocity(this._rotationVelocity.x, this.rotationAccumulatedPixels.x, this.rotationInertia),
+            this._calculateCurrentVelocity(this._rotationVelocity.y, this.rotationAccumulatedPixels.y, this.rotationInertia),
+            this._calculateCurrentVelocity(this._rotationVelocity.z, this.rotationAccumulatedPixels.z, this.rotationInertia)
         );
-        this._rotationVelocity.scaleToRef(deltaTimeMs, this.rotationDeltaCurrentFrame);
+        this.rotationDeltaCurrentFrame.copyFromFloats(
+            this._rotationVelocity.x * this.rotationXSpeed * deltaTimeMs,
+            this._rotationVelocity.y * this.rotationYSpeed * deltaTimeMs,
+            this._rotationVelocity.z * this.rotationYSpeed * deltaTimeMs
+        );
 
-        const shouldUpdateZoomVelocity = this.zoomAccumulatedPixels !== 0 || this.activeInput;
-        if (shouldUpdateZoomVelocity) {
-            // Inertia does not apply.
-            this._zoomVelocity = this.zoomAccumulatedPixels / deltaTimeMs;
-        } else if (this._zoomVelocity !== 0) {
-            // Apply inertia decay.
-            const frameIndependentDecay = Math.pow(this.zoomInertia, this._prevFrameTimeMs / FrameDurationAt60FPS);
-            this._zoomVelocity *= frameIndependentDecay;
-            if (Math.abs(this._zoomVelocity) <= Epsilon) {
-                this._zoomVelocity = 0;
-            }
-        }
-
+        this._zoomVelocity = this._calculateCurrentVelocity(this._zoomVelocity, this.zoomAccumulatedPixels, this.zoomInertia);
         this.zoomDeltaCurrentFrame = this._zoomVelocity * (this.zoomSpeed * this._zoomSpeedMultiplier) * deltaTimeMs;
 
         this._prevFrameTimeMs = deltaTimeMs;
@@ -213,14 +205,13 @@ export class CameraMovement {
         return !!this._behavior?.isInterpolating;
     }
 
-    private _calculateCurrentVelocity(velocityRef: number, pixelDelta: number, speedFactor: number, inertialDecayFactor: number): number {
+    private _calculateCurrentVelocity(velocityRef: number, pixelDelta: number, inertialDecayFactor: number): number {
         let inputVelocity = velocityRef;
         const deltaTimeMs = this._scene.getEngine().getDeltaTime();
 
-        // If we are actively recieving input or have accumulated some pixel delta since last frame, calculate inputVelocity (inertia doesn't kickin yet)
+        // If we are actively receiving input or have accumulated some pixel delta since last frame, calculate inputVelocity (inertia doesn't kick in yet)
         if (pixelDelta !== 0 || this.activeInput) {
-            const pixelsPerMs = pixelDelta / deltaTimeMs;
-            inputVelocity = pixelsPerMs * speedFactor;
+            inputVelocity = pixelDelta / deltaTimeMs;
         } else if (!this.activeInput && inputVelocity !== 0) {
             // If we are not receiving input and velocity isn't already zero, apply inertial decay to decelerate velocity
             const frameIndependentDecay = Math.pow(inertialDecayFactor, this._prevFrameTimeMs / FrameDurationAt60FPS);
