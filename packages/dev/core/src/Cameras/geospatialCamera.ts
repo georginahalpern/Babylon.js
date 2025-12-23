@@ -219,7 +219,9 @@ export class GeospatialCamera extends Camera {
     public updateFlyToDestination(targetYaw?: number, targetPitch?: number, targetRadius?: number, targetCenter?: Vector3): void {
         this._flyToTargets.clear();
 
-        this._flyToTargets.set("yaw", targetYaw != undefined ? NormalizeRadians(targetYaw) : undefined);
+        // For yaw, pick the nearest equivalent target relative to the current yaw.
+        const deltaYaw = targetYaw !== undefined ? NormalizeRadians(NormalizeRadians(targetYaw) - this._yaw) : 0;
+        this._flyToTargets.set("yaw", deltaYaw === 0 ? undefined : this._yaw + deltaYaw);
         this._flyToTargets.set("pitch", targetPitch != undefined ? NormalizeRadians(targetPitch) : undefined);
         this._flyToTargets.set("radius", targetRadius);
         this._flyToTargets.set("center", targetCenter);
@@ -249,8 +251,9 @@ export class GeospatialCamera extends Camera {
     ): Promise<void> {
         this._flyToTargets.clear();
 
-        this._flyToTargets.set("yaw", targetYaw !== undefined ? NormalizeRadians(targetYaw) : undefined);
-        this._flyToTargets.set("pitch", targetPitch !== undefined ? NormalizeRadians(targetPitch) : undefined);
+        // For yaw, pick the nearest equivalent target relative to the current yaw.
+        const deltaYaw = targetYaw !== undefined ? NormalizeRadians(NormalizeRadians(targetYaw) - this._yaw) : 0;
+        this._flyToTargets.set("yaw", deltaYaw === 0 ? undefined : this._yaw + deltaYaw);
         this._flyToTargets.set("radius", targetRadius);
         this._flyToTargets.set("center", targetCenter);
 
