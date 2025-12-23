@@ -8,7 +8,7 @@ import type { DeepImmutable } from "../types";
 import { GeospatialLimits } from "./Limits/geospatialLimits";
 import { ClampCenterFromPolesInPlace, ComputeLocalBasisToRefs, GeospatialCameraMovement } from "./geospatialCameraMovement";
 import type { IVector3Like } from "../Maths/math.like";
-import { Vector3CopyToRef, Vector3Distance } from "../Maths/math.vector.functions";
+import { Vector3CopyToRef, Vector3Distance, Vector3Dot, Vector3SubtractToRef } from "../Maths/math.vector.functions";
 import { Clamp, NormalizeRadians } from "../Maths/math.scalar.functions";
 import type { AllowedAnimValue } from "../Behaviors/Cameras/interpolatingBehavior";
 import { InterpolatingBehavior } from "../Behaviors/Cameras/interpolatingBehavior";
@@ -271,18 +271,18 @@ export class GeospatialCamera extends Camera {
     }
 
     /**
-     * Helper function to move camera towards a given point by radiusScale% of radius (by default 50%)
+     * Helper function to move camera towards a given point by `distanceScale` of the current camera-to-destination distance (by default 50%).
      * @param destination point to move towards
-     * @param radiusScale value between 0 and 1, % of radius to move
+     * @param distanceScale value between 0 and 1, % of distance to move
      * @param durationMs duration of flight, default 1s
      * @param easingFn optional easing function for flight interpolation of properties
-     * @param overshootRadiusScale optional scale to apply to the current radius to achieve a 'hop' animation
+     * @param centerHopScale If supplied, will define the parabolic hop height scale for center animation to create a "bounce" effect
      */
-    public async flyToPointAsync(destination: Vector3, radiusScale: number = 0.5, durationMs: number = 1000, easingFn?: EasingFunction, overshootRadiusScale?: number) {
-        // Zoom to radiusScale% of radius towards the given destination point
-        const zoomDistance = this.radius * radiusScale;
-        const newRadius = this._getCenterAndRadiusFromZoomToPoint(destination, zoomDistance, this._tempCenter);
-        await this.flyToAsync(undefined, undefined, newRadius, this._tempCenter, durationMs, easingFn, overshootRadiusScale);
+    public async flyToPointAsync(destination: Vector3, distanceScale: number = 0.5, durationMs: number = 1000, easingFn?: EasingFunction, centerHopScale?: number) {
+        // Move by a fraction of the camera-to-destination distance
+        const zoomDistance = Vector3Distance(this.position, destination) * distanceScale;
+        const newRadius = this._getCenterAndRadiusFromZoomToPointToRef(destination, zoomDistance, this._tempCenter);
+        await this.flyToAsync(undefined, undefined, newRadius, this._tempCenter, durationMs, easingFn, centerHopScale);
     }
 
     private _limits: GeospatialLimits;
@@ -364,32 +364,29 @@ export class GeospatialCamera extends Camera {
         }
     }
 
-    private _getCenterAndRadiusFromZoomToPoint(targetPoint: Vector3, distance: number, newCenter: Vector3): number {
-        // Clamp new radius to limits
-        const requestedRadius = this._radius - distance;
-        const newRadius = Clamp(requestedRadius, this.limits.radiusMin, this.limits.radiusMax);
-        const actualDistance = this._radius - newRadius;
-        const actualRatio = actualDistance / this._radius;
+    private _getCenterAndRadiusFromZoomToPointToRef(targetPoint: DeepImmutable<IVector3Like>, distance: number, newCenterResult: Vector3): number {
+        const directionToTarget = Vector3SubtractToRef(targetPoint, this._position, TmpVectors.Vector3[0]);
+        const distanceToTarget = directionToTarget.length();
 
-        // Direction from current center to target point
-        const directionToTarget = TmpVectors.Vector3[0];
-        targetPoint.subtractToRef(this._center, directionToTarget);
-
-        // Move center toward target by the ratio amount
-        const centerOffset = TmpVectors.Vector3[1];
-        directionToTarget.scaleToRef(actualRatio, centerOffset);
-
-        // Calculate new center
-        this._center.addToRef(centerOffset, newCenter);
-
-        // Preserve center altitude (distance from planet origin)
-        const currentCenterRadius = this._center.length();
-        const newCenterRadius = newCenter.length();
-        if (newCenterRadius > Epsilon) {
-            newCenter.scaleInPlace(currentCenterRadius / newCenterRadius);
+        // Don't zoom past the min radius limit.
+        if (distanceToTarget < this.limits.radiusMin) {
+            newCenterResult.copyFrom(this._center);
+            const requestedRadius = this._radius - distance;
+            const newRadius = Clamp(requestedRadius, this.limits.radiusMin, this.limits.radiusMax);
+            return newRadius;
         }
 
-        return newRadius;
+        // Move the camera position along the center->target ray by the raw zoom delta
+        directionToTarget.scaleInPlace(distance / distanceToTarget);
+        const newPosition = this._position.addToRef(directionToTarget, TmpVectors.Vector3[1]);
+
+        // Project the movement onto the look vector to derive the new center/radius.
+        const projectedDistance = Vector3Dot(directionToTarget, this._lookAtVector);
+        const newRadius = this._radius - projectedDistance;
+        const newRadiusClamped = Clamp(newRadius, this.limits.radiusMin, this.limits.radiusMax);
+        newCenterResult.copyFrom(newPosition).addInPlace(this._lookAtVector.scale(newRadiusClamped));
+
+        return newRadiusClamped;
     }
 
     /**
@@ -408,8 +405,8 @@ export class GeospatialCamera extends Camera {
         }
     }
 
-    private _zoomToPoint(targetPoint: Vector3, distance: number) {
-        const newRadius = this._getCenterAndRadiusFromZoomToPoint(targetPoint, distance, this._tempCenter);
+    private _zoomToPoint(targetPoint: DeepImmutable<IVector3Like>, distance: number) {
+        const newRadius = this._getCenterAndRadiusFromZoomToPointToRef(targetPoint, distance, this._tempCenter);
         // Apply the new orientation
         this._setOrientation(this._yaw, this._pitch, newRadius, this._tempCenter);
     }
