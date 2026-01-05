@@ -202,11 +202,6 @@ export class GeospatialCamera extends Camera {
         this._isViewMatrixDirty = true;
     }
 
-    /** The point around which the camera will geocentrically rotate. Uses center (pt we are anchored to) if no alternateRotationPt is defined */
-    private get _geocentricRotationPt(): Vector3 {
-        return this.center;
-    }
-
     /**
      * If camera is actively in flight, will update the target properties and use up the remaining duration from original flyTo call
      *
@@ -261,9 +256,6 @@ export class GeospatialCamera extends Camera {
         let overrideAnimationFunction;
         if (targetCenter !== undefined && !targetCenter.equals(this.center)) {
             // Animate center directly with custom interpolation
-            const start = this.center.clone();
-            const end = targetCenter.clone();
-
             overrideAnimationFunction = (key: string, animation: Animation): void => {
                 if (key === "center") {
                     // Override the Vector3 interpolation to use SLERP + hop
@@ -271,13 +263,13 @@ export class GeospatialCamera extends Camera {
                         // gradient is the eased value (0 to 1) after easing function is applied
 
                         // Slerp between start and end
-                        const newCenter = Vector3.SlerpToRef(start, end, gradient, this._tempCenter);
+                        const newCenter = Vector3.SlerpToRef(startValue, endValue, gradient, this._tempCenter);
 
                         // Apply parabolic hop if requested
                         if (centerHopScale && centerHopScale > 0) {
                             // Parabolic formula: peaks at t=0.5, returns to 0 at gradient=0 and gradient=1
                             // if hopPeakT = .5 the denominator would be hopPeakT * hopPeakT - hopPeakT, which = -.25
-                            const hopPeakOffset = centerHopScale * Vector3Distance(start, end);
+                            const hopPeakOffset = centerHopScale * Vector3Distance(startValue, endValue);
                             const hopOffset = hopPeakOffset * Clamp((gradient * gradient - gradient) / -0.25);
                             // Scale the center outward (away from origin)
                             newCenter.scaleInPlace(1 + hopOffset / newCenter.length());
@@ -304,7 +296,7 @@ export class GeospatialCamera extends Camera {
         // Move by a fraction of the camera-to-destination distance
         const zoomDistance = Vector3Distance(this.position, destination) * distanceScale;
         const newRadius = this._getCenterAndRadiusFromZoomToPointToRef(destination, zoomDistance, this._tempCenter);
-        await this.flyToAsync(undefined, undefined, newRadius, this._tempCenter, durationMs, easingFn, centerHopScale);
+        await this.flyToAsync(undefined, undefined, newRadius, this._tempCenter.clone(), durationMs, easingFn, centerHopScale);
     }
 
     private _limits: GeospatialLimits;
@@ -395,8 +387,7 @@ export class GeospatialCamera extends Camera {
             const pitch = rotationDeltaCurrentFrame.x !== 0 ? Clamp(this._pitch + rotationDeltaCurrentFrame.x, 0, 0.5 * Math.PI - Epsilon) : this._pitch;
             const yaw = rotationDeltaCurrentFrame.y !== 0 ? this._yaw + rotationDeltaCurrentFrame.y : this._yaw;
 
-            // TODO: If _geocentricRotationPt is not the center, this will need to be adjusted.
-            this._setOrientation(yaw, pitch, this._radius, this._geocentricRotationPt);
+            this._setOrientation(yaw, pitch, this._radius, this._center);
         }
     }
 
