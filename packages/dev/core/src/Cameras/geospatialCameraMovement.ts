@@ -38,7 +38,6 @@ export class GeospatialCameraMovement extends CameraMovement {
     public zoomToCursor: boolean = true;
 
     private _tempPickingRay: Ray;
-    private _storedZoomPickPoint?: Vector3;
 
     private _hitPointRadius?: number = undefined;
     private _dragPlane: Plane = new Plane(0, 0, 0, 0);
@@ -151,92 +150,38 @@ export class GeospatialCameraMovement extends CameraMovement {
         }
 
         // If a pan drag is occurring, stop zooming.
-        // Compute `activeZoom` (and optionally pick) before `super.computeCurrentFrameDeltas()`
-        // because that call will zero out `zoomAccumulatedPixels`.
-        const activeZoom = this._hasActiveZoomInput();
-
         let zoomTargetDistance: number | undefined;
         if (this.isDragging) {
             this._zoomSpeedMultiplier = 0;
             this._zoomVelocity = 0;
         } else {
-            zoomTargetDistance = this._getZoomTargetDistanceForFrame(activeZoom);
+            zoomTargetDistance = this.computedPerFrameZoomPickPoint ? Vector3Distance(this._cameraPosition, this.computedPerFrameZoomPickPoint) : undefined;
 
             // Scales zoom movement speed based on camera distance to zoom target.
             this._zoomSpeedMultiplier = (zoomTargetDistance ?? Vector3Distance(this._cameraPosition, cameraCenter)) * 0.01;
         }
 
         super.computeCurrentFrameDeltas();
-
-        if (Math.abs(this.zoomDeltaCurrentFrame) > Epsilon) {
-            this._clampZoomDistance(this.zoomDeltaCurrentFrame, zoomTargetDistance);
-        }
     }
 
     public get isDragging() {
         return this._hitPointRadius !== undefined;
     }
 
-    private _hasActiveZoomInput(): boolean {
-        return !this.isDragging && Math.abs(this.zoomAccumulatedPixels) > 0;
-    }
+    public handleZoom(wheelDeltaY: number, toCursor: boolean) {
+        if (wheelDeltaY !== 0) {
+            this.zoomAccumulatedPixels += wheelDeltaY;
 
-    private _getZoomTargetDistanceForFrame(activeZoom: boolean): number | undefined {
-        return activeZoom ? this._updateZoomPickFromInput().pickDistance : this._storedZoomPickPoint ? Vector3Distance(this._cameraPosition, this._storedZoomPickPoint) : undefined;
-    }
+            const pickResult = this._scene.pick(this._scene.pointerX, this._scene.pointerY, this.pickPredicate);
 
-    private _updateZoomPickFromInput(): { pickDistance: number | undefined } {
-        const pickResult = this._scene.pick(this._scene.pointerX, this._scene.pointerY, this.pickPredicate);
-
-        // Zoom to cursor if we hit something under the cursor
-        if (pickResult.hit && pickResult.pickedPoint && pickResult.ray && this.zoomToCursor) {
-            const pickDistance = Vector3Distance(this._cameraPosition, pickResult.pickedPoint);
-            if (!this._storedZoomPickPoint) {
-                this._storedZoomPickPoint = pickResult.pickedPoint.clone();
+            if (toCursor && pickResult.hit && pickResult.pickedPoint && pickResult.ray && this.zoomToCursor) {
+                this.computedPerFrameZoomPickPoint = pickResult.pickedPoint;
             } else {
-                this._storedZoomPickPoint.copyFrom(pickResult.pickedPoint);
-            }
-            this.computedPerFrameZoomPickPoint = pickResult.pickedPoint;
-            return { pickDistance };
-        }
-
-        // If no hit under cursor (or zoomToCursor disabled), zoom along lookVector instead
-        const lookPickResult = this.pickAlongVector(this._cameraLookAt);
-        if (lookPickResult?.hit && lookPickResult.pickedPoint) {
-            const pickDistance = Vector3Distance(this._cameraPosition, lookPickResult.pickedPoint);
-            if (!this._storedZoomPickPoint) {
-                this._storedZoomPickPoint = lookPickResult.pickedPoint.clone();
-            } else {
-                this._storedZoomPickPoint.copyFrom(lookPickResult.pickedPoint);
-            }
-            return { pickDistance };
-        }
-
-        // No pick available
-        this.computedPerFrameZoomPickPoint = undefined;
-        return { pickDistance: this._storedZoomPickPoint ? Vector3Distance(this._cameraPosition, this._storedZoomPickPoint) : undefined };
-    }
-
-    private _clampZoomDistance(requestedDistance: number, pickResultDistance: number | undefined): number {
-        // If pickResult is defined
-        if (requestedDistance > 0) {
-            if (pickResultDistance !== undefined) {
-                // If there is a pick, allow movement up to pick - minAltitude
-                if (pickResultDistance - this.limits.altitudeMin < 0) {
-                    this.zoomDeltaCurrentFrame = 0;
-                }
-                this.zoomDeltaCurrentFrame = Math.min(requestedDistance, pickResultDistance - this.limits.altitudeMin);
-            } else {
-                this.zoomDeltaCurrentFrame = requestedDistance;
+                // If no hit under cursor or explicitly told not to zoom to cursor, zoom along lookVector instead
+                const lookPickResult = this.pickAlongVector(this._cameraLookAt);
+                this.computedPerFrameZoomPickPoint = lookPickResult?.pickedPoint ?? undefined;
             }
         }
-
-        if (requestedDistance < 0) {
-            const maxZoomOut = this.limits.radiusMax ? this.limits.radiusMax - this._cameraPosition.length() : Number.POSITIVE_INFINITY;
-            this.zoomDeltaCurrentFrame = Math.max(requestedDistance, -maxZoomOut);
-        }
-
-        return this.zoomDeltaCurrentFrame;
     }
 
     public pickAlongVector(vector: Vector3): Nullable<PickingInfo> {
