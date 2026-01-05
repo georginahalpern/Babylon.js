@@ -256,9 +256,6 @@ export class GeospatialCamera extends Camera {
         let overrideAnimationFunction;
         if (targetCenter !== undefined && !targetCenter.equals(this.center)) {
             // Animate center directly with custom interpolation
-            const start = this.center.clone();
-            const end = targetCenter.clone();
-
             overrideAnimationFunction = (key: string, animation: Animation): void => {
                 if (key === "center") {
                     // Override the Vector3 interpolation to use SLERP + hop
@@ -266,13 +263,13 @@ export class GeospatialCamera extends Camera {
                         // gradient is the eased value (0 to 1) after easing function is applied
 
                         // Slerp between start and end
-                        const newCenter = Vector3.SlerpToRef(start, end, gradient, this._tempCenter);
+                        const newCenter = Vector3.SlerpToRef(startValue, endValue, gradient, this._tempCenter);
 
                         // Apply parabolic hop if requested
                         if (centerHopScale && centerHopScale > 0) {
                             // Parabolic formula: peaks at t=0.5, returns to 0 at gradient=0 and gradient=1
                             // if hopPeakT = .5 the denominator would be hopPeakT * hopPeakT - hopPeakT, which = -.25
-                            const hopPeakOffset = centerHopScale * Vector3Distance(start, end);
+                            const hopPeakOffset = centerHopScale * Vector3Distance(startValue, endValue);
                             const hopOffset = hopPeakOffset * Clamp((gradient * gradient - gradient) / -0.25);
                             // Scale the center outward (away from origin)
                             newCenter.scaleInPlace(1 + hopOffset / newCenter.length());
@@ -299,7 +296,7 @@ export class GeospatialCamera extends Camera {
         // Move by a fraction of the camera-to-destination distance
         const zoomDistance = Vector3Distance(this.position, destination) * distanceScale;
         const newRadius = this._getCenterAndRadiusFromZoomToPointToRef(destination, zoomDistance, this._tempCenter);
-        await this.flyToAsync(undefined, undefined, newRadius, this._tempCenter, durationMs, easingFn, centerHopScale);
+        await this.flyToAsync(undefined, undefined, newRadius, this._tempCenter.clone(), durationMs, easingFn, centerHopScale);
     }
 
     private _limits: GeospatialLimits;
@@ -452,6 +449,8 @@ export class GeospatialCamera extends Camera {
         this._setOrientation(this._yaw, this._pitch, newRadius, this._center);
     }
 
+    private _wasCenterMovingLastFrame = false;
+
     override _checkInputs(): void {
         this.inputs.checkInputs();
         this.collisionOffset.setAll(0);
@@ -481,8 +480,6 @@ export class GeospatialCamera extends Camera {
 
         super._checkInputs();
     }
-
-    private _wasCenterMovingLastFrame = false;
 
     private _recalculateCenter(isCenterMoving: boolean) {
         const shouldRecalculateCenterAfterMove = this._wasCenterMovingLastFrame && !isCenterMoving;

@@ -1,74 +1,119 @@
 {
-    "fromTag": "8.41.2",
+    "fromTag": "8.43.0",
     "changelog": {
-        "8.41.2": [
+        "8.44.0": [
             {
-                "pr": "17544",
-                "title": "GS Cleanup + depth renderer + more tests",
-                "description": "- removed `viewDirectionFactor` uniform\r\n- more explicit `eyeToSplatLocalSpace` name\r\n- more consistent Y scaling: keep data unchanged and change scaling.y at loading time\r\n- add options to `updateData` to preserve back compat\r\n- update spz v3 scene accordingly\r\n- removed `invy` matrix usage in shaders\r\n- depth renderer : https://playground.babylonjs.com/#V80DRL#12\r\n- `loadFileAsync` now loads more format as it uses ImportMeshAsync internally\r\n- 4 new tests",
+                "pr": "17598",
+                "title": "Voxel shadow fixes for interleaved buffers",
+                "description": "Supersedes #17376 ",
                 "author": {
-                    "name": "CedricGuillemet",
-                    "url": "https://github.com/CedricGuillemet"
+                    "name": "sebavan",
+                    "url": "https://github.com/sebavan"
                 },
                 "files": [
-                    "packages/dev/core/src/Materials/GaussianSplatting/gaussianSplattingMaterial.ts",
-                    "packages/dev/core/src/Materials/Node/Blocks/GaussianSplatting/gaussianSplattingBlock.ts",
-                    "packages/dev/core/src/Meshes/GaussianSplatting/gaussianSplattingMesh.ts",
-                    "packages/dev/core/src/Rendering/depthRenderer.ts",
-                    "packages/dev/core/src/Shaders/ShadersInclude/gaussianSplatting.fx",
-                    "packages/dev/core/src/Shaders/gaussianSplatting.vertex.fx",
-                    "packages/dev/core/src/Shaders/gaussianSplattingDepth.fragment.fx",
-                    "packages/dev/core/src/Shaders/gaussianSplattingDepth.vertex.fx",
-                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/gaussianSplatting.fx",
-                    "packages/dev/core/src/ShadersWGSL/gaussianSplatting.vertex.fx",
-                    "packages/dev/core/src/ShadersWGSL/gaussianSplattingDepth.fragment.fx",
-                    "packages/dev/core/src/ShadersWGSL/gaussianSplattingDepth.vertex.fx",
-                    "packages/dev/loaders/src/SPLAT/splatFileLoader.ts",
-                    "packages/dev/loaders/src/SPLAT/splatLoadingOptions.ts",
-                    "packages/dev/loaders/src/SPLAT/spz.ts",
-                    "packages/tools/tests/test/visualization/ReferenceImages/gsplat-compressedply-sh.png",
-                    "packages/tools/tests/test/visualization/ReferenceImages/gsplat-depth.png",
-                    "packages/tools/tests/test/visualization/ReferenceImages/gsplat-spz-sh.png",
-                    "packages/tools/tests/test/visualization/ReferenceImages/gsplat-spz-v3.png",
-                    "packages/tools/tests/test/visualization/ReferenceImages/gsplat-update-data.png",
-                    "packages/tools/tests/test/visualization/config.json"
+                    "package-lock.json",
+                    "packages/dev/core/src/Engines/WebGPU/webgpuDrawContext.ts",
+                    "packages/dev/core/src/Materials/index.ts",
+                    "packages/dev/core/src/Materials/shaderMaterial.ts",
+                    "packages/dev/core/src/Materials/vertexPullingHelper.functions.ts",
+                    "packages/dev/core/src/Rendering/IBLShadows/iblShadowsVoxelRenderer.ts",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/bonesDeclaration.fx",
+                    "packages/dev/core/src/ShadersWGSL/iblVoxelGrid.vertex.fx"
                 ],
                 "tags": []
             },
             {
-                "pr": "17553",
-                "title": "FrameGraph: add support for OIT",
-                "description": "Also in this PR:\r\n* Add new properties to the object renderer to render sublists of meshes (`renderDepthOnlyMeshes`, `renderOpaqueMeshes`, `renderAlphaTestMeshes` and `renderTransparentMeshes`)\r\n* Add new `initialize()` function to the `Pass` class\r\n",
+                "pr": "17597",
+                "title": "Fixed defines where area lights and hemi lights need to checked together",
+                "description": "Quick fix for changes in area lights defines not to break  hemispheric light. Fixes bug introduced by PR #17596 ",
+                "author": {
+                    "name": "SergioRZMasson",
+                    "url": "https://github.com/SergioRZMasson"
+                },
+                "files": [
+                    "packages/dev/core/src/Shaders/ShadersInclude/lightFragment.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/openpbrDirectLightingInit.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/lightFragment.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/openpbrDirectLightingInit.fx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17596",
+                "title": "Added extra guards to Area Lights defines to avoid shader compilation.",
+                "description": "Added extra guards against area lights defines to avoid shader compilation errors. This is related to a user reported issue on the forum and a proposed fix by @Popov72 . \r\n\r\nForum issue: https://forum.babylonjs.com/t/shader-fails-to-compile-due-to-unresolved-identifier-arealightsltc1sampler/61955/5",
+                "author": {
+                    "name": "SergioRZMasson",
+                    "url": "https://github.com/SergioRZMasson"
+                },
+                "files": [
+                    "packages/dev/core/src/Shaders/ShadersInclude/lightFragment.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/lightUboDeclaration.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/lightVxFragmentDeclaration.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/lightVxUboDeclaration.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/openpbrDirectLighting.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/openpbrDirectLightingInit.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/lightFragment.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/lightUboDeclaration.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/lightVxFragmentDeclaration.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/lightVxUboDeclaration.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/openpbrDirectLighting.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/openpbrDirectLightingInit.fx"
+                ],
+                "tags": [
+                    "bug"
+                ]
+            },
+            {
+                "pr": "17593",
+                "title": "Meshes: Fix wrong normals after calling updateFacetData",
+                "description": "See https://forum.babylonjs.com/t/mesh-updatefacetdata-breaks-smooth-shading-after-gltf-glb-export-faceted-look-on-rounded-meshes/61944\r\n\r\nThe problem is that calling `updateFacetData` updates the normal array on the CPU side, but not the GPU buffer. So the mesh looks fine in the Playground, but after exporting/importing it, it no longer does, because when exporting, we use the CPU-side array.\r\n\r\nI don't think `updateFacetData` was designed to modify a mesh's normal array (I don't see why we would do that?), so I simply cloned the array before calling `VertexData.ComputeNormals` (which is the function that updates the normals).",
                 "author": {
                     "name": "Popov72",
                     "url": "https://github.com/Popov72"
                 },
                 "files": [
-                    "packages/dev/core/src/FrameGraph/Node/Blocks/PostProcesses/baseWithPropertiesPostProcessBlock.ts",
+                    "packages/dev/core/src/Meshes/abstractMesh.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "rendering engine"
+                ]
+            },
+            {
+                "pr": "17582",
+                "title": "FrameGraph: Support multi-RTT in clear texture and object renderer tasks",
+                "description": "It wasn't really planned at this stage, but I was worried that it would involve breaking changes, so I preferred to do it now (in reality, it doesn't involve any breaking changes).\r\n\r\nThis PR also adds support for array of cube textures (WebGPU only, not supported in WebGL).",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Engines/WebGPU/Extensions/engine.multiRender.ts",
+                    "packages/dev/core/src/Engines/WebGPU/Extensions/engine.renderTarget.ts",
+                    "packages/dev/core/src/Engines/WebGPU/webgpuHardwareTexture.ts",
+                    "packages/dev/core/src/Engines/WebGPU/webgpuTextureManager.ts",
+                    "packages/dev/core/src/Engines/thinEngine.ts",
+                    "packages/dev/core/src/Engines/thinWebGPUEngine.ts",
+                    "packages/dev/core/src/Engines/webgpuEngine.ts",
                     "packages/dev/core/src/FrameGraph/Node/Blocks/Rendering/baseObjectRendererBlock.ts",
-                    "packages/dev/core/src/FrameGraph/Node/Blocks/Rendering/geometryRendererBlock.ts",
-                    "packages/dev/core/src/FrameGraph/Node/Blocks/Textures/copyTextureBlock.ts",
-                    "packages/dev/core/src/FrameGraph/Passes/pass.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Textures/clearBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/inputBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/nodeRenderGraphBlock.ts",
                     "packages/dev/core/src/FrameGraph/Passes/renderPass.ts",
-                    "packages/dev/core/src/FrameGraph/Tasks/Layers/baseLayerTask.ts",
                     "packages/dev/core/src/FrameGraph/Tasks/Rendering/objectRendererTask.ts",
                     "packages/dev/core/src/FrameGraph/Tasks/Texture/clearTextureTask.ts",
-                    "packages/dev/core/src/FrameGraph/frameGraph.ts",
-                    "packages/dev/core/src/FrameGraph/frameGraphRenderTarget.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphRenderContext.ts",
                     "packages/dev/core/src/FrameGraph/frameGraphTask.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphTaskMultiRenderTarget.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphTextureManager.ts",
                     "packages/dev/core/src/FrameGraph/frameGraphTypes.ts",
-                    "packages/dev/core/src/Rendering/depthPeelingRenderer.ts",
-                    "packages/dev/core/src/Rendering/depthPeelingSceneComponent.ts",
-                    "packages/dev/core/src/Rendering/index.ts",
-                    "packages/dev/core/src/Rendering/objectRenderer.ts",
-                    "packages/dev/core/src/Rendering/renderingGroup.ts",
-                    "packages/dev/core/src/Rendering/renderingManager.ts",
-                    "packages/dev/core/src/Rendering/thinDepthPeelingRenderer.ts",
-                    "packages/dev/core/src/Shaders/oitFinalSimpleBlend.fragment.fx",
-                    "packages/dev/core/src/ShadersWGSL/oitFinalSimpleBlend.fragment.fx",
-                    "packages/tools/tests/test/visualization/ReferenceImages/FrameGraph-OIT.png",
-                    "packages/tools/tests/test/visualization/ReferenceImages/FrameGraph-nrge-OIT-Geometry-renderer-.png",
-                    "packages/tools/tests/test/visualization/ReferenceImages/FrameGraph-nrge-OIT.png",
+                    "packages/dev/core/src/LibDeclarations/webgpu.d.ts",
+                    "packages/dev/core/src/Materials/Textures/textureCreationOptions.ts",
+                    "packages/tools/nodeRenderGraphEditor/src/graphSystem/properties/genericNodePropertyComponent.tsx",
+                    "packages/tools/nodeRenderGraphEditor/src/graphSystem/properties/inputNodePropertyComponent.tsx",
+                    "packages/tools/tests/test/visualization/ReferenceImages/FrameGraph-multi-render-targets.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/FrameGraph-nrge-multi-render-targets.png",
                     "packages/tools/tests/test/visualization/config.json"
                 ],
                 "tags": [
@@ -77,17 +122,367 @@
                 ]
             },
             {
-                "pr": "17552",
-                "title": "handle _onOutBusDisposed dynamically to prevent memory leak",
-                "description": "This is a PR that fixes the memory leak in  AbstractSoundSource as described in [this forum post](https://forum.babylonjs.com/t/audio-memory-leak-in-abstractsoundsource/61758)",
+                "pr": "17591",
+                "title": "SolidParticleSystem: Allow AbstractMesh in the addShape signature",
+                "description": "See https://forum.babylonjs.com/t/solid-particle-system-with-instancedmesh/61924",
                 "author": {
-                    "name": "LudaThomas",
-                    "url": "https://github.com/LudaThomas"
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
                 },
                 "files": [
-                    "packages/dev/core/src/AudioV2/abstractAudio/abstractSoundSource.ts"
+                    "packages/dev/core/src/Particles/solidParticleSystem.ts"
+                ],
+                "tags": [
+                    "enhancement",
+                    "particles"
+                ]
+            },
+            {
+                "pr": "17594",
+                "title": "Shadows: Fix artifacts when using PCF and PCSS",
+                "description": "See https://forum.babylonjs.com/t/setting-light-shadoworthoscale-to-0-will-cause-banded-abnormal-shadows/61945",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Shaders/ShadersInclude/shadowsFragmentFunctions.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/shadowsFragmentFunctions.fx"
+                ],
+                "tags": [
+                    "bug",
+                    "shadows"
+                ]
+            },
+            {
+                "pr": "17595",
+                "title": "Meshes: Fix crash when calling clearCachedData for a transparent mesh",
+                "description": "See https://forum.babylonjs.com/t/calling-clearcacheddata-on-a-transparent-mesh-will-cause-an-error/61946",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Meshes/geometry.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "rendering engine"
+                ]
+            },
+            {
+                "pr": "17592",
+                "title": "GPUPicker: Added support for bones, morph targets, and VAT",
+                "description": "Due to issues with the shader, Bone, Morph Targets and VAT have not been functioning.",
+                "author": {
+                    "name": "noname0310",
+                    "url": "https://github.com/noname0310"
+                },
+                "files": [
+                    "packages/dev/core/src/Shaders/picking.vertex.fx",
+                    "packages/dev/core/src/ShadersWGSL/picking.vertex.fx"
+                ],
+                "tags": [
+                    "bug",
+                    "picking"
+                ]
+            }
+        ],
+        "8.43.0": [
+            {
+                "pr": "17590",
+                "title": "Use shortest path for yaw flyTo",
+                "description": "Avoids flying around entire globe",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/core/src/Cameras/geospatialCamera.ts"
+                ],
+                "tags": [
+                    "camera"
+                ]
+            },
+            {
+                "pr": "17589",
+                "title": "Recalculate center only after drag has completed",
+                "description": "Only recalcs center when center moved last frame and is no longer moving ",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/core/src/Cameras/geospatialCamera.ts"
+                ],
+                "tags": [
+                    "camera"
+                ]
+            },
+            {
+                "pr": "17586",
+                "title": "EXRCubeTexture: Fix spherical harmonics",
+                "description": "See https://forum.babylonjs.com/t/exrcubetexture-with-no-polynomials/61867\r\n\r\nWhen creating an EXR cube texture (but it's probably the same with `HDRCubeTexture`), the code that sets default spherical polynomials arrived too late in the loading process, and `PBRBaseMaterial.isReadyForSubMesh` had time to execute, which triggered the calculation of the polynomials. The fix ensures that the default polynomials are defined as soon as the internal texture is created.\r\n\r\nNote that I had to update a number of visualization tests, because they passed `false` for the **generateHarmonics** parameter of the `HDRCubeTexture` constructor.\r\n\r\nSupersedes #17584.",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/Textures/envCubeTexture.ts",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": [
+                    "bug",
+                    "texture"
+                ]
+            },
+            {
+                "pr": "17588",
+                "title": "Remove Alternate rotation pt",
+                "description": "It complicates the logic and isn't being used - if we need to support this rotation model in future can bring it back",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/core/src/Cameras/Inputs/geospatialCameraPointersInput.ts",
+                    "packages/dev/core/src/Cameras/geospatialCamera.ts",
+                    "packages/dev/core/src/Cameras/geospatialCameraMovement.ts"
+                ],
+                "tags": [
+                    "camera"
+                ]
+            },
+            {
+                "pr": "17587",
+                "title": "Fix velocity calculation to be pixel based and not world coordinate based",
+                "description": "Ensures that we don't calculate velocity when radius is enormous and that have that apply during intertia, resulting in very fast zoom during intertial zoom towards globe",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/core/src/Cameras/cameraMovement.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "camera"
+                ]
+            },
+            {
+                "pr": "17585",
+                "title": "Rendering: Fix no display when OIT is enabled and there's no transparent meshes in the scene",
+                "description": "See https://forum.babylonjs.com/t/refresh-issue-with-oit-and-no-transparent-objects/61885",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Rendering/depthPeelingRenderer.ts",
+                    "packages/dev/core/src/Rendering/thinDepthPeelingRenderer.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "rendering engine"
+                ]
+            },
+            {
+                "pr": "17581",
+                "title": "Add an option to set all meshes excluded from the glow layer",
+                "description": "This PR adds a new boolean/option for the glow layer, called `excludeByDefault`. It reverses the default state how meshes are included in the glow layer. By default, when glow layer is initialized, all the meshes are candidates for the glow layer. If the `excludeByDefault` is used, one needs to manually add meshes to be included to the glow layer. If this option is set to `true`, the excluded meshes array does nothing and there is a comment added to indicate that to the js docs.\r\n\r\nThe forum thread about the issue:\r\nhttps://forum.babylonjs.com/t/problem-excluding-everything-out-of-glow-layer-by-default/61772",
+                "author": {
+                    "name": "panuchka",
+                    "url": "https://github.com/panuchka"
+                },
+                "files": [
+                    "packages/dev/core/src/Layers/glowLayer.ts",
+                    "packages/dev/core/src/Layers/thinGlowLayer.ts"
                 ],
                 "tags": []
+            },
+            {
+                "pr": "17578",
+                "title": "Inspector v2: Texture Editor",
+                "description": "This PR adds a Texture Editor implementation for Inspector v2.\r\n-❗This is not a complete re-write. The React independent code (like CanvasManager) is just copied from v1 with only minor changes for build rules like TS strict mode used in v2.\r\n- For all the React code, the first pass was created by GitHub Copilot (Claude Opus 4.5) as a port of the v1 React components.\r\n- From there, I cleaned up the React code and fixed some issues.\r\n- And also in v1, there was already an abstraction for Texture Editor \"tools\" (paint, fill, contrast, etc.) with somewhat of an extensibility mechanism (though I don't think it was reachable through the Inspector v1 API). Since this abstraction was already in place, I used it and made Texture Editor tools another extensibility point in the default services for Inspector v2. This means extensions can add new Texture Editor tools.\r\n\r\nOther notable changes:\r\n- We already had code for handling Fluent in child windows for undocking Inspector v2 side panes. We need the same thing for Texture Editor and various other features across Inspector v2 and our other tools, so I factored out a `ChildWindow` component in shared-ui-controls that does all the setup to make Fluent work in a child window. It uses a react imperative ref to get a handle for opening/closing the child window, and has a callback prop to be notified of open state change.\r\n- Added a react imperative ref to the existing `TexturePreview` component so we can force a refresh of the texture data when needed (e.g. when `TextureEditor` modifies the texture).\r\n- Fixed an issue where in some cases, we were applying styles through classes to FluentProvider for layout, which by default is applied to portals, which can break things. We need to either use inline styles only for layout related styling, or prevent styles from flowing to portals (at least by default). I went with the latter as it seems like the best option to prevent us from hitting this issue in the future.\r\n- Updated ShellService to use the new `ChildWindow` component.\r\n- Factored out `ApplyChannelsToTextureDataAsync` from `TexturePreview` into a helper as it is used by `TextureEditor` as well.\r\n- Updated `Popover` and `ColorPicker` to use `forwardRef` so they can be used with components that need a ref to the html element (like `Tooltips` and `Portals`).\r\n\r\n<img width=\"936\" height=\"710\" alt=\"image\" src=\"https://github.com/user-attachments/assets/d8b432d8-f506-46b4-8d0d-b4e0e83baf20\" />\r\n",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/textures/baseTextureProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/textures/texturePreview.tsx",
+                    "packages/dev/inspector-v2/src/components/textureEditor/canvasManager.ts",
+                    "packages/dev/inspector-v2/src/components/textureEditor/canvasShader.ts",
+                    "packages/dev/inspector-v2/src/components/textureEditor/channels.tsx",
+                    "packages/dev/inspector-v2/src/components/textureEditor/properties.tsx",
+                    "packages/dev/inspector-v2/src/components/textureEditor/status.tsx",
+                    "packages/dev/inspector-v2/src/components/textureEditor/textureEditor.tsx",
+                    "packages/dev/inspector-v2/src/components/textureEditor/tools.tsx",
+                    "packages/dev/inspector-v2/src/components/theme.tsx",
+                    "packages/dev/inspector-v2/src/index.ts",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/misc/textureTools.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/texturePropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/shellService.tsx",
+                    "packages/dev/inspector-v2/src/services/textureEditor/textureEditorService.tsx",
+                    "packages/dev/inspector-v2/src/services/textureEditor/tools/contrast.tsx",
+                    "packages/dev/inspector-v2/src/services/textureEditor/tools/eyedropper.tsx",
+                    "packages/dev/inspector-v2/src/services/textureEditor/tools/floodfill.tsx",
+                    "packages/dev/inspector-v2/src/services/textureEditor/tools/paintbrush.tsx",
+                    "packages/dev/inspector-v2/src/services/textureEditor/tools/rectangularSelect.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/childWindow.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/colorPicker.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/popover.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "17568",
+                "title": "Generic EntitySelector component used by materialSelector and nodeSelector. BoundProperty supports defaultValue of null",
+                "description": "- boundproperty now supports explicitly setting defaultvalue to null if an underlying component value is of type Nullable<Foo>. If you try passing defaultValue = null to a boundproperty whose underlying component is not nullable, you will get a compile error \r\n<img width=\"542\" height=\"179\" alt=\"image\" src=\"https://github.com/user-attachments/assets/230e9a36-bca4-4825-b3a6-c5821d42f509\" />\r\n\r\n- with that support, can update choosetexturepropertyline to just use boundproperty\r\n- created a generic chooseEntity that handles the filtering / creating of a combobox given the passed in getname / getentitites\r\n- also introduced a chooseMaterial/chooseNode that just use chooseEntitty under the hood. sample usage in abstractMeshProperties activeMaterial\r\n<img width=\"256\" height=\"37\" alt=\"image\" src=\"https://github.com/user-attachments/assets/73aaae58-4fb1-47e7-8413-d965ffe3d9a6\" />\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/boundProperty.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/materials/pbrMaterialProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/nodes/abstractMeshProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/textures/boundTextureProperty.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/chooseTexturePropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/entitySelectorPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/comboBox.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/entitySelector.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/materialSelector.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/nodeSelector.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/textureSelector.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17579",
+                "title": "Make audio parameter ramps more robust",
+                "description": "Add try/catch around setting audio parameters using ramping to avoid ongoing issues on Firefox.",
+                "author": {
+                    "name": "docEdub",
+                    "url": "https://github.com/docEdub"
+                },
+                "files": [
+                    "packages/dev/core/src/AudioV2/webAudio/components/webAudioParameterComponent.ts"
+                ],
+                "tags": [
+                    "audio"
+                ]
+            },
+            {
+                "pr": "17577",
+                "title": "Address feedback from previous PR",
+                "description": "Addressed feedback from https://github.com/BabylonJS/Babylon.js/pull/17573.",
+                "author": {
+                    "name": "bghgary",
+                    "url": "https://github.com/bghgary"
+                },
+                "files": [
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/KHR_interactivity/declarationMapper.ts",
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/KHR_node_hoverability.ts",
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/KHR_node_selectability.ts"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "17573",
+                "title": "Remove `variable/setMultiple` to match glTF interactivity spec update",
+                "description": null,
+                "author": {
+                    "name": "bghgary",
+                    "url": "https://github.com/bghgary"
+                },
+                "files": [
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/KHR_interactivity/declarationMapper.ts",
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/KHR_interactivity/interactivityGraphParser.ts",
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/KHR_node_hoverability.ts",
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/KHR_node_selectability.ts",
+                    "packages/dev/loaders/test/unit/Interactivity/flow nodes.test.ts",
+                    "packages/public/glTF2Interface/babylon.glTF2Interface.d.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17574",
+                "title": "GS modification test",
+                "description": null,
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "packages/tools/tests/test/visualization/ReferenceImages/gsplat-splat-modify.png",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "17576",
+                "title": "Handle non-finite audio parameter values",
+                "description": null,
+                "author": {
+                    "name": "docEdub",
+                    "url": "https://github.com/docEdub"
+                },
+                "files": [
+                    "packages/dev/core/src/AudioV2/webAudio/components/webAudioParameterComponent.ts",
+                    "packages/tools/tests/test/audioV2/audioParam.test.ts",
+                    "packages/tools/tests/test/audioV2/staticSound.stop.test.ts"
+                ],
+                "tags": [
+                    "audio"
+                ]
+            },
+            {
+                "pr": "17575",
+                "title": "Clustered lights: fix right handed mode",
+                "description": "See https://forum.babylonjs.com/t/clusteredlightcontainer-does-not-have-a-compatible-scene-that-uses-a-right-handed-coordinate-system/61754\r\n",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/objectRendererTask.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraph.ts",
+                    "packages/dev/core/src/Lights/Clustered/clusteredLightContainer.ts",
+                    "packages/dev/core/src/Materials/Node/Blocks/Dual/lightBlock.ts",
+                    "packages/dev/core/src/Materials/Node/Blocks/PBR/pbrMetallicRoughnessBlock.ts",
+                    "packages/dev/core/src/Materials/Node/nodeMaterial.ts",
+                    "packages/dev/core/src/Materials/PBR/pbrBaseMaterial.ts",
+                    "packages/dev/core/src/Materials/materialHelper.functions.ts",
+                    "packages/dev/core/src/Materials/standardMaterial.ts",
+                    "packages/dev/core/src/Shaders/default.vertex.fx",
+                    "packages/dev/core/src/Shaders/lightProxy.vertex.fx",
+                    "packages/dev/core/src/Shaders/pbr.vertex.fx",
+                    "packages/dev/core/src/ShadersWGSL/default.vertex.fx",
+                    "packages/dev/core/src/ShadersWGSL/lightProxy.vertex.fx",
+                    "packages/dev/core/src/ShadersWGSL/pbr.vertex.fx",
+                    "packages/dev/core/src/scene.ts",
+                    "packages/tools/tests/test/visualization/ReferenceImages/Clustered-Lighting-lhs-pbr-material-.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/Clustered-Lighting-lhs-pbr-nodematerial-.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/Clustered-Lighting-lhs-std-material-.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/Clustered-Lighting-lhs-std-nodematerial-.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/Clustered-Lighting-rhs-pbr-material-.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/Clustered-Lighting-rhs-pbr-nodematerial-.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/Clustered-Lighting-rhs-std-material-.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/Clustered-Lighting-rhs-std-nodematerial-.png",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": [
+                    "bug",
+                    "rendering engine"
+                ]
             }
         ],
         "8.42.0": [
@@ -368,6 +763,95 @@
                 "tags": [
                     "tools"
                 ]
+            }
+        ],
+        "8.41.2": [
+            {
+                "pr": "17544",
+                "title": "GS Cleanup + depth renderer + more tests",
+                "description": "- removed `viewDirectionFactor` uniform\r\n- more explicit `eyeToSplatLocalSpace` name\r\n- more consistent Y scaling: keep data unchanged and change scaling.y at loading time\r\n- add options to `updateData` to preserve back compat\r\n- update spz v3 scene accordingly\r\n- removed `invy` matrix usage in shaders\r\n- depth renderer : https://playground.babylonjs.com/#V80DRL#12\r\n- `loadFileAsync` now loads more format as it uses ImportMeshAsync internally\r\n- 4 new tests",
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/GaussianSplatting/gaussianSplattingMaterial.ts",
+                    "packages/dev/core/src/Materials/Node/Blocks/GaussianSplatting/gaussianSplattingBlock.ts",
+                    "packages/dev/core/src/Meshes/GaussianSplatting/gaussianSplattingMesh.ts",
+                    "packages/dev/core/src/Rendering/depthRenderer.ts",
+                    "packages/dev/core/src/Shaders/ShadersInclude/gaussianSplatting.fx",
+                    "packages/dev/core/src/Shaders/gaussianSplatting.vertex.fx",
+                    "packages/dev/core/src/Shaders/gaussianSplattingDepth.fragment.fx",
+                    "packages/dev/core/src/Shaders/gaussianSplattingDepth.vertex.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/gaussianSplatting.fx",
+                    "packages/dev/core/src/ShadersWGSL/gaussianSplatting.vertex.fx",
+                    "packages/dev/core/src/ShadersWGSL/gaussianSplattingDepth.fragment.fx",
+                    "packages/dev/core/src/ShadersWGSL/gaussianSplattingDepth.vertex.fx",
+                    "packages/dev/loaders/src/SPLAT/splatFileLoader.ts",
+                    "packages/dev/loaders/src/SPLAT/splatLoadingOptions.ts",
+                    "packages/dev/loaders/src/SPLAT/spz.ts",
+                    "packages/tools/tests/test/visualization/ReferenceImages/gsplat-compressedply-sh.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/gsplat-depth.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/gsplat-spz-sh.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/gsplat-spz-v3.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/gsplat-update-data.png",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17553",
+                "title": "FrameGraph: add support for OIT",
+                "description": "Also in this PR:\r\n* Add new properties to the object renderer to render sublists of meshes (`renderDepthOnlyMeshes`, `renderOpaqueMeshes`, `renderAlphaTestMeshes` and `renderTransparentMeshes`)\r\n* Add new `initialize()` function to the `Pass` class\r\n",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/PostProcesses/baseWithPropertiesPostProcessBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Rendering/baseObjectRendererBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Rendering/geometryRendererBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Node/Blocks/Textures/copyTextureBlock.ts",
+                    "packages/dev/core/src/FrameGraph/Passes/pass.ts",
+                    "packages/dev/core/src/FrameGraph/Passes/renderPass.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Layers/baseLayerTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/objectRendererTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Texture/clearTextureTask.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraph.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphRenderTarget.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphTask.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphTypes.ts",
+                    "packages/dev/core/src/Rendering/depthPeelingRenderer.ts",
+                    "packages/dev/core/src/Rendering/depthPeelingSceneComponent.ts",
+                    "packages/dev/core/src/Rendering/index.ts",
+                    "packages/dev/core/src/Rendering/objectRenderer.ts",
+                    "packages/dev/core/src/Rendering/renderingGroup.ts",
+                    "packages/dev/core/src/Rendering/renderingManager.ts",
+                    "packages/dev/core/src/Rendering/thinDepthPeelingRenderer.ts",
+                    "packages/dev/core/src/Shaders/oitFinalSimpleBlend.fragment.fx",
+                    "packages/dev/core/src/ShadersWGSL/oitFinalSimpleBlend.fragment.fx",
+                    "packages/tools/tests/test/visualization/ReferenceImages/FrameGraph-OIT.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/FrameGraph-nrge-OIT-Geometry-renderer-.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/FrameGraph-nrge-OIT.png",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": [
+                    "new feature",
+                    "frame graph"
+                ]
+            },
+            {
+                "pr": "17552",
+                "title": "handle _onOutBusDisposed dynamically to prevent memory leak",
+                "description": "This is a PR that fixes the memory leak in  AbstractSoundSource as described in [this forum post](https://forum.babylonjs.com/t/audio-memory-leak-in-abstractsoundsource/61758)",
+                "author": {
+                    "name": "LudaThomas",
+                    "url": "https://github.com/LudaThomas"
+                },
+                "files": [
+                    "packages/dev/core/src/AudioV2/abstractAudio/abstractSoundSource.ts"
+                ],
+                "tags": []
             }
         ],
         "8.41.1": [
