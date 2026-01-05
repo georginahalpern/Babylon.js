@@ -450,7 +450,6 @@ export class GeospatialCamera extends Camera {
     }
 
     private _wasCenterMovingLastFrame = false;
-    private _wasInterpolatingLastFrame = false;
 
     override _checkInputs(): void {
         this.inputs.checkInputs();
@@ -462,7 +461,6 @@ export class GeospatialCamera extends Camera {
         this.movement.computeCurrentFrameDeltas();
 
         let isCenterMoving = false;
-
         if (this.movement.panDeltaCurrentFrame.lengthSquared() > 0) {
             this._applyGeocentricTranslation();
             // After a drag, recalculate the center point to ensure it's still on the surface.
@@ -477,35 +475,32 @@ export class GeospatialCamera extends Camera {
             isCenterMoving = true;
         }
 
-        const shouldRecalculateAfterMove = this._wasCenterMovingLastFrame && !isCenterMoving;
-        this._wasCenterMovingLastFrame = isCenterMoving;
-
-        const isInterpolating = this.movement.isInterpolating;
-        const shouldRecalculateAfterInterpolation = this._wasInterpolatingLastFrame && !isInterpolating;
-        this._wasInterpolatingLastFrame = isInterpolating;
-
-        if (shouldRecalculateAfterMove || shouldRecalculateAfterInterpolation) {
-            this._recalculateCenter();
-        }
+        // After a movement impacting center or radius, recalculate the center point to ensure it's still on the surface.
+        this._recalculateCenter(isCenterMoving);
 
         super._checkInputs();
     }
 
-    private _recalculateCenter() {
-        // Wait until dragging is complete to avoid wasted raycasting
-        const newCenter = this.movement.pickAlongVector(this._lookAtVector);
-        if (newCenter?.pickedPoint) {
-            // Direction from new center to origin
-            const centerToOrigin = TmpVectors.Vector3[4];
-            centerToOrigin.copyFrom(newCenter.pickedPoint).negateInPlace().normalize();
+    private _recalculateCenter(isCenterMoving: boolean) {
+        const shouldRecalculateCenterAfterMove = this._wasCenterMovingLastFrame && !isCenterMoving;
+        this._wasCenterMovingLastFrame = isCenterMoving;
 
-            // Check if this direction aligns with camera's lookAt vector
-            const dotProduct = Vector3Dot(this._lookAtVector, centerToOrigin);
+        // Wait until movement impacting center is complete to avoid wasted raycasting
+        if (shouldRecalculateCenterAfterMove) {
+            const newCenter = this.movement.pickAlongVector(this._lookAtVector);
+            if (newCenter?.pickedPoint) {
+                // Direction from new center to origin
+                const centerToOrigin = TmpVectors.Vector3[4];
+                centerToOrigin.copyFrom(newCenter.pickedPoint).negateInPlace().normalize();
 
-            // Only update if the center is looking toward the origin (dot product > 0) to avoid a center on the opposite side of globe
-            if (dotProduct > 0) {
-                const newRadius = Vector3Distance(this.position, newCenter.pickedPoint);
-                this._setOrientation(this._yaw, this._pitch, newRadius, newCenter.pickedPoint);
+                // Check if this direction aligns with camera's lookAt vector
+                const dotProduct = Vector3Dot(this._lookAtVector, centerToOrigin);
+
+                // Only update if the center is looking toward the origin (dot product > 0) to avoid a center on the opposite side of globe
+                if (dotProduct > 0) {
+                    const newRadius = Vector3Distance(this.position, newCenter.pickedPoint);
+                    this._setOrientation(this._yaw, this._pitch, newRadius, newCenter.pickedPoint);
+                }
             }
         }
     }
