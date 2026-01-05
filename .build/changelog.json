@@ -1,6 +1,96 @@
 {
-    "fromTag": "8.43.0",
+    "fromTag": "8.44.0",
     "changelog": {
+        "8.44.1": [
+            {
+                "pr": "17605",
+                "title": "Adding support for sprites and textures changes",
+                "description": "Multiple changes on this PR:\r\n\r\n- Add support for migrating sprites to NPE.\r\n- Added a new math block: modulo operator block. Useful for loops.\r\n- Changed how particleSourceTextureBlock handles textures.\r\n\r\nBefore this change, a new Texture was created using the default constructor inside the block, but this texture may not match the options of the original texture of the particle system. In the example PG, the texture is inverted in the Y, and without that it will not render correctly.\r\n\r\nNow, the texture is either cloned (if the texture will be in the same engine instance), or a new Texture will be created and we will try to make it as similar as possible as the original texture if we are in a different engine instance (for the preview of the editor).\r\n\r\nPG to test: #2MI0A1#6\r\n<img width=\"971\" height=\"856\" alt=\"image\" src=\"https://github.com/user-attachments/assets/aa36e9f1-86b9-4000-8b36-770f8c047b16\" />\r\n",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/Emitters/setupSpriteSheetBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/index.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/particleModuloBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/particleSourceTextureBlock.ts",
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.helper.ts",
+                    "packages/tools/nodeParticleEditor/src/blockTools.ts",
+                    "packages/tools/nodeParticleEditor/src/components/nodeList/nodeListComponent.tsx",
+                    "packages/tools/nodeParticleEditor/src/graphSystem/registerToDisplayLedger.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17603",
+                "title": "Inspector v2: Improve overlay mode",
+                "description": "The main change in this PR is to improve \"overlay\" mode in Inspector v2. Previously, Inspector v2 would always rehost targeted canvas element (or some ancestor when the canvas is inside a shadow root), regardless of \"inline\" mode or \"overlay\" mode. The difference was just whether the side panes would \"overlay\" the canvas or not. This can be problematic when the host app needs the dom to not change, such as when using an html custom element that has setup/teardown logic when the element is connected/disconnected (the Babylon Viewer is one example). With this change, Inspector v2 will no longer re-host the canvas element in \"overlay\" mode, and instead finds and appropriate ancestor element where it is injected \"on top\" of the canvas. This is more like what Inspector v1 did for overlay mode as well. However, since Inspector v2 does rely on a container element for the side panes and toolbars, the \"central content\" area needs to be visually transparent and also allow pointer input to pass through it to the canvas below. So the main two changes are:\r\n- Central content area is visually transparent and allows pointer input to pass through.\r\n- Improved logic for determining a parent element where the inspector v2 UI is attached.\r\n- Move \"overlay\" mode logic from ShellService to instead be specific to the Inspector layer.\r\n- The \"canvas injector\" service is now conditional, and only used when re-hosting the canvas for \"inline\" mode (it is not needed for \"overlay\" mode since we are not modifying the dom for the host app).\r\n\r\nFYI @coryboyle\r\n\r\nAlso included some other small fixes:\r\n- Added an ESLint rule to not enforce object property naming conventions for names that look like css selectors (e.g. in css in js, like React styles).\r\n- Removed now unnecessary ESLint rule suppression comments.\r\n- Fixed a bug where the side pane expand buttons were still in the dom when the side panes were already expanded, just visually hidden. Otherwise, those invisible buttons still block input to the canvas.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "eslint.config.mjs",
+                    "packages/dev/inspector-v2/src/components/extensibleAccordion.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/propertiesPane.tsx",
+                    "packages/dev/inspector-v2/src/components/scene/sceneExplorer.tsx",
+                    "packages/dev/inspector-v2/src/components/teachingMoment.tsx",
+                    "packages/dev/inspector-v2/src/components/textureEditor/tools.tsx",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/modularTool.tsx",
+                    "packages/dev/inspector-v2/src/services/creationToolsService.tsx",
+                    "packages/dev/inspector-v2/src/services/extensionsListService.tsx",
+                    "packages/dev/inspector-v2/src/services/shellService.tsx",
+                    "packages/dev/inspector-v2/src/themes/babylonTheme.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17602",
+                "title": "Fix unused PLY properties",
+                "description": "https://forum.babylonjs.com/t/load-ply-fails-with-apple-sharp-model/61988",
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "packages/dev/core/src/Meshes/GaussianSplatting/gaussianSplattingMesh.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "Gaussian Splatting"
+                ]
+            },
+            {
+                "pr": "17601",
+                "title": "Fix typos in `dynamicTexture.ts` comments",
+                "description": "Fixed 2 minor typos in the comments documenting function usage in the dynamicTexture.ts file",
+                "author": {
+                    "name": "mahahahad",
+                    "url": "https://github.com/mahahahad"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/Textures/dynamicTexture.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17599",
+                "title": "Address dependabot alerts",
+                "description": null,
+                "author": {
+                    "name": "sebavan",
+                    "url": "https://github.com/sebavan"
+                },
+                "files": [
+                    "package-lock.json"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            }
+        ],
         "8.44.0": [
             {
                 "pr": "17598",
