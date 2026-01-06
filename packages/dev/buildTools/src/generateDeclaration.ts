@@ -332,7 +332,7 @@ function GetPackageDeclaration(
         let line = lines[i];
 
         if (/import\("\.([^)]*)\)./g.test(line) && !/^declare type (.*) import/g.test(line)) {
-            line = line.replace(/import\(([^)]*)\)./g, "");
+            line = line.replace(/import\("(\.[^"]*)"\)\./g, "");
         }
 
         if (!line.includes("const enum") && !line.includes("=")) {
@@ -380,7 +380,7 @@ function GetPackageDeclaration(
 
         // if the import is a return-type import from core or local dir, we remove the import and the dot
         if (line.match(/import\("core(.*)"\)\./g) || line.match(/import\("\.(.*)"\)\./g)) {
-            line = line.replace(/import\("(.*)"\)\./g, "");
+            line = line.replace(/import\("(core[^"]*|\.[^"]*)"\)\./g, "");
         }
 
         if (excludeLine) {
