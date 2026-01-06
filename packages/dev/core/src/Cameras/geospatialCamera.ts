@@ -48,10 +48,10 @@ export class GeospatialCamera extends Camera {
     private _flyToTargets: Map<keyof GeospatialCamera, AllowedAnimValue> = new Map();
 
     // Collision properties
-    public checkCollisions = true;
-    public collisionRadius = new Vector3(0.1, 0.1, 0.1);
     private _collider?: Collider;
     private _collisionVelocity: Vector3 = new Vector3();
+    /** Public option to customize the collision offset applied each frame - vs the one calculated using internal CollisionCoordinator */
+    public perFrameCollisionOffset: Vector3 = new Vector3();
 
     constructor(name: string, scene: Scene, options: CameraOptions, pickPredicate?: MeshPredicate) {
         super(name, new Vector3(), scene);
@@ -192,9 +192,10 @@ export class GeospatialCamera extends Camera {
         this._tempPosition.copyFrom(this._center).addInPlace(this._tempVect);
 
         // Recalculate collisionOffset to be applied later when viewMatrix is calculated (allowing camera users to modify the value in afterCheckInputsObservable)
-        this.collisionOffset = this._getCollisionOffset(this._tempPosition);
+        this.perFrameCollisionOffset = this._getCollisionOffset(this._tempPosition);
 
         this._position.copyFrom(this._tempPosition);
+
         // Apply the same offset to both position and center to preserve orbital relationship
         // This keeps yaw/pitch/radius intact - just lifts the whole "rig"
         // this._position.addInPlace(collisionOffset);
@@ -482,9 +483,7 @@ export class GeospatialCamera extends Camera {
 
     override _checkInputs(): void {
         this.inputs.checkInputs();
-        this.collisionOffset.setAll(0);
-
-        // Check if position is dirty and rebuild angles if needed ? or just limit to using a position setter
+        this.perFrameCollisionOffset.setAll(0);
 
         // Let movement class handle all per-frame logic
         this.movement.computeCurrentFrameDeltas();
@@ -588,14 +587,14 @@ export class GeospatialCamera extends Camera {
     protected _getCollisionOffset(newPosition: Vector3): Vector3 {
         const coordinator = this.getScene().collisionCoordinator;
         const collisionOffset = TmpVectors.Vector3[6].setAll(0);
-        if (!coordinator || !this.checkCollisions || !this._scene.collisionsEnabled) {
+        if (!coordinator || !this._scene.collisionsEnabled) {
             return collisionOffset;
         }
 
         if (!this._collider) {
             this._collider = coordinator.createCollider();
         }
-        this._collider._radius = this.collisionRadius;
+        this._collider._radius.setAll(this.limits.radiusMin);
 
         // Calculate velocity from old position to new position
         newPosition.subtractToRef(this._position, this._collisionVelocity);
