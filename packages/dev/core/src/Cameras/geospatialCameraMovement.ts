@@ -168,9 +168,9 @@ export class GeospatialCameraMovement extends CameraMovement {
         return this._hitPointRadius !== undefined;
     }
 
-    public handleZoom(wheelDeltaY: number, toCursor: boolean) {
-        if (wheelDeltaY !== 0) {
-            this.zoomAccumulatedPixels += wheelDeltaY;
+    public handleZoom(zoomDelta: number, toCursor: boolean) {
+        if (zoomDelta !== 0) {
+            this.zoomAccumulatedPixels += zoomDelta;
 
             const pickResult = this._scene.pick(this._scene.pointerX, this._scene.pointerY, this.pickPredicate);
 
