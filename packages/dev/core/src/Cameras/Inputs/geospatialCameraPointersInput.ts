@@ -21,6 +21,7 @@ export class GeospatialCameraPointersInput extends OrbitCameraPointersInput {
     public camera: GeospatialCamera;
 
     private _initialPinchSquaredDistance: number = 0;
+    private _pinchCentroid: Nullable<PointerTouch> = null;
 
     public override getClassName(): string {
         return "GeospatialCameraPointersInput";
@@ -55,12 +56,42 @@ export class GeospatialCameraPointersInput extends OrbitCameraPointersInput {
 
     /**
      * Move camera from multitouch (pinch) zoom distances.
+     * Zooms towards the centroid (midpoint between the two fingers).
      * @param previousPinchSquaredDistance
      * @param pinchSquaredDistance
      */
     protected override _computePinchZoom(previousPinchSquaredDistance: number, pinchSquaredDistance: number): void {
-        // Use ratio-based zoom (direct radius manipulation) for responsive pinch feel
-        this.camera.radius = (this.camera.radius * Math.sqrt(previousPinchSquaredDistance)) / Math.sqrt(pinchSquaredDistance);
+        // Calculate zoom distance based on pinch delta
+        const previousDistance = Math.sqrt(previousPinchSquaredDistance);
+        const currentDistance = Math.sqrt(pinchSquaredDistance);
+        const pinchDelta = currentDistance - previousDistance;
+
+        // Convert pinch delta to world-space zoom distance
+        // Positive pinchDelta (fingers spreading) = zoom in = positive distance
+        const zoomDistance = pinchDelta * this.camera.radius * 0.005;
+
+        // Try to zoom towards centroid if we have it
+        if (this._pinchCentroid) {
+            const scene = this.camera.getScene();
+            const engine = scene.getEngine();
+            const canvas = engine.getRenderingCanvas();
+
+            if (canvas) {
+                // Convert centroid from client coordinates to canvas coordinates
+                const rect = canvas.getBoundingClientRect();
+                const canvasX = (this._pinchCentroid.x - rect.left) * engine.getHardwareScalingLevel();
+                const canvasY = (this._pinchCentroid.y - rect.top) * engine.getHardwareScalingLevel();
+
+                // Pick at centroid
+                const pickResult = scene.pick(canvasX, canvasY, this.camera.pickPredicate);
+                if (pickResult?.pickedPoint) {
+                    this.camera._zoomToPoint(pickResult.pickedPoint, zoomDistance);
+                    return;
+                }
+            }
+        }
+
+        this.camera._zoomAlongLookAt(zoomDistance);
     }
 
     /**
@@ -92,9 +123,13 @@ export class GeospatialCameraPointersInput extends OrbitCameraPointersInput {
         previousMultiTouchPanPosition: Nullable<PointerTouch>,
         multiTouchPanPosition: Nullable<PointerTouch>
     ): void {
+        // Store centroid for use in _computePinchZoom (it's already calculated by parent)
+        this._pinchCentroid = multiTouchPanPosition;
+
         // Reset on gesture end
         if (pinchSquaredDistance === 0 && multiTouchPanPosition === null) {
             this._initialPinchSquaredDistance = 0;
+            this._pinchCentroid = null;
             super.onMultiTouch(pointA, pointB, previousPinchSquaredDistance, pinchSquaredDistance, previousMultiTouchPanPosition, multiTouchPanPosition);
             return;
         }
@@ -115,11 +150,13 @@ export class GeospatialCameraPointersInput extends OrbitCameraPointersInput {
         this.camera.movement.stopDrag();
         this.camera.movement.activeInput = false;
         this._initialPinchSquaredDistance = 0;
+        this._pinchCentroid = null;
         super.onButtonUp(_evt);
     }
 
     public override onLostFocus(): void {
         this._initialPinchSquaredDistance = 0;
+        this._pinchCentroid = null;
         super.onLostFocus();
     }
 

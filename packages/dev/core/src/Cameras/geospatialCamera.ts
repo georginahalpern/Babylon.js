@@ -462,13 +462,13 @@ export class GeospatialCamera extends Camera {
         }
     }
 
-    private _zoomToPoint(targetPoint: DeepImmutable<IVector3Like>, distance: number) {
+    public _zoomToPoint(targetPoint: DeepImmutable<IVector3Like>, distance: number) {
         const newRadius = this._getCenterAndRadiusFromZoomToPointToRef(targetPoint, distance, this._tempCenter);
         // Apply the new orientation
         this._setOrientation(this._yaw, this._pitch, newRadius, this._tempCenter);
     }
 
-    private _zoomAlongLookAt(distance: number) {
+    public _zoomAlongLookAt(distance: number) {
         // Clamp radius to limits
         const requestedRadius = this._radius - distance;
         const newRadius = Clamp(requestedRadius, this.limits.radiusMin, this.limits.radiusMax);
