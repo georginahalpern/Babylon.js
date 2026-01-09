@@ -66,31 +66,31 @@ export class GeospatialCameraPointersInput extends OrbitCameraPointersInput {
         const currentDistance = Math.sqrt(pinchSquaredDistance);
         const pinchDelta = currentDistance - previousDistance;
 
-        // Convert pinch delta to world-space zoom distance
-        // Positive pinchDelta (fingers spreading) = zoom in = positive distance
-        const zoomDistance = pinchDelta * this.camera.radius * 0.005;
-
         // Try to zoom towards centroid if we have it
         if (this._pinchCentroid) {
             const scene = this.camera.getScene();
             const engine = scene.getEngine();
-            const canvas = engine.getRenderingCanvas();
+            const canvasRect = engine.getInputElementClientRect();
 
-            if (canvas) {
-                // Convert centroid from client coordinates to canvas coordinates
-                const rect = canvas.getBoundingClientRect();
-                const canvasX = (this._pinchCentroid.x - rect.left) * engine.getHardwareScalingLevel();
-                const canvasY = (this._pinchCentroid.y - rect.top) * engine.getHardwareScalingLevel();
+            if (canvasRect) {
+                // Convert centroid from clientX/Y to canvas-relative coordinates (same as scene.pointerX/Y)
+                const canvasX = this._pinchCentroid.x - canvasRect.left;
+                const canvasY = this._pinchCentroid.y - canvasRect.top;
 
                 // Pick at centroid
                 const pickResult = scene.pick(canvasX, canvasY, this.camera.pickPredicate);
                 if (pickResult?.pickedPoint) {
+                    // Scale zoom by distance to picked point
+                    const distanceToPoint = this.camera.position.subtract(pickResult.pickedPoint).length();
+                    const zoomDistance = pinchDelta * distanceToPoint * 0.005;
                     this.camera._zoomToPoint(pickResult.pickedPoint, zoomDistance);
                     return;
                 }
             }
         }
 
+        // Fallback: scale zoom by camera radius along lookat vector
+        const zoomDistance = pinchDelta * this.camera.radius * 0.005;
         this.camera._zoomAlongLookAt(zoomDistance);
     }
 
