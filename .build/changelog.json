@@ -1,6 +1,592 @@
 {
-    "fromTag": "8.44.0",
+    "fromTag": "8.45.1",
     "changelog": {
+        "8.45.1": [
+            {
+                "pr": "17630",
+                "title": "Adding sprite cell change speed",
+                "description": "Adding sprite cell change speed for NPE.\r\n\r\nPG to test: #S6S6FI#2\r\n<img width=\"1751\" height=\"1076\" alt=\"image\" src=\"https://github.com/user-attachments/assets/cba0fb76-d9e3-4b32-b288-bb4aa33d3e4a\" />\r\n",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/Emitters/setupSpriteSheetBlock.ts",
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.helper.ts"
+                ],
+                "tags": [
+                    "enhancement",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17626",
+                "title": "Fix nullable ColorPropertyLine and BoundProperty rerender breaking shared component updates",
+                "description": "- Add useCallback to usePropertyChangedNotifier to avoid rerender that was recreating the underlying component with any value change\r\n- Enable nullable color/vectorpropertylines by not sending expanded content if color or vector are null\r\n- Center the togglebutton / checkbox / colorpicker swatch\r\n- Add tooltip to nullable checkbox\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/contexts/propertyContext.ts",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/colorPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/propertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/vectorPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/colorPicker.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/toggleButton.tsx"
+                ],
+                "tags": [
+                    "tools"
+                ]
+            },
+            {
+                "pr": "17608",
+                "title": "Add support for migrating ramp",
+                "description": "Adds support for color ramps migration:\r\n- Allows N-inputs for the system block to represent the particle ramps.\r\n- Updates thinParticleSystem to avoid assuming that the update queue always exists (as it doesn't for NPE systems because the updates are handled by blocks).\r\n\r\nPG to test: #I2D9MM#7\r\n<img width=\"598\" height=\"743\" alt=\"image\" src=\"https://github.com/user-attachments/assets/65555cbb-43f2-465a-8848-bea0bac57cb5\" />\r\n\r\n",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/systemBlock.ts",
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.helper.ts",
+                    "packages/dev/core/src/Particles/thinParticleSystem.ts"
+                ],
+                "tags": [
+                    "enhancement",
+                    "particles",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17623",
+                "title": "Prevent scene events during babylon file container loading",
+                "description": null,
+                "author": {
+                    "name": "sebavan",
+                    "url": "https://github.com/sebavan"
+                },
+                "files": [
+                    "packages/dev/core/src/Loading/Plugins/babylonFileLoader.ts"
+                ],
+                "tags": []
+            }
+        ],
+        "8.45.2": [
+            {
+                "pr": "17629",
+                "title": "Update WebXR controllers to use physics V2",
+                "description": "This PR updates the WebXR controllers classes to make them compatible with physics V2 implementation while keeping backwards compatibility.\r\n\r\nNeeds more tests.\r\n\r\nCloses #13852",
+                "author": {
+                    "name": "yuripourre",
+                    "url": "https://github.com/yuripourre"
+                },
+                "files": [
+                    "packages/dev/core/src/XR/features/WebXRControllerPhysics.ts",
+                    "packages/dev/core/src/XR/features/WebXRHandTracking.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17637",
+                "title": "Engine: Fix crash when debug marker functions are not defined",
+                "description": "The debug marker functions may not be defined, because it's an optional engine extension. So, we must check if they exist before calling them.",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Engines/Extensions/engine.debugging.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/volumetricLightingTask.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphContext.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphTask.ts",
+                    "packages/dev/core/src/Lights/Shadows/cascadedShadowGenerator.ts",
+                    "packages/dev/core/src/Lights/Shadows/shadowGenerator.ts",
+                    "packages/dev/core/src/Lights/lightingVolume.ts",
+                    "packages/dev/core/src/Materials/Textures/Procedurals/proceduralTexture.ts",
+                    "packages/dev/core/src/Materials/Textures/renderTargetTexture.ts",
+                    "packages/dev/core/src/Misc/minMaxReducer.ts",
+                    "packages/dev/core/src/Probes/reflectionProbe.ts",
+                    "packages/dev/core/src/Rendering/depthRenderer.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "rendering engine"
+                ]
+            },
+            {
+                "pr": "17636",
+                "title": "Fix npe package dependencies",
+                "description": "There was a regression in a recent change that results in errors when you try to `npm install @babylonjs/node-particle-editor`:\r\n\r\nhttps://github.com/BabylonJS/Babylon.js/pull/17554/changes#diff-de4836ec4c38608ff991f28e6ba1b5b832e793e9fa6c96108ab1c7dadd8f4d6cR22\r\n\r\nTwo devDependencies were added to peerDependencies instead, and these are internal packages within our monorepo, so they cannot be resolved when installing the public package. This PR moves those two dependencies to devDependencies, and also cleans up some other incorrect (though non-breaking) dependency issues.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/public/@babylonjs/node-particle-editor/package.json"
+                ],
+                "tags": [
+                    "bug",
+                    "tools",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17562",
+                "title": "Inspector V2: fully support PBR materials",
+                "description": "Also in this PR:\r\n* Support for editing stencil parameters completed\r\n* Support for editing standard materials completed\r\n* Fixed a bug where updating **useAlbedoToTintRefraction** and **useAlbedoToTintTranslucency** did not trigger the effect update\r\n* Fixed normal map parameter editing to work for both standard and PBR materials\r\n* Fixed `HexPropertyLine`\r\n* Added support for **onBlur** to `TextInput`\r\n\r\nNote that unlike Inspector v1, we don't have a special page for `PBRMetallicRoughnessMaterial` and `PBRSpecularGlossinessMaterial`. They now both use the same editing page as `PBRMaterial`.",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/PBR/pbrBaseMaterial.ts",
+                    "packages/dev/core/src/Materials/PBR/pbrSubSurfaceConfiguration.ts",
+                    "packages/dev/inspector-v2/src/components/properties/materials/materialProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/materials/normalMapProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/materials/pbrBaseMaterialProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/materials/pbrMaterialProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/materials/standardMaterialProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/materialPropertiesService.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/hexPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/textInput.tsx"
+                ],
+                "tags": [
+                    "enhancement",
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "17633",
+                "title": "Add support for remap color and alpha",
+                "description": "Adds a new UpdateRemap block to handle the update logic for each particle, and the code to port remaps to NPE.\r\n\r\nPG to test: #WIP4F3#3\r\n<img width=\"1195\" height=\"1751\" alt=\"image\" src=\"https://github.com/user-attachments/assets/50f55f2a-e98b-4ced-b44a-c7cbbcc3cd34\" />\r\n",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/Update/updateRemapBlock.ts",
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.helper.ts",
+                    "packages/tools/nodeParticleEditor/src/components/nodeList/nodeListComponent.tsx",
+                    "packages/tools/nodeParticleEditor/src/graphSystem/registerToDisplayLedger.ts"
+                ],
+                "tags": [
+                    "enhancement",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17632",
+                "title": "Prevent ParticleCondition to use particle flow",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/Conditions/particleConditionBlock.ts"
+                ],
+                "tags": [
+                    "skip changelog",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17631",
+                "title": "Export geospatialcamerakeyboardinput",
+                "description": null,
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/core/src/Cameras/Inputs/index.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17611",
+                "title": "Remove concurrently package",
+                "description": "Replaces `concurrently` with `nx run-many` in npm scripts, and removes the concurrently package to improve security.\r\n\r\nNote that there is no `concurrently --kill-others` equivalent with `nx run-many`, so if one of the parallel processes fails, the others will now continue instead of being killed.",
+                "author": {
+                    "name": "docEdub",
+                    "url": "https://github.com/docEdub"
+                },
+                "files": [
+                    "package-lock.json",
+                    "package.json",
+                    "packages/dev/materials/package.json",
+                    "packages/dev/postProcesses/package.json",
+                    "packages/dev/proceduralTextures/package.json"
+                ],
+                "tags": []
+            }
+        ],
+        "8.45.0": [
+            {
+                "pr": "17625",
+                "title": "Rework center/radius calc after zoom to point",
+                "description": "The old method moved the center directly toward the target and then renormalized, which could cause drift when the camera isn't looking straight down. The new method moves the camera along the actual ray to the zoom target, projects that movement onto the look direction to correctly update radius, then reconstructs the center from the camera's new position. This is geometrically more accurate for zoomToCursor when camera is pitched.",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/core/src/Cameras/geospatialCamera.ts"
+                ],
+                "tags": [
+                    "camera"
+                ]
+            },
+            {
+                "pr": "17624",
+                "title": "Stop zooming once a rotation motion occurs",
+                "description": "This prevents zoom inertia from continuing during / after a rotation ",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/core/src/Cameras/geospatialCameraMovement.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "camera"
+                ]
+            },
+            {
+                "pr": "17622",
+                "title": "Allow zooming to cursor if already at radiusMin",
+                "description": "The logic for clamping zoom assumed that if you are already at the minRadius you can't zoom. However this doesn't allow zooming towards a point in the distance, so the logic needs to update to allow zooming even if already at minRadius, then letting the radius clamping later on prevent new radius from being below min.",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/core/src/Cameras/geospatialCamera.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "camera"
+                ]
+            },
+            {
+                "pr": "17621",
+                "title": "Light: Add a flag to not add the light to the scene at creation time",
+                "description": "See https://forum.babylonjs.com/t/adding-lights-to-a-scene-does-not-scale/62029\r\n\r\nIt dramatically improves creation of lights for use in a clustered light container if you set this new flag to **true** when creating the light.",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Lights/areaLight.ts",
+                    "packages/dev/core/src/Lights/directionalLight.ts",
+                    "packages/dev/core/src/Lights/hemisphericLight.ts",
+                    "packages/dev/core/src/Lights/light.ts",
+                    "packages/dev/core/src/Lights/pointLight.ts",
+                    "packages/dev/core/src/Lights/rectAreaLight.ts",
+                    "packages/dev/core/src/Lights/spotLight.ts",
+                    "packages/dev/core/src/scene.ts"
+                ],
+                "tags": [
+                    "enhancement",
+                    "rendering engine"
+                ]
+            },
+            {
+                "pr": "17620",
+                "title": "Add timeout check on readiness",
+                "description": null,
+                "author": {
+                    "name": "sebavan",
+                    "url": "https://github.com/sebavan"
+                },
+                "files": [
+                    "packages/dev/core/src/Misc/screenshotTools.ts",
+                    "packages/dev/core/src/scene.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17616",
+                "title": "Inspector v2: Make EntitySelector include editable links",
+                "description": "This PR further enhances the EntitySelector such that:\r\n- When it has a valid value, it shows a link that can be clicked (like a node parent link, or a material texture link, etc.).\r\n- If the property is mutable, it will show either a dismiss link button (if the property is nullable), or an edit link button (if the property is not nullable).\r\n- Once in edit mode, it shows the combo box and allows you to assign a new entity link.\r\n\r\nThis basically combines the entity link functionality and the related entity editing functionality. There is a bit more work needed to completely replace `LinkToEntityPropertyLine`, such as handling arbitrary untyped entity links (like with TargetedAnimation.target, for example), but this can be done in a follow up change later.\r\n\r\nSome other small fixes:\r\n- BoundProperty checks that a property is actually mutable before passing an onChange to the underlying component.\r\n- Fixed some css layout issues that prevented text from being correctly truncated in the property line value side (right side).\r\n- Updated styling for ComboBox to allow it to be wider (previously it was vary narrow with a scrollbar).\r\n- Added a SkeletonSelector.\r\n- Used the entity selector component variants in more places in Inspector v2.\r\n\r\n<img width=\"341\" height=\"465\" alt=\"image\" src=\"https://github.com/user-attachments/assets/6ab4b7b7-83ba-416c-98c0-d8c3e6be4cf9\" />\r\n\r\n<img width=\"331\" height=\"463\" alt=\"image\" src=\"https://github.com/user-attachments/assets/7f6575a6-fdd5-45c3-941a-e5b55cac82b8\" />\r\n\r\n<img width=\"354\" height=\"212\" alt=\"image\" src=\"https://github.com/user-attachments/assets/2e16349b-4e3c-4d46-b9cf-d74de3e79fcd\" />\r\n\r\n<img width=\"552\" height=\"373\" alt=\"image\" src=\"https://github.com/user-attachments/assets/0f27279a-22ad-4904-93f2-bd956f8c476d\" />\r\n\r\n",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/buildTools/src/generateDeclaration.ts",
+                    "packages/dev/inspector-v2/src/components/properties/boundProperty.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/materials/pbrMaterialProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/nodes/abstractMeshProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/nodes/nodeProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/sprites/spriteManagerProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/materialPropertiesService.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/entitySelectorPropertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/propertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/comboBox.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/entitySelector.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/link.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/materialSelector.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/nodeSelector.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/skeletonSelector.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/textureSelector.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "17619",
+                "title": "FrameGraph: improve debug marker support",
+                "description": "Refactored the GPU debug marker code for WebGPU. The previous implementation was too complicated and had corner cases. \r\n\r\nDebug markers are very useful for debugging frame graphs in WebGPU. For example (from [this PG](https://playground.babylonjs.com/?webgpu#WLGEJB#7)):\r\n<img width=\"772\" height=\"434\" alt=\"image\" src=\"https://github.com/user-attachments/assets/9173f721-b2d8-4528-a750-d02fdd8e5837\" />\r\n\r\nAlso in this PR:\r\n* implementation of `InternalTexture.useMipMaps` (which was a TODO) and is needed for proper support of mipmap generation in a frame graph\r\n* **dontUseTransmissionHelper** option has been added to the glTF loader, because the transmission helper is not needed when using a frame graph to render transmissive materials\r\n",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Engines/Extensions/engine.debugging.ts",
+                    "packages/dev/core/src/Engines/WebGPU/Extensions/engine.debugging.ts",
+                    "packages/dev/core/src/Engines/WebGPU/webgpuTextureManager.ts",
+                    "packages/dev/core/src/Engines/abstractEngine.ts",
+                    "packages/dev/core/src/Engines/thinWebGPUEngine.ts",
+                    "packages/dev/core/src/Engines/webgpuEngine.ts",
+                    "packages/dev/core/src/FrameGraph/Passes/renderPass.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/PostProcesses/postProcessTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/geometryRendererTask.ts",
+                    "packages/dev/core/src/FrameGraph/Tasks/Rendering/objectRendererTask.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraph.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphContext.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphObjectList.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphRenderContext.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphTask.ts",
+                    "packages/dev/core/src/Lights/Shadows/cascadedShadowGenerator.ts",
+                    "packages/dev/core/src/Lights/Shadows/shadowGenerator.ts",
+                    "packages/dev/core/src/Lights/lightingVolume.ts",
+                    "packages/dev/core/src/Materials/Textures/Loaders/iesTextureLoader.ts",
+                    "packages/dev/core/src/Materials/Textures/Procedurals/proceduralTexture.ts",
+                    "packages/dev/core/src/Materials/Textures/internalTexture.ts",
+                    "packages/dev/core/src/Materials/Textures/renderTargetTexture.ts",
+                    "packages/dev/core/src/Materials/Textures/textureSampler.ts",
+                    "packages/dev/core/src/Misc/minMaxReducer.ts",
+                    "packages/dev/core/src/Probes/reflectionProbe.ts",
+                    "packages/dev/core/src/Rendering/depthRenderer.ts",
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/KHR_materials_transmission.ts",
+                    "packages/dev/loaders/src/glTF/glTFFileLoader.ts",
+                    "packages/tools/nodeRenderGraphEditor/src/graphSystem/properties/genericNodePropertyComponent.tsx",
+                    "packages/tools/tests/test/playwright/visualizationPlaywright.utils.ts",
+                    "packages/tools/tests/test/visualization/ReferenceImages/FrameGraph-nrge-transmission.png",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": [
+                    "enhancement",
+                    "frame graph"
+                ]
+            },
+            {
+                "pr": "17618",
+                "title": "Particles: Fix crash when using positionW in NME",
+                "description": "Fixes this PG: http://playground.babylonjs.com/#RA18GJ#17",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/Node/Blocks/Input/inputBlock.ts",
+                    "packages/dev/core/src/Materials/Node/nodeMaterial.ts",
+                    "packages/dev/core/src/Materials/Node/nodeMaterialBuildStateSharedData.ts",
+                    "packages/dev/core/src/Shaders/particles.vertex.fx",
+                    "packages/dev/core/src/ShadersWGSL/particles.vertex.fx",
+                    "packages/tools/tests/test/visualization/ReferenceImages/NME-Particles-with-PositionW.png",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": [
+                    "bug",
+                    "particles"
+                ]
+            },
+            {
+                "pr": "17617",
+                "title": "Add collision detection",
+                "description": "Uses collisionCoordinator to apply an offset to the position on each frame to avoid colliding with objects in the scene.\r\n\r\nUsers of the camera can hook into beforeRender to update collisionOffset if wanting custom collision logic, or extensions of the camera class can override getCollisionOffset function. \r\n\r\n#17451",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/core/src/Cameras/geospatialCamera.ts",
+                    "packages/dev/core/src/Collisions/collisionCoordinator.ts"
+                ],
+                "tags": [
+                    "new feature",
+                    "camera"
+                ]
+            },
+            {
+                "pr": "17615",
+                "title": "FlyToPoint scale by distance instead of radius",
+                "description": "#17451",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/core/src/Cameras/geospatialCamera.ts"
+                ],
+                "tags": [
+                    "camera"
+                ]
+            },
+            {
+                "pr": "17614",
+                "title": "Fix flyToAsync animation",
+                "description": "#17451",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/core/src/Cameras/geospatialCamera.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "camera"
+                ]
+            },
+            {
+                "pr": "17613",
+                "title": "Update zoomSpeedMultiplier to be based on distance to destination (vs radius). Cleanup zoom / clamping logic",
+                "description": "- HandleZoom is now a public function on geospatialMovement class (similar to handleDrag) that can be called from both the keyboard and pointer input classes, specifying whether or not we zoom to cursor\r\n- Clamping zoom to respect radius limits now happens in camera class (similar to clamping yaw/pitch/radius). Remove concept of altitudemin/max and just use radiusMin/max\r\n- Movement class cleans up zoom logic so that the zoomSpeedMultiplier is based off of distance to zoomtarget, instead of radius, so that if we are close to surface but zooming towards a mountain in the distance the speed is factored appropriately\r\n- General zoom logic is simplified so that handleZoom (which is called from input classes) sets the currentFrameZoomPoint , differentiating it from when we are zooming due to inertia\r\n\r\n#17451 ",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/core/src/Cameras/Inputs/geospatialCameraKeyboardInput.ts",
+                    "packages/dev/core/src/Cameras/Inputs/geospatialCameraMouseWheelInput.ts",
+                    "packages/dev/core/src/Cameras/Limits/geospatialLimits.ts",
+                    "packages/dev/core/src/Cameras/geospatialCamera.ts",
+                    "packages/dev/core/src/Cameras/geospatialCameraMovement.ts"
+                ],
+                "tags": [
+                    "camera"
+                ]
+            },
+            {
+                "pr": "17612",
+                "title": "Remove react-contextmenu dependency from Inspector and GUI Editor (and references from other packages)",
+                "description": "Following same approach as in SFE (https://github.com/BabylonJS/Babylon.js/pull/17607/files#diff-af0d068ffb80cac8b2b8dc8f045c165981927acde04d9b6c26040a02248ba8d7) remove react-contextmenu usage and replace with sharedui contextmenu. \r\n\r\nRemove all references to the dependency across all packages / build.\r\n\r\n<img width=\"237\" height=\"155\" alt=\"image\" src=\"https://github.com/user-attachments/assets/565fc835-e5c0-442d-a161-5612d8dca045\" />\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "package-lock.json",
+                    "packages/dev/buildTools/src/generateDeclaration.ts",
+                    "packages/dev/inspector/package.json",
+                    "packages/dev/inspector/rollup.config.js",
+                    "packages/dev/inspector/src/components/sceneExplorer/sceneExplorer.scss",
+                    "packages/dev/inspector/src/components/sceneExplorer/treeItemComponent.tsx",
+                    "packages/public/umd/babylonjs-gui-editor/package.json",
+                    "packages/public/umd/babylonjs-inspector/package.json",
+                    "packages/public/umd/babylonjs-node-editor/package.json",
+                    "packages/public/umd/babylonjs-node-geometry-editor/package.json",
+                    "packages/public/umd/babylonjs-node-particle-editor/package.json",
+                    "packages/public/umd/babylonjs-node-render-graph-editor/package.json",
+                    "packages/tools/guiEditor/src/components/sceneExplorer/treeItemComponent.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17607",
+                "title": "SFE: Replace react-contextmenu dependency w fluent contextMenu from sharedUi",
+                "description": "- create a shared contextMenu component using fluent's menu component\r\n- replace usage of react-contextMenu with the new shared components in SFE\r\n<img width=\"281\" height=\"48\" alt=\"image\" src=\"https://github.com/user-attachments/assets/f4928cb4-f98a-4091-ada8-6eb04c619c7d\" />\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "package-lock.json",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/fluentToolWrapper.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/button.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/contextMenu.tsx",
+                    "packages/tools/smartFiltersEditorControl/package.json",
+                    "packages/tools/smartFiltersEditorControl/src/components/nodeList/nodeListComponent.tsx",
+                    "packages/tools/smartFiltersEditorControl/src/sharedComponents/lineContainerComponent.tsx"
+                ],
+                "tags": [
+                    "sfe"
+                ]
+            },
+            {
+                "pr": "17610",
+                "title": "TAA: Fix crash when using materials that don't support plugins",
+                "description": "See https://forum.babylonjs.com/t/error-using-taa-and-rotationgizmo/61995",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/PostProcesses/RenderPipeline/Pipelines/taaMaterialManager.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "post-process"
+                ]
+            },
+            {
+                "pr": "17609",
+                "title": "Fix Inspector v2 layout regression in Playground and Sandbox",
+                "description": "#17603 reworked the Inspector v2 overlay mode, and part of this included creating a new container element, and not mutating the canvas parent element, since it can have other children, so mutating it can break the host app. However, as it currently is, Inspector v2 will not render correctly when the parent element has its css `position` set to `static` (the default), which is what is happening in Playground and Sandbox right now. As a quick fix for this regression, I'm simply setting `position` to `relative` for both Playground and Sandbox, and I need to investigate more if there is a robust way to make the layout correct without mutating the parent container element.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/tools/playground/src/scss/main.scss",
+                    "packages/tools/sandbox/src/scss/renderingZone.scss"
+                ],
+                "tags": [
+                    "bug",
+                    "inspector",
+                    "Playground",
+                    "sandbox"
+                ]
+            },
+            {
+                "pr": "17606",
+                "title": "Clone reference values when migrating",
+                "description": "When migrating a particle system all values were passed from the old system to the new system. For value types that is fine as they get copied, but for references like Vector3 or Color4, the same reference was used in both systems. This PR clones any reference type to avoid having any object shared between the old system and the created new system.",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.helper.ts"
+                ],
+                "tags": [
+                    "enhancement"
+                ]
+            },
+            {
+                "pr": "17559",
+                "title": "Particle system properties",
+                "description": "Adding all missing properties for ParticleSystem and Node based ParticleSystem.\r\n\r\n<img width=\"1367\" height=\"853\" alt=\"image\" src=\"https://github.com/user-attachments/assets/f643433d-83e9-4705-9221-b7f67d2262b8\" />\r\n\r\n<img width=\"1400\" height=\"748\" alt=\"image\" src=\"https://github.com/user-attachments/assets/3bab00f5-8c59-43a5-a47c-b3b3b49a7af5\" />\r\n",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/particles/particleSystemProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/particleSystemPropertiesService.tsx",
+                    "packages/dev/sharedUiComponents/src/constToOptionsMaps.ts"
+                ],
+                "tags": [
+                    "enhancement"
+                ]
+            }
+        ],
         "8.44.1": [
             {
                 "pr": "17605",
