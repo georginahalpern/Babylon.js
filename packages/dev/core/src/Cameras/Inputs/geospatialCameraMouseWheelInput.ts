@@ -21,7 +21,7 @@ export class GeospatialCameraMouseWheelInput extends BaseCameraMouseWheelInput {
     }
 
     public override checkInputs(): void {
-        this.camera.movement.handleZoom(this._wheelDeltaY, true);
+        this.camera.movement.handleZoom(this._wheelDeltaY, this.camera._scene.pointerX, this.camera._scene.pointerY);
         super.checkInputs();
     }
 }

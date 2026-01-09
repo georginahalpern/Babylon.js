@@ -168,19 +168,22 @@ export class GeospatialCameraMovement extends CameraMovement {
         return this._hitPointRadius !== undefined;
     }
 
-    public handleZoom(zoomDelta: number, toCursor: boolean) {
+    public handleZoom(zoomDelta: number, pickX?: number, pickY?: number) {
         if (zoomDelta !== 0) {
             this.zoomAccumulatedPixels += zoomDelta;
 
-            const pickResult = this._scene.pick(this._scene.pointerX, this._scene.pointerY, this.pickPredicate);
-
-            if (toCursor && pickResult.hit && pickResult.pickedPoint && pickResult.ray && this.zoomToCursor) {
-                this.computedPerFrameZoomPickPoint = pickResult.pickedPoint;
-            } else {
-                // If no hit under cursor or explicitly told not to zoom to cursor, zoom along lookVector instead
-                const lookPickResult = this.pickAlongVector(this._cameraLookAt);
-                this.computedPerFrameZoomPickPoint = lookPickResult?.pickedPoint ?? undefined;
+            // If x/y provided and zoomToCursor enabled, zoom towards that point
+            if (pickX !== undefined && pickY !== undefined && this.zoomToCursor) {
+                const pickResult = this._scene.pick(pickX, pickY, this.pickPredicate);
+                if (pickResult.hit && pickResult.pickedPoint) {
+                    this.computedPerFrameZoomPickPoint = pickResult.pickedPoint;
+                    return;
+                }
             }
+
+            // Otherwise zoom along lookVector
+            const lookPickResult = this.pickAlongVector(this._cameraLookAt);
+            this.computedPerFrameZoomPickPoint = lookPickResult?.pickedPoint ?? undefined;
         }
     }
 

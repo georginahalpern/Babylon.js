@@ -20,6 +20,8 @@ import { OrbitCameraPointersInput } from "./orbitCameraPointersInput";
 export class GeospatialCameraPointersInput extends OrbitCameraPointersInput {
     public camera: GeospatialCamera;
 
+    private _initialPinchSquaredDistance: number = 0;
+
     public override getClassName(): string {
         return "GeospatialCameraPointersInput";
     }
@@ -57,6 +59,7 @@ export class GeospatialCameraPointersInput extends OrbitCameraPointersInput {
      * @param pinchSquaredDistance
      */
     protected override _computePinchZoom(previousPinchSquaredDistance: number, pinchSquaredDistance: number): void {
+        // Use ratio-based zoom (direct radius manipulation) for responsive pinch feel
         this.camera.radius = (this.camera.radius * Math.sqrt(previousPinchSquaredDistance)) / Math.sqrt(pinchSquaredDistance);
     }
 
@@ -89,15 +92,35 @@ export class GeospatialCameraPointersInput extends OrbitCameraPointersInput {
         previousMultiTouchPanPosition: Nullable<PointerTouch>,
         multiTouchPanPosition: Nullable<PointerTouch>
     ): void {
-        this._shouldStartPinchZoom =
-            this._twoFingerActivityCount < 20 && Math.abs(Math.sqrt(pinchSquaredDistance) - Math.sqrt(previousPinchSquaredDistance)) > this.camera.limits.pinchToPanMax;
+        // Reset on gesture end
+        if (pinchSquaredDistance === 0 && multiTouchPanPosition === null) {
+            this._initialPinchSquaredDistance = 0;
+            super.onMultiTouch(pointA, pointB, previousPinchSquaredDistance, pinchSquaredDistance, previousMultiTouchPanPosition, multiTouchPanPosition);
+            return;
+        }
+
+        // Track initial distance at gesture start for cumulative threshold detection
+        if (this._initialPinchSquaredDistance === 0 && pinchSquaredDistance !== 0) {
+            this._initialPinchSquaredDistance = pinchSquaredDistance;
+        }
+
+        // Use cumulative delta from gesture start for threshold detection (more forgiving than frame-to-frame)
+        const cumulativeDelta = Math.abs(Math.sqrt(pinchSquaredDistance) - Math.sqrt(this._initialPinchSquaredDistance));
+        this._shouldStartPinchZoom = this._twoFingerActivityCount < 20 && cumulativeDelta > this.camera.limits.pinchToPanMax;
+
         super.onMultiTouch(pointA, pointB, previousPinchSquaredDistance, pinchSquaredDistance, previousMultiTouchPanPosition, multiTouchPanPosition);
     }
 
     public override onButtonUp(_evt: IPointerEvent): void {
         this.camera.movement.stopDrag();
         this.camera.movement.activeInput = false;
+        this._initialPinchSquaredDistance = 0;
         super.onButtonUp(_evt);
+    }
+
+    public override onLostFocus(): void {
+        this._initialPinchSquaredDistance = 0;
+        super.onLostFocus();
     }
 
     private _handleTilt(deltaX: number, deltaY: number): void {

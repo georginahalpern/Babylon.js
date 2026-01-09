@@ -193,9 +193,9 @@ export class GeospatialCameraKeyboardInput implements ICameraInput<GeospatialCam
                 } else {
                     // Zoom
                     if (this.keysZoomIn.indexOf(keyCode) !== -1) {
-                        camera.movement.handleZoom(this.zoomSensitivity, false);
+                        camera.movement.handleZoom(this.zoomSensitivity);
                     } else if (this.keysZoomOut.indexOf(keyCode) !== -1) {
-                        camera.movement.handleZoom(-this.zoomSensitivity, false);
+                        camera.movement.handleZoom(-this.zoomSensitivity);
                     } else {
                         // Call into movement class handleDrag so that behavior matches that of pointer input, simulating drag from center of screen
                         const centerX = this._engine.getRenderWidth() / 2;
