@@ -196,10 +196,6 @@ export class GeospatialCamera extends Camera {
 
         this._position.copyFrom(this._tempPosition);
 
-        // Apply the same offset to both position and center to preserve orbital relationship
-        // This keeps yaw/pitch/radius intact - just lifts the whole "rig"
-        // this._position.addInPlace(collisionOffset);
-        // this._center.addInPlace(collisionOffset);
         this._isViewMatrixDirty = true;
     }
 
@@ -331,7 +327,6 @@ export class GeospatialCamera extends Camera {
         if (!this._isViewMatrixDirty) {
             return this._viewMatrix;
         }
-
         this._isViewMatrixDirty = false;
 
         // Ensure vectors are normalized
@@ -343,10 +338,10 @@ export class GeospatialCamera extends Camera {
         this._position.addInPlace(this.collisionOffset);
         this._center.addInPlace(this.collisionOffset);
 
-        // Recalculate yaw/pitch/radius if collision offset was applied
-        if (this.collisionOffset.lengthSquared() > Epsilon) {
-            this._recalculateYawPitchFromPosition();
-        }
+        // // Recalculate yaw/pitch/radius if collision offset was applied
+        // if (this.collisionOffset.lengthSquared() > Epsilon) {
+        //     this._recalculateYawPitchFromPosition();
+        // }
 
         // Calculate view matrix with camera position and center
         if (this.getScene().useRightHandedSystem) {
@@ -477,8 +472,6 @@ export class GeospatialCamera extends Camera {
         this._setOrientation(this._yaw, this._pitch, newRadius, this._center);
     }
 
-    private _wasCenterMovingLastFrame = false;
-
     override _checkInputs(): void {
         this.inputs.checkInputs();
         this.perFrameCollisionOffset.setAll(0);
@@ -507,6 +500,8 @@ export class GeospatialCamera extends Camera {
         super._checkInputs();
     }
 
+    private _wasCenterMovingLastFrame = false;
+
     private _recalculateCenter(isCenterMoving: boolean) {
         const shouldRecalculateCenterAfterMove = this._wasCenterMovingLastFrame && !isCenterMoving;
         this._wasCenterMovingLastFrame = isCenterMoving;
@@ -531,56 +526,56 @@ export class GeospatialCamera extends Camera {
         }
     }
 
-    /**
-     * Recalculate yaw/pitch/radius from the current position and center.
-     * Useful after collision adjustment to sync orientation parameters with actual position.
-     */
-    private _recalculateYawPitchFromPosition(): void {
-        // Compute local basis at center
-        ComputeLocalBasisToRefs(this._center, this._tempEast, this._tempNorth, this._tempUp);
+    // /**
+    //  * Recalculate yaw/pitch/radius from the current position and center.
+    //  * Useful after collision adjustment to sync orientation parameters with actual position.
+    //  */
+    // private _recalculateYawPitchFromPosition(): void {
+    //     // Compute local basis at center
+    //     ComputeLocalBasisToRefs(this._center, this._tempEast, this._tempNorth, this._tempUp);
 
-        // Direction from center to camera position
-        const toCamera = TmpVectors.Vector3[0];
-        this._position.subtractToRef(this._center, toCamera);
+    //     // Direction from center to camera position
+    //     const toCamera = TmpVectors.Vector3[0];
+    //     this._position.subtractToRef(this._center, toCamera);
 
-        // New radius is simply the distance
-        const newRadius = toCamera.length();
-        if (newRadius < Epsilon) {
-            return; // Avoid division by zero
-        }
-        toCamera.scaleInPlace(1 / newRadius); // normalize
+    //     // New radius is simply the distance
+    //     const newRadius = toCamera.length();
+    //     if (newRadius < Epsilon) {
+    //         return; // Avoid division by zero
+    //     }
+    //     toCamera.scaleInPlace(1 / newRadius); // normalize
 
-        // Pitch: angle from looking straight down at planet
-        // toCamera points from center to camera, so dot with up gives cos of angle from up
-        const cosAngleFromUp = Vector3Dot(toCamera, this._tempUp);
-        // pitch = 0 means looking at planet (camera above center along up vector)
-        // pitch = PI/2 means looking at horizon
-        const newPitch = Math.acos(Clamp(cosAngleFromUp, -1, 1)) - Math.PI / 2;
+    //     // Pitch: angle from looking straight down at planet
+    //     // toCamera points from center to camera, so dot with up gives cos of angle from up
+    //     const cosAngleFromUp = Vector3Dot(toCamera, this._tempUp);
+    //     // pitch = 0 means looking at planet (camera above center along up vector)
+    //     // pitch = PI/2 means looking at horizon
+    //     const newPitch = Math.acos(Clamp(cosAngleFromUp, -1, 1)) - Math.PI / 2;
 
-        // Project toCamera onto horizontal plane (perpendicular to up)
-        const horizontal = TmpVectors.Vector3[1];
-        horizontal.copyFrom(toCamera);
-        const upComponent = TmpVectors.Vector3[2].copyFrom(this._tempUp).scaleInPlace(cosAngleFromUp);
-        horizontal.subtractInPlace(upComponent);
-        const horizLength = horizontal.length();
+    //     // Project toCamera onto horizontal plane (perpendicular to up)
+    //     const horizontal = TmpVectors.Vector3[1];
+    //     horizontal.copyFrom(toCamera);
+    //     const upComponent = TmpVectors.Vector3[2].copyFrom(this._tempUp).scaleInPlace(cosAngleFromUp);
+    //     horizontal.subtractInPlace(upComponent);
+    //     const horizLength = horizontal.length();
 
-        let newYaw = this._yaw; // Keep current yaw if horizontal component is negligible
-        if (horizLength > Epsilon) {
-            horizontal.scaleInPlace(1 / horizLength); // normalize
+    //     let newYaw = this._yaw; // Keep current yaw if horizontal component is negligible
+    //     if (horizLength > Epsilon) {
+    //         horizontal.scaleInPlace(1 / horizLength); // normalize
 
-            // Yaw: angle in the horizontal plane from North
-            const cosYaw = Vector3Dot(horizontal, this._tempNorth);
-            const sinYaw = Vector3Dot(horizontal, this._tempEast);
-            const yawScale = this._scene.useRightHandedSystem ? 1 : -1;
-            newYaw = Math.atan2(sinYaw, cosYaw) * yawScale;
-        }
+    //         // Yaw: angle in the horizontal plane from North
+    //         const cosYaw = Vector3Dot(horizontal, this._tempNorth);
+    //         const sinYaw = Vector3Dot(horizontal, this._tempEast);
+    //         const yawScale = this._scene.useRightHandedSystem ? 1 : -1;
+    //         newYaw = Math.atan2(sinYaw, cosYaw) * yawScale;
+    //     }
 
-        // Update internal state directly (don't call _setOrientation to avoid recursion)
-        this._yaw = NormalizeRadians(newYaw);
-        this._pitch = newPitch;
-        this._radius = newRadius;
-        this._checkLimits();
-    }
+    //     // Update internal state directly (don't call _setOrientation to avoid recursion)
+    //     this._yaw = NormalizeRadians(newYaw);
+    //     this._pitch = newPitch;
+    //     this._radius = newRadius;
+    //     this._checkLimits();
+    // }
 
     protected _getCollisionOffset(newPosition: Vector3): Vector3 {
         const coordinator = this.getScene().collisionCoordinator;
