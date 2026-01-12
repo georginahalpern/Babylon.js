@@ -70,8 +70,11 @@ export class GeospatialCameraMovement extends CameraMovement {
             // Store radius from earth center to pickedPoint, used when calculating drag plane
             this._hitPointRadius = pickResult.pickedPoint.length();
 
-            this._recalculateDragPlaneHitPoint(this._hitPointRadius, pickResult.ray, TmpVectors.Matrix[0]);
-            this._previousDragPlaneHitPointLocal.copyFrom(this._dragPlaneHitPointLocal);
+            if (this._recalculateDragPlaneHitPoint(this._hitPointRadius, pickResult.ray, TmpVectors.Matrix[0])) {
+                this._previousDragPlaneHitPointLocal.copyFrom(this._dragPlaneHitPointLocal);
+            } else {
+                this._hitPointRadius = undefined; // can't drag if ray is parallel to plane
+            }
         } else {
             this._hitPointRadius = undefined; // can't drag without a hit on the globe
         }
@@ -87,8 +90,9 @@ export class GeospatialCameraMovement extends CameraMovement {
      * @param hitPointRadius The distance between the world origin (center of globe) and the initial drag hit point
      * @param ray The ray from the camera to the new cursor location
      * @param localToEcefResult The matrix to convert from local to ECEF space
+     * @returns true if the hit point was successfully calculated, false if the ray is nearly parallel to the plane (horizon case)
      */
-    private _recalculateDragPlaneHitPoint(hitPointRadius: number, ray: Ray, localToEcefResult: Matrix): void {
+    private _recalculateDragPlaneHitPoint(hitPointRadius: number, ray: Ray, localToEcefResult: Matrix): boolean {
         // Use the camera's geocentric normal to find the dragPlaneOriginPoint which lives at hitPointRadius along the camera's geocentric normal
         this._cameraPosition.normalizeToRef(this._dragPlaneNormal);
         this._dragPlaneNormal.scaleToRef(hitPointRadius, this._dragPlaneOriginPointEcef);
@@ -102,11 +106,21 @@ export class GeospatialCameraMovement extends CameraMovement {
         // Now create a plane at that point, perpendicular to the camera's geocentric normal
         Plane.FromPositionAndNormalToRef(this._dragPlaneOriginPointEcef, this._dragPlaneNormal, this._dragPlane);
 
+        // Check if ray is nearly parallel to the plane (pointing towards horizon)
+        // The dot product of ray direction and plane normal tells us how perpendicular they are
+        const rayDotNormal = Math.abs(Vector3.Dot(ray.direction, this._dragPlaneNormal));
+        if (rayDotNormal < 0.05) {
+            // Ray is nearly parallel (within ~3 degrees) to the plane - dragging towards horizon, skip this update
+            return false;
+        }
+
         // Lastly, find the _dragPlaneHitPoint where the ray intersects the _dragPlane.
         if (IntersectRayWithPlaneToRef(ray, this._dragPlane, this._dragPlaneHitPointLocal)) {
             // If hit, convert the drag plane hit point into the local space.
             Vector3.TransformCoordinatesToRef(this._dragPlaneHitPointLocal, ecefToLocal, this._dragPlaneHitPointLocal);
+            return true;
         }
+        return false;
     }
 
     public handleDrag(pointerX: number, pointerY: number) {
@@ -114,7 +128,11 @@ export class GeospatialCameraMovement extends CameraMovement {
             const pickResult = this._scene.pick(pointerX, pointerY);
             if (pickResult.ray) {
                 const localToEcef = TmpVectors.Matrix[0];
-                this._recalculateDragPlaneHitPoint(this._hitPointRadius, pickResult.ray, localToEcef);
+
+                // Skip this frame if ray is nearly parallel to drag plane (horizon case)
+                if (!this._recalculateDragPlaneHitPoint(this._hitPointRadius, pickResult.ray, localToEcef)) {
+                    return;
+                }
 
                 const delta = this._dragPlaneHitPointLocal.subtractToRef(this._previousDragPlaneHitPointLocal, TmpVectors.Vector3[6]);
                 this._previousDragPlaneHitPointLocal.copyFrom(this._dragPlaneHitPointLocal);
