@@ -139,11 +139,26 @@ export class GeospatialCameraPointersInput extends OrbitCameraPointersInput {
             this._initialPinchSquaredDistance = pinchSquaredDistance;
         }
 
-        // Use cumulative delta from gesture start for threshold detection (more forgiving than frame-to-frame)
-        const cumulativeDelta = Math.abs(Math.sqrt(pinchSquaredDistance) - Math.sqrt(this._initialPinchSquaredDistance));
-        this._shouldStartPinchZoom = this._twoFingerActivityCount < 20 && cumulativeDelta > this.camera.limits.pinchToPanMax;
+        // Use cumulative delta from gesture start for threshold detection
+        const cumulativePinchDelta = Math.abs(Math.sqrt(pinchSquaredDistance) - Math.sqrt(this._initialPinchSquaredDistance));
+
+        // Determine if we should zoom: either already pinching, or pinch delta exceeds threshold early in gesture
+        const shouldZoom = this._isPinching || (this._twoFingerActivityCount < 20 && cumulativePinchDelta > this.camera.limits.pinchToPanMax);
+
+        // Only allow pan after we've passed the decision window AND decided not to zoom
+        const shouldPan = this._twoFingerActivityCount >= 20 && !shouldZoom;
+
+        this._shouldStartPinchZoom = shouldZoom;
+
+        // Temporarily disable panning while still in decision window
+        const originalMultiTouchPanning = this.multiTouchPanning;
+        if (!shouldPan && !shouldZoom) {
+            this.multiTouchPanning = false;
+        }
 
         super.onMultiTouch(pointA, pointB, previousPinchSquaredDistance, pinchSquaredDistance, previousMultiTouchPanPosition, multiTouchPanPosition);
+
+        this.multiTouchPanning = originalMultiTouchPanning;
     }
 
     public override onButtonUp(_evt: IPointerEvent): void {
