@@ -30,6 +30,7 @@ export class GeospatialLimits {
      */
     constructor(planetRadius: number) {
         this._planetRadius = planetRadius;
+        this._radiusMax = planetRadius * 5;
     }
 
     public get radiusMin(): number {

@@ -411,12 +411,6 @@ export class GeospatialCamera extends Camera {
         let zoomDelta = this.movement.zoomDeltaCurrentFrame;
         const pickedPoint = this.movement.computedPerFrameZoomPickPoint;
 
-        // Clamp zoom delta to limits before applying
-        zoomDelta = this._clampZoomDelta(zoomDelta, pickedPoint);
-
-        if (Math.abs(zoomDelta) < Epsilon) {
-            return;
-        }
         if (pickedPoint) {
             // Zoom toward the picked point under cursor
             this.zoomToPoint(pickedPoint, zoomDelta);
@@ -426,7 +420,7 @@ export class GeospatialCamera extends Camera {
         }
     }
 
-    private _clampZoomDelta(zoomDelta: number, pickedPoint?: Vector3): number {
+    private _clampZoomDelta(zoomDelta: number, pickedPoint?: DeepImmutable<IVector3Like>): number {
         if (Math.abs(zoomDelta) < Epsilon) {
             return 0;
         }
@@ -449,14 +443,25 @@ export class GeospatialCamera extends Camera {
     }
 
     public zoomToPoint(targetPoint: DeepImmutable<IVector3Like>, distance: number) {
-        const newRadius = this._getCenterAndRadiusFromZoomToPoint(targetPoint, distance, this._tempCenter);
+        // Clamp zoom delta to limits before applying
+        const zoomDelta = this._clampZoomDelta(distance, targetPoint);
+
+        if (Math.abs(zoomDelta) < Epsilon) {
+            return;
+        }
+        const newRadius = this._getCenterAndRadiusFromZoomToPoint(targetPoint, zoomDelta, this._tempCenter);
         // Apply the new orientation
         this._setOrientation(this._yaw, this._pitch, newRadius, this._tempCenter);
     }
 
     public zoomAlongLookAt(distance: number) {
+        const zoomDelta = this._clampZoomDelta(distance);
+
+        if (Math.abs(zoomDelta) < Epsilon) {
+            return;
+        }
         // Clamp radius to limits
-        const requestedRadius = this._radius - distance;
+        const requestedRadius = this._radius - zoomDelta;
         const newRadius = Clamp(requestedRadius, this.limits.radiusMin, this.limits.radiusMax);
 
         // Simply change radius without moving center
