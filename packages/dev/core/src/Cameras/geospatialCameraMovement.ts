@@ -110,7 +110,7 @@ export class GeospatialCameraMovement extends CameraMovement {
         // The dot product of ray direction and plane normal tells us how perpendicular they are
         const rayDotNormal = Math.abs(Vector3.Dot(ray.direction, this._dragPlaneNormal));
         if (rayDotNormal < 0.01) {
-            // Ray is nearly parallel (within ~1 degree) to the plane - dragging towards horizon, skip this update
+            // Ray is nearly parallel to the plane - dragging towards horizon, skip this update
             return false;
         }
 
