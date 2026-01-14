@@ -1,6 +1,497 @@
 {
-    "fromTag": "8.45.2",
+    "fromTag": "8.45.4",
     "changelog": {
+        "8.45.5": [
+            {
+                "pr": "17673",
+                "title": "Issues with remap block",
+                "description": "Remap was missing from index.ts and BlockTools, so it could be created programatically by code, but not by using the editor.",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/index.ts",
+                    "packages/tools/nodeParticleEditor/src/blockTools.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17634",
+                "title": "Thin native engine",
+                "description": null,
+                "author": {
+                    "name": "sebavan",
+                    "url": "https://github.com/sebavan"
+                },
+                "files": [
+                    "packages/dev/core/src/Engines/AbstractEngine/abstractEngine.loadFile.ts",
+                    "packages/dev/core/src/Engines/AbstractEngine/abstractEngine.textureLoaders.ts",
+                    "packages/dev/core/src/Engines/AbstractEngine/index.ts",
+                    "packages/dev/core/src/Engines/Native/Extensions/index.ts",
+                    "packages/dev/core/src/Engines/Native/Extensions/nativeEngine.cubeTexture.ts",
+                    "packages/dev/core/src/Engines/Native/nativePipelineContext.ts",
+                    "packages/dev/core/src/Engines/Native/nativeRenderTargetWrapper.ts",
+                    "packages/dev/core/src/Engines/Native/validatedNativeDataStream.ts",
+                    "packages/dev/core/src/Engines/abstractEngine.ts",
+                    "packages/dev/core/src/Engines/engine.ts",
+                    "packages/dev/core/src/Engines/index.ts",
+                    "packages/dev/core/src/Engines/nativeEngine.ts",
+                    "packages/dev/core/src/Engines/nullEngine.ts",
+                    "packages/dev/core/src/Engines/thinNativeEngine.ts",
+                    "packages/dev/core/src/Engines/webgpuEngine.ts",
+                    "packages/dev/core/src/Misc/tools.ts",
+                    "packages/dev/core/src/XR/native/nativeXRFrame.ts"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "17671",
+                "title": "Add support for clamp node for NPE",
+                "description": "<img width=\"747\" height=\"372\" alt=\"image\" src=\"https://github.com/user-attachments/assets/58583075-535e-4340-956c-a476b41d7b3a\" />\r\n",
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/index.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/particleClampBlock.ts",
+                    "packages/tools/nodeParticleEditor/src/blockTools.ts",
+                    "packages/tools/nodeParticleEditor/src/components/nodeList/nodeListComponent.tsx",
+                    "packages/tools/nodeParticleEditor/src/components/propertyTab/properties/color3PropertyTabComponent.tsx"
+                ],
+                "tags": [
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17672",
+                "title": "Allow vector3 UI to let the user pick value from a color",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/tools/nodeParticleEditor/src/components/propertyTab/properties/vector3PropertyTabComponent.tsx"
+                ],
+                "tags": [
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17664",
+                "title": "Add SpriteManager snippet server save/load. Refactor particleSystemProperties to use same snippet utils",
+                "description": "- Adds spriteManager saveToSnippet/loadFromSnippet functionality\r\n- Refactors particelSystemProperties to use shared snippet utils which use fetch instead of xmlhttp\r\n- Fixes a bug where particle system loading snippet would append to existing particle system vs replacing current particle system with the one from the snippet\r\n- Updates shadowgeneratormaxz default (comment from another PR)\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/lights/shadowGeneratorProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/particles/particleSystemProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/sprites/spriteManagerProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/particleSystemPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/spritePropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/utils/snippetUtils.ts"
+                ],
+                "tags": [
+                    "tools"
+                ]
+            },
+            {
+                "pr": "17666",
+                "title": "Texture preview transparent",
+                "description": "<img width=\"236\" height=\"350\" alt=\"image\" src=\"https://github.com/user-attachments/assets/bd865801-3747-4402-9cd9-4a77163f19f9\" />\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/textures/texturePreview.tsx"
+                ],
+                "tags": [
+                    "tools"
+                ]
+            },
+            {
+                "pr": "17669",
+                "title": "Only warn once when audio param ramp fails on Firefox",
+                "description": null,
+                "author": {
+                    "name": "docEdub",
+                    "url": "https://github.com/docEdub"
+                },
+                "files": [
+                    "packages/dev/core/src/AudioV2/webAudio/components/webAudioParameterComponent.ts"
+                ],
+                "tags": [
+                    "audio",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "17668",
+                "title": "Inspector v2: Gui in scene explorer + launch gui editor",
+                "description": "This PR adds more support for Gui in Inspector v2:\r\n- Gui hierarchy in Scene Explorer\r\n- Scene explorer commands for highlighting and hiding controls\r\n- Property pane button for launching Gui Editor\r\n\r\nFor the Gui Editor, this is implemented the way [I wanted to implement it for node editors](https://github.com/BabylonJS/Babylon.js/pull/17646), where GuiEditor is simply dynamically imported, and is a peerDependency of Inspector v2 (making it automatic and lazy). This works because we don't seem to have the same build configuration bugs for gui editor that we do with the node editors. Tested a standalone umd test app, standalone es test app, and Playground via dev server.\r\n\r\n<img width=\"343\" height=\"179\" alt=\"image\" src=\"https://github.com/user-attachments/assets/51e1d076-8cae-4d9b-a3f1-614a1fc3d373\" />\r\n\r\nNote that I also needed to fix a build issue where we try to do path mapping to individual files even for es packages that we bundle. Now, for bundled es packages, the path mapping just resolves to the top level package (since there is just one bundle file which is the entry point for the package).\r\n\r\nIt does not add all the properties for Controls that are present in Inspector v1. Still talking with @PatrickRyanMS about which we need without being redundant with what is already easily editable through the Gui Editor.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/buildTools/src/packageMapping.ts",
+                    "packages/dev/buildTools/src/pathTransform.ts",
+                    "packages/dev/inspector-v2/package.json",
+                    "packages/dev/inspector-v2/src/components/properties/textures/advancedDynamicTextureProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/textures/baseTextureProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/texturePropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/defaultSectionsMetadata.ts",
+                    "packages/dev/inspector-v2/src/services/panes/scene/guiExplorerService.tsx",
+                    "packages/dev/inspector-v2/test/app/index.tsx",
+                    "packages/dev/inspector-v2/webpack.config.js",
+                    "packages/public/@babylonjs/inspector-v2/package.json"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "17665",
+                "title": "Fix Gradient UX",
+                "description": "Before:\r\n<img width=\"441\" height=\"407\" alt=\"image\" src=\"https://github.com/user-attachments/assets/d4abad5b-7994-4551-b19b-c494bd603803\" />\r\n\r\nAfter:\r\n<img width=\"364\" height=\"295\" alt=\"image\" src=\"https://github.com/user-attachments/assets/0b39783a-c76f-4268-bbf5-7652eff6ffac\" />\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/gradient.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/syncedSlider.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "tools"
+                ]
+            },
+            {
+                "pr": "17663",
+                "title": "Add missing Physics properties",
+                "description": "shape, friction, and restitution",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/physics/physicsProperties.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "tools"
+                ]
+            }
+        ],
+        "8.45.4": [
+            {
+                "pr": "17662",
+                "title": "Fix double subset of indices with non-zero verticesStart",
+                "description": "Fixes https://forum.babylonjs.com/t/exporting-to-gltf-in-new-version-causing-an-error-on-importing-from-blender/62030/4. When offset !== 0, indices were being subsected twice: once to generate the newIndices, and again while calling IndicesArrayToTypedSubarray.",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/serializers/src/glTF/2.0/glTFExporter.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17661",
+                "title": "Viewer: Add support for querying hotspots when multiple models are loaded",
+                "description": "The main change here is to add the ability to query hotspots when multiple models are simultaneously loaded through the protected interface.\r\n- Change the protected `_getHotSpotToRef` function to accept either an `AssetContainer` (former API) or a `AbstractMesh[]`.\r\n- Change the public `getHotSpotToRef` to call `_getHotSpotToRef` function with `this._loadedModels.flatMap((model) => model.assetContainer.meshes)` instead of `this._activeModel.assetContainer.meshes`.\r\n\r\nThis is backward compatible from an API and behavior standpoint. The API is a superset, and if you only load one model the flat index is the same as the index into the single model.\r\n\r\nSome other small changes included in this PR:\r\n- Removed all the `@experimental` flags on the doc comments. The low level `Viewer` and the protected API are stable enough, and we have several users heavily invested in these layers, so we aren't going to change them in a breaking way going forward.\r\n- Switched the test app to use Inspector v2.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/tools/viewer/src/viewer.ts",
+                    "packages/tools/viewer/src/viewerElement.ts",
+                    "packages/tools/viewer/src/viewerFactory.ts",
+                    "packages/tools/viewer/test/apps/web/index.html"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17647",
+                "title": "Disable Depth sort flag",
+                "description": "- Disable sorting flag\r\n- Added missing texture format for Native\r\n- Native sorting function definition",
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "packages/dev/core/src/Engines/Native/nativeHelpers.ts",
+                    "packages/dev/core/src/Engines/Native/nativeInterfaces.ts",
+                    "packages/dev/core/src/Meshes/GaussianSplatting/gaussianSplattingMesh.ts"
+                ],
+                "tags": [
+                    "Gaussian Splatting"
+                ]
+            },
+            {
+                "pr": "17659",
+                "title": "Fix vertex count in sorting worker",
+                "description": "It seems to me that `vertexCountPadded` was 4 times the number of vertices, leading to wasteful evaluation of projected positions.\r\n\r\nThis needs a second pair of eyes to look at it though, as I am not an expert in the codebase.",
+                "author": {
+                    "name": "eliemichel",
+                    "url": "https://github.com/eliemichel"
+                },
+                "files": [
+                    "packages/dev/core/src/Meshes/GaussianSplatting/gaussianSplattingMesh.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17654",
+                "title": "Shadow generator, DirectionalLight setup/debug properties",
+                "description": "- fix bug where nodeselector crashes if an entity's name is not a string (which is the case in shadow generator-- the names are numbers). also improves the UX of inspector since scene explorer shows numbers and not 'no name'\r\n- add in the shadowgenerator / cascadedshadowgenerator properties\r\n\r\n<img width=\"276\" height=\"652\" alt=\"image\" src=\"https://github.com/user-attachments/assets/e426f819-8f9b-4835-bd47-b4ac1c985aa0\" />\r\n<img width=\"242\" height=\"677\" alt=\"image\" src=\"https://github.com/user-attachments/assets/6b0c232a-5309-42b1-89b3-979405b2c258\" />\r\n\r\n- add in the directional light frustum debugging functionality\r\n- \r\n<img width=\"213\" height=\"398\" alt=\"image\" src=\"https://github.com/user-attachments/assets/518627f6-2fb7-4c9b-9acf-7b5290f8f070\" />\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/lights/directionalLightProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/lights/shadowGeneratorProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/lightPropertiesServices.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/entitySelector.tsx"
+                ],
+                "tags": [
+                    "tools"
+                ]
+            },
+            {
+                "pr": "17660",
+                "title": "FrameGraph: switch to v1",
+                "description": "Here it is!",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/FrameGraph/Node/nodeRenderGraph.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraph.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphObjectList.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphRenderContext.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphRenderTarget.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphTask.ts",
+                    "packages/dev/core/src/FrameGraph/frameGraphTextureManager.ts",
+                    "packages/dev/inspector/src/components/sceneExplorer/sceneExplorerComponent.tsx",
+                    "packages/tools/nodeRenderGraphEditor/src/nodeRenderGraphEditor.ts"
+                ],
+                "tags": [
+                    "new feature",
+                    "frame graph"
+                ]
+            },
+            {
+                "pr": "17658",
+                "title": "Fix \"ShowInspector is not defined\" error in Test App",
+                "description": null,
+                "author": {
+                    "name": "aknshr",
+                    "url": "https://github.com/aknshr"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/test/app/index.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17657",
+                "title": "Add Vector3.Distance",
+                "description": "- Adds a new Vector3.Distance operation\r\n- Fixes issues with input/output type for the VectorMath block.",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/particleVectorMathBlock.ts",
+                    "packages/tools/nodeParticleEditor/src/blockTools.ts",
+                    "packages/tools/nodeParticleEditor/src/components/nodeList/nodeListComponent.tsx"
+                ],
+                "tags": [
+                    "bug",
+                    "enhancement",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17655",
+                "title": "QuaternionPropertyLine Rad/Deg label",
+                "description": "should say 'rad' or 'deg' based on whether or not 'useDegrees' setting is enabled",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/vectorPropertyLine.tsx"
+                ],
+                "tags": [
+                    "tools"
+                ]
+            },
+            {
+                "pr": "17653",
+                "title": "Inspector v2: Add support for launching node editors (legacy path)",
+                "description": "Tried to get this to work without the legacy path in [this PR](https://github.com/BabylonJS/Babylon.js/pull/17646), but couldn't get it to work. Need to revisit post 9.0 or if I get time. For now, we will rely on the legacy path, which means users will need to know they have to npm install the various node editor packages and explicitly import the legacy file with the needed side effects.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/commonGeneralProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/frameGraph/frameGraphProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/materials/nodeMaterialProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/nodes/meshProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/particles/attractorList.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/particles/particleSystemProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/materialPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/nodePropertiesService.tsx",
+                    "packages/dev/inspector-v2/test/app/index.tsx",
+                    "packages/dev/inspector-v2/webpack.config.js",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/button.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "17650",
+                "title": "Add useEuler setting",
+                "description": "If enabled, will use vectorpropertyline for rotation properties. Otherwise, use quaternions\r\n<img width=\"202\" height=\"158\" alt=\"image\" src=\"https://github.com/user-attachments/assets/be6d6f2f-53cc-42a8-a93d-7c38c6b99eab\" />\r\n<img width=\"193\" height=\"66\" alt=\"image\" src=\"https://github.com/user-attachments/assets/b5e09033-f9f0-4000-9710-19f8fe41cd4f\" />\r\n<img width=\"197\" height=\"83\" alt=\"image\" src=\"https://github.com/user-attachments/assets/b80fbea6-6021-4545-aede-507d92ae9034\" />\r\n\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/cameras/freeCameraProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/transformProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/settingsService.tsx",
+                    "packages/dev/inspector-v2/src/services/settingsContext.ts",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/vectorPropertyLine.tsx"
+                ],
+                "tags": [
+                    "tools"
+                ]
+            },
+            {
+                "pr": "17652",
+                "title": "Handle undefined in setupInputs",
+                "description": "Prevent accessing property of an undefined value in `TouchCamera._setupInputs`. This can happen when parsing a serialized FreeCamera with no attached inputs.",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/core/src/Cameras/touchCamera.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17649",
+                "title": "Various missing properties in debug, stats, camera, and abstractmesh components",
+                "description": null,
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/debug/debugPane.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/cameras/freeCameraProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/nodes/abstractMeshProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/stats/frameStepStats.tsx"
+                ],
+                "tags": [
+                    "tools"
+                ]
+            },
+            {
+                "pr": "17651",
+                "title": "PropertyLine uses shared InfoLabel component",
+                "description": "Replace usage of fluent's infoLabel with the shared infoLabel component. \r\n\r\nAlso add clearer description of FaceCulling property",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/materials/materialProperties.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/propertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/infoLabel.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/link.tsx"
+                ],
+                "tags": [
+                    "tools"
+                ]
+            },
+            {
+                "pr": "17648",
+                "title": "Adding emitterPosition to systemBlock",
+                "description": "- Adding emitterPositon (Vector3) to SystemBlock\r\n- Supporting migrating emitter from particle system to emitterPosition in NPE.\r\n\r\nPG to test: #OOQZNY\r\n<img width=\"361\" height=\"382\" alt=\"image\" src=\"https://github.com/user-attachments/assets/b354d0df-ad62-41c3-b15c-90e62d9bd5d6\" />\r\n",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/systemBlock.ts",
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.helper.ts"
+                ],
+                "tags": [
+                    "enhancement",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17645",
+                "title": "Migrating flowmap to NPE",
+                "description": "- Adds migration for flowmap\r\n- Makes strength an input expecting a block, so it can be controlled by the inspector later on (and works like UpdateAttractor strength)\r\n\r\nPG to test: #M58G3X#3, #PPC2EI#2\r\n\r\n<img width=\"1998\" height=\"1405\" alt=\"image\" src=\"https://github.com/user-attachments/assets/676d7fba-ee3d-480d-ae51-f367740745ae\" />",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/Update/updateFlowMapBlock.ts",
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.helper.ts",
+                    "packages/tools/nodeParticleEditor/src/graphSystem/registerToPropertyLedger.ts"
+                ],
+                "tags": [
+                    "enhancement",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17643",
+                "title": "Migrating attractors",
+                "description": "Adds attractors to the migration tool.\r\nAdds some missing docs for the linter.\r\n\r\nPG to test: #DEZ79M#72\r\n<img width=\"1578\" height=\"1254\" alt=\"image\" src=\"https://github.com/user-attachments/assets/3deea5a4-55c4-4973-8dd0-7901bfff70c3\" />\r\n",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.helper.ts",
+                    "packages/dev/core/src/Particles/baseParticleSystem.ts",
+                    "packages/dev/core/src/Particles/particleSystem.ts",
+                    "packages/dev/core/src/Particles/thinParticleSystem.ts",
+                    "packages/tools/nodeParticleEditor/src/graphSystem/registerToDisplayLedger.ts"
+                ],
+                "tags": [
+                    "enhancement",
+                    "npe"
+                ]
+            }
+        ],
         "8.45.3": [
             {
                 "pr": "17640",
