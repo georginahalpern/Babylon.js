@@ -24,6 +24,8 @@ export class GeospatialLimits {
      * in pinch mode.
      */
     public pinchToPanMax: number = 20;
+    /** Defines the delay (in frames) before considering a pinch gesture */
+    public pinchFrameDelay: number = 20;
 
     /**
      * @param planetRadius The radius of the planet

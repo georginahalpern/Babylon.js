@@ -143,10 +143,10 @@ export class GeospatialCameraPointersInput extends OrbitCameraPointersInput {
         const cumulativePinchDelta = Math.abs(Math.sqrt(pinchSquaredDistance) - Math.sqrt(this._initialPinchSquaredDistance));
 
         // Determine if we should zoom: either already pinching, or pinch delta exceeds threshold early in gesture
-        const shouldZoom = this._isPinching || (this._twoFingerActivityCount < 20 && cumulativePinchDelta > this.camera.limits.pinchToPanMax);
+        const shouldZoom = this._isPinching || (this._twoFingerActivityCount < this.camera.limits.pinchFrameDelay && cumulativePinchDelta > this.camera.limits.pinchToPanMax);
 
         // Only allow pan after we've passed the decision window AND decided not to zoom
-        const shouldPan = this._twoFingerActivityCount >= 20 && !shouldZoom;
+        const shouldPan = this._twoFingerActivityCount >= this.camera.limits.pinchFrameDelay && !shouldZoom;
 
         this._shouldStartPinchZoom = shouldZoom;
 
