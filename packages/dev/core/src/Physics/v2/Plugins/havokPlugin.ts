@@ -42,8 +42,7 @@ import type { ProximityCastResult } from "../../proximityCastResult";
 import type { IPhysicsShapeProximityCastQuery } from "../../physicsShapeProximityCastQuery";
 import type { IPhysicsShapeCastQuery } from "../../physicsShapeCastQuery";
 import type { ShapeCastResult } from "../../shapeCastResult";
-// FloatingOriginCurrentScene import removed - floating origin is disabled for physics
-// because the offset is camera-based and changes each frame, which is incompatible with physics simulation
+import { FloatingOriginCurrentScene } from "../../../Materials/floatingOriginMatrixOverrides";
 declare let HK: any;
 
 /**
@@ -322,18 +321,20 @@ export class HavokPlugin implements IPhysicsEnginePluginV2 {
 
     /**
      * Gets the floating origin offset from a specific scene.
+     * Falls back to FloatingOriginCurrentScene if no scene passed.
      * Forces the camera's world matrix to be computed if needed, since globalPosition
      * is only updated after getViewMatrix() is called during render.
-     * @param scene - The scene to get the offset from
+     * @param scene - The scene to get the offset from (optional, uses FloatingOriginCurrentScene if not provided)
      * @returns The floating origin offset, or Vector3.ZeroReadOnly if none exists
      */
     private _getFloatingOriginOffset(scene?: Scene): Vector3 {
-        if (scene?.floatingOriginMode && scene.activeCamera) {
+        const targetScene = scene ?? FloatingOriginCurrentScene.getScene();
+        if (targetScene?.floatingOriginMode && targetScene.activeCamera) {
             // Force compute the camera's world matrix to ensure globalPosition is up to date
             // This is necessary because globalPosition is only updated during render loop
-            scene.activeCamera.getWorldMatrix();
+            targetScene.activeCamera.getWorldMatrix();
         }
-        return scene?.floatingOriginOffset ?? Vector3.ZeroReadOnly;
+        return targetScene?.floatingOriginOffset ?? Vector3.ZeroReadOnly;
     }
     /**
      * Observable for collision started and collision continued events
@@ -512,16 +513,15 @@ export class HavokPlugin implements IPhysicsEnginePluginV2 {
      * @param motionType - The motion type of the body.
      * @param position - The position of the body.
      * @param orientation - The orientation of the body.
-     * @param scene - The scene the body belongs to.
      * This code is useful for initializing a physics body with the given position and orientation.
      * It creates a plugin data for the body and adds it to the world. It then converts the position
      * and orientation to a transform and sets the body's transform to the given values.
      */
-    public initBody(body: PhysicsBody, motionType: PhysicsMotionType, position: Vector3, orientation: Quaternion, scene: Scene): void {
+    public initBody(body: PhysicsBody, motionType: PhysicsMotionType, position: Vector3, orientation: Quaternion): void {
         body._pluginData = new BodyPluginData(this._hknp.HP_Body_Create()[1]);
 
         this._internalSetMotionType(body._pluginData, motionType);
-        const offset = this._getFloatingOriginOffset(scene);
+        const offset = this._getFloatingOriginOffset();
         // Store the offset used during init so we can use the same offset when syncing back
         body._pluginData.floatingOriginOffset.copyFrom(offset);
         const transform = [[position._x - offset._x, position._y - offset._y, position._z - offset._z], this._bQuatToV4(orientation)];
@@ -557,7 +557,6 @@ export class HavokPlugin implements IPhysicsEnginePluginV2 {
      * @param body - The physics body to initialize.
      * @param motionType - How the body will be handled by the engine
      * @param mesh - The mesh to initialize.
-     * @param scene - The scene the body belongs to.
      *
      * This code is useful for creating a physics body from a mesh. It creates a
      * body instance for each instance of the mesh and adds it to the world. It also
@@ -565,13 +564,13 @@ export class HavokPlugin implements IPhysicsEnginePluginV2 {
      * This allows for the physics engine to accurately simulate the mesh in the
      * world.
      */
-    public initBodyInstances(body: PhysicsBody, motionType: PhysicsMotionType, mesh: Mesh, scene: Scene): void {
+    public initBodyInstances(body: PhysicsBody, motionType: PhysicsMotionType, mesh: Mesh): void {
         const instancesCount = mesh._thinInstanceDataStorage?.instancesCount ?? 0;
         const matrixData = mesh._thinInstanceDataStorage.matrixData;
         if (!matrixData) {
             return; // TODO: error handling
         }
-        this._createOrUpdateBodyInstances(body, motionType, matrixData, 0, instancesCount, false, scene);
+        this._createOrUpdateBodyInstances(body, motionType, matrixData, 0, instancesCount, false);
         for (let index = 0; index < body._pluginDataInstances.length; index++) {
             const bodyId = body._pluginDataInstances[index];
             this._bodies.set(bodyId.hpBodyId[0], { body: body, index: index });
