@@ -119,6 +119,11 @@ export class GeospatialCameraMovement extends CameraMovement {
                 const delta = this._dragPlaneHitPointLocal.subtractToRef(this._previousDragPlaneHitPointLocal, TmpVectors.Vector3[6]);
                 this._previousDragPlaneHitPointLocal.copyFrom(this._dragPlaneHitPointLocal);
 
+                // Clamp delta to prevent wild jumps when ray is nearly parallel to drag plane
+                const maxDelta = this._hitPointRadius * 0.1; // 10% of radius
+                if (delta.lengthSquared() > maxDelta * maxDelta) {
+                    delta.normalize().scaleInPlace(maxDelta);
+                }
                 Vector3.TransformNormalToRef(delta, localToEcef, delta);
                 this._dragPlaneOriginPointEcef.addInPlace(delta);
 
