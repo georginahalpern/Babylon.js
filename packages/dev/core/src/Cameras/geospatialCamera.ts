@@ -408,7 +408,7 @@ export class GeospatialCamera extends Camera {
      * Apply zoom by moving the camera toward/away from a target point.
      */
     private _applyZoom() {
-        let zoomDelta = this.movement.zoomDeltaCurrentFrame;
+        const zoomDelta = this.movement.zoomDeltaCurrentFrame;
         const pickedPoint = this.movement.computedPerFrameZoomPickPoint;
 
         if (pickedPoint) {
