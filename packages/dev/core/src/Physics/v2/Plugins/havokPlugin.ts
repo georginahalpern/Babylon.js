@@ -577,19 +577,11 @@ export class HavokPlugin implements IPhysicsEnginePluginV2 {
         }
     }
 
-    private _createOrUpdateBodyInstances(
-        body: PhysicsBody,
-        motionType: PhysicsMotionType,
-        matrixData: Float32Array,
-        startIndex: number,
-        endIndex: number,
-        update: boolean,
-        scene?: Scene
-    ): void {
+    private _createOrUpdateBodyInstances(body: PhysicsBody, motionType: PhysicsMotionType, matrixData: Float32Array, startIndex: number, endIndex: number, update: boolean): void {
         const rotation = TmpVectors.Quaternion[0];
         const rotationMatrix = Matrix.Identity();
         // Subtract floating origin offset so Havok works with smaller coordinates
-        const offset = this._getFloatingOriginOffset(scene ?? body.transformNode?.getScene());
+        const offset = this._getFloatingOriginOffset(body.transformNode?.getScene());
         for (let i = startIndex; i < endIndex; i++) {
             const position = [matrixData[i * 16 + 12] - offset._x, matrixData[i * 16 + 13] - offset._y, matrixData[i * 16 + 14] - offset._z];
             let hkbody;
