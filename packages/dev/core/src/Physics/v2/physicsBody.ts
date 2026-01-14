@@ -123,14 +123,14 @@ export class PhysicsBody {
         // instances?
         const m = transformNode as Mesh;
         if (m.hasThinInstances) {
-            this._physicsPlugin.initBodyInstances(this, motionType, m);
+            this._physicsPlugin.initBodyInstances(this, motionType, m, scene);
         } else {
             // single instance
             if (transformNode.parent) {
                 // Force computation of world matrix so that the parent transforms are correctly reflected in absolutePosition/absoluteRotationQuaternion.
                 transformNode.computeWorldMatrix(true);
             }
-            this._physicsPlugin.initBody(this, motionType, transformNode.absolutePosition, transformNode.absoluteRotationQuaternion);
+            this._physicsPlugin.initBody(this, motionType, transformNode.absolutePosition, transformNode.absoluteRotationQuaternion, scene);
         }
         this.transformNode = transformNode;
         transformNode.physicsBody = this;

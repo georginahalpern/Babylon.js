@@ -10,6 +10,7 @@ import type { Mesh } from "../../Meshes/mesh";
 import type { Nullable } from "../../types";
 import type { Observable } from "../../Misc/observable";
 import type { GroundMesh } from "../../Meshes/groundMesh";
+import type { Scene } from "../../scene";
 
 /** How a specific axis can be constrained */
 export const enum PhysicsConstraintAxisLimitMode {
@@ -411,8 +412,8 @@ export interface IPhysicsEnginePluginV2 {
     getMaxAngularVelocity(): number;
 
     // body
-    initBody(body: PhysicsBody, motionType: PhysicsMotionType, position: Vector3, orientation: Quaternion): void;
-    initBodyInstances(body: PhysicsBody, motionType: PhysicsMotionType, mesh: Mesh): void;
+    initBody(body: PhysicsBody, motionType: PhysicsMotionType, position: Vector3, orientation: Quaternion, scene: Scene): void;
+    initBodyInstances(body: PhysicsBody, motionType: PhysicsMotionType, mesh: Mesh, scene: Scene): void;
     updateBodyInstances(body: PhysicsBody, mesh: Mesh): void;
     removeBody(body: PhysicsBody): void;
     sync(body: PhysicsBody): void;
