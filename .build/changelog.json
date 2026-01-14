@@ -1,45 +1,128 @@
 {
-    "fromTag": "8.45.3",
+    "fromTag": "8.45.4",
     "changelog": {
-        "8.45.3": [
+        "8.45.5": [
             {
-                "pr": "17640",
-                "title": "Fix localVariableBlock",
+                "pr": "17673",
+                "title": "Issues with remap block",
+                "description": "Remap was missing from index.ts and BlockTools, so it could be created programatically by code, but not by using the editor.",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/index.ts",
+                    "packages/tools/nodeParticleEditor/src/blockTools.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17634",
+                "title": "Thin native engine",
+                "description": null,
+                "author": {
+                    "name": "sebavan",
+                    "url": "https://github.com/sebavan"
+                },
+                "files": [
+                    "packages/dev/core/src/Engines/AbstractEngine/abstractEngine.loadFile.ts",
+                    "packages/dev/core/src/Engines/AbstractEngine/abstractEngine.textureLoaders.ts",
+                    "packages/dev/core/src/Engines/AbstractEngine/index.ts",
+                    "packages/dev/core/src/Engines/Native/Extensions/index.ts",
+                    "packages/dev/core/src/Engines/Native/Extensions/nativeEngine.cubeTexture.ts",
+                    "packages/dev/core/src/Engines/Native/nativePipelineContext.ts",
+                    "packages/dev/core/src/Engines/Native/nativeRenderTargetWrapper.ts",
+                    "packages/dev/core/src/Engines/Native/validatedNativeDataStream.ts",
+                    "packages/dev/core/src/Engines/abstractEngine.ts",
+                    "packages/dev/core/src/Engines/engine.ts",
+                    "packages/dev/core/src/Engines/index.ts",
+                    "packages/dev/core/src/Engines/nativeEngine.ts",
+                    "packages/dev/core/src/Engines/nullEngine.ts",
+                    "packages/dev/core/src/Engines/thinNativeEngine.ts",
+                    "packages/dev/core/src/Engines/webgpuEngine.ts",
+                    "packages/dev/core/src/Misc/tools.ts",
+                    "packages/dev/core/src/XR/native/nativeXRFrame.ts"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "17671",
+                "title": "Add support for clamp node for NPE",
+                "description": "<img width=\"747\" height=\"372\" alt=\"image\" src=\"https://github.com/user-attachments/assets/58583075-535e-4340-956c-a476b41d7b3a\" />\r\n",
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/index.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/particleClampBlock.ts",
+                    "packages/tools/nodeParticleEditor/src/blockTools.ts",
+                    "packages/tools/nodeParticleEditor/src/components/nodeList/nodeListComponent.tsx",
+                    "packages/tools/nodeParticleEditor/src/components/propertyTab/properties/color3PropertyTabComponent.tsx"
+                ],
+                "tags": [
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17672",
+                "title": "Allow vector3 UI to let the user pick value from a color",
                 "description": null,
                 "author": {
                     "name": "deltakosh",
                     "url": "https://github.com/deltakosh"
                 },
                 "files": [
-                    ".build/config.json",
-                    "packages/dev/core/src/Particles/Node/Blocks/particleLocalVariableBlock.ts",
-                    "packages/dev/core/src/Particles/particle.ts"
+                    "packages/tools/nodeParticleEditor/src/components/propertyTab/properties/vector3PropertyTabComponent.tsx"
                 ],
                 "tags": [
-                    "skip changelog",
                     "npe"
                 ]
             },
             {
-                "pr": "17642",
-                "title": "Update pinchToZoom to zoom towards center of pinch and be more forgiving of slow gestures",
-                "description": "- Rather than updating radius directly, use existing zoomToPoint logic to zoom towards center of 2 fingers\r\n- Rather than using per-frame deltas to determine gesture (pinch to zoom vs multitouch pan) , capture _initialPinchSquaredDistance when the gesture starts and compare against that for threshold detection (its more forgiving so that user has a bit more time to initiate a zoom or pan gesture)",
+                "pr": "17664",
+                "title": "Add SpriteManager snippet server save/load. Refactor particleSystemProperties to use same snippet utils",
+                "description": "- Adds spriteManager saveToSnippet/loadFromSnippet functionality\r\n- Refactors particelSystemProperties to use shared snippet utils which use fetch instead of xmlhttp\r\n- Fixes a bug where particle system loading snippet would append to existing particle system vs replacing current particle system with the one from the snippet\r\n- Updates shadowgeneratormaxz default (comment from another PR)\r\n",
                 "author": {
                     "name": "georginahalpern",
                     "url": "https://github.com/georginahalpern"
                 },
                 "files": [
-                    "packages/dev/core/src/Cameras/Inputs/geospatialCameraPointersInput.ts",
-                    "packages/dev/core/src/Cameras/geospatialCamera.ts"
+                    "packages/dev/inspector-v2/src/components/properties/lights/shadowGeneratorProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/particles/particleSystemProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/sprites/spriteManagerProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/particleSystemPropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/spritePropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/utils/snippetUtils.ts"
                 ],
                 "tags": [
-                    "camera"
+                    "tools"
                 ]
             },
             {
-                "pr": "17641",
-                "title": "Do not attempt fallback when audio parameter `setValueCurveAtTime` fails",
-                "description": "Firefox does not always cancel audio parameter curves when `cancelScheduledValues(0)` is called, which causes `setValueCurveAtTime` to throw an error. This happens rarely and a fallback is in place to set the volume without ramping, but that also fails on Firefox.\r\n\r\nThis change removes the fallback and only logs a warning in the rare case when Firefox throws an error.\r\n\r\nFor future reference, this PG repros the issue fairly consistently:\r\nhttps://playground.babylonjs.com/#P1FP6L",
+                "pr": "17666",
+                "title": "Texture preview transparent",
+                "description": "<img width=\"236\" height=\"350\" alt=\"image\" src=\"https://github.com/user-attachments/assets/bd865801-3747-4402-9cd9-4a77163f19f9\" />\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/textures/texturePreview.tsx"
+                ],
+                "tags": [
+                    "tools"
+                ]
+            },
+            {
+                "pr": "17669",
+                "title": "Only warn once when audio param ramp fails on Firefox",
+                "description": null,
                 "author": {
                     "name": "docEdub",
                     "url": "https://github.com/docEdub"
@@ -47,46 +130,67 @@
                 "files": [
                     "packages/dev/core/src/AudioV2/webAudio/components/webAudioParameterComponent.ts"
                 ],
-                "tags": []
-            },
-            {
-                "pr": "17635",
-                "title": "Billboard support",
-                "description": "- Adds support for Billboard in NPE and migration.\r\n- Fixes an issue when selecting values on a drop down when the values are not zero-based and sequential.\r\n\r\nPG to test: #T3ZCP7#4, #XWG0HV#3, #XPVJMM#1\r\n<img width=\"1468\" height=\"1562\" alt=\"image\" src=\"https://github.com/user-attachments/assets/6b32f677-c004-4894-994b-c905942eab32\" />\r\n",
-                "author": {
-                    "name": "VicenteCartas",
-                    "url": "https://github.com/VicenteCartas"
-                },
-                "files": [
-                    "packages/dev/core/src/Particles/Node/Blocks/systemBlock.ts",
-                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.helper.ts",
-                    "packages/dev/core/src/Particles/baseParticleSystem.ts",
-                    "packages/dev/sharedUiComponents/src/nodeGraphSystem/graphNode.ts"
-                ],
                 "tags": [
-                    "enhancement",
-                    "npe"
+                    "audio",
+                    "skip changelog"
                 ]
             },
             {
-                "pr": "17639",
-                "title": "Adds blocks for Pow and Dot operations",
-                "description": "Adds new math operations:\r\n- Pow: power between two numbers\r\n- Dot: the dot product of two Vector3\r\n\r\n<img width=\"1074\" height=\"1151\" alt=\"image\" src=\"https://github.com/user-attachments/assets/8e0dc779-b8ee-47d5-a53f-3c7f7ea7541e\" />\r\n",
+                "pr": "17668",
+                "title": "Inspector v2: Gui in scene explorer + launch gui editor",
+                "description": "This PR adds more support for Gui in Inspector v2:\r\n- Gui hierarchy in Scene Explorer\r\n- Scene explorer commands for highlighting and hiding controls\r\n- Property pane button for launching Gui Editor\r\n\r\nFor the Gui Editor, this is implemented the way [I wanted to implement it for node editors](https://github.com/BabylonJS/Babylon.js/pull/17646), where GuiEditor is simply dynamically imported, and is a peerDependency of Inspector v2 (making it automatic and lazy). This works because we don't seem to have the same build configuration bugs for gui editor that we do with the node editors. Tested a standalone umd test app, standalone es test app, and Playground via dev server.\r\n\r\n<img width=\"343\" height=\"179\" alt=\"image\" src=\"https://github.com/user-attachments/assets/51e1d076-8cae-4d9b-a3f1-614a1fc3d373\" />\r\n\r\nNote that I also needed to fix a build issue where we try to do path mapping to individual files even for es packages that we bundle. Now, for bundled es packages, the path mapping just resolves to the top level package (since there is just one bundle file which is the entry point for the package).\r\n\r\nIt does not add all the properties for Controls that are present in Inspector v1. Still talking with @PatrickRyanMS about which we need without being redundant with what is already easily editable through the Gui Editor.",
                 "author": {
-                    "name": "VicenteCartas",
-                    "url": "https://github.com/VicenteCartas"
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
                 },
                 "files": [
-                    "packages/dev/core/src/Particles/Node/Blocks/index.ts",
-                    "packages/dev/core/src/Particles/Node/Blocks/particleMathBlock.ts",
-                    "packages/dev/core/src/Particles/Node/Blocks/particleNumberMathBlock.ts",
-                    "packages/dev/core/src/Particles/Node/Blocks/particleVectorMathBlock.ts",
-                    "packages/tools/nodeParticleEditor/src/blockTools.ts",
-                    "packages/tools/nodeParticleEditor/src/components/nodeList/nodeListComponent.tsx"
+                    "packages/dev/buildTools/src/packageMapping.ts",
+                    "packages/dev/buildTools/src/pathTransform.ts",
+                    "packages/dev/inspector-v2/package.json",
+                    "packages/dev/inspector-v2/src/components/properties/textures/advancedDynamicTextureProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/textures/baseTextureProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/texturePropertiesService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/defaultSectionsMetadata.ts",
+                    "packages/dev/inspector-v2/src/services/panes/scene/guiExplorerService.tsx",
+                    "packages/dev/inspector-v2/test/app/index.tsx",
+                    "packages/dev/inspector-v2/webpack.config.js",
+                    "packages/public/@babylonjs/inspector-v2/package.json"
                 ],
                 "tags": [
-                    "enhancement",
-                    "npe"
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "17665",
+                "title": "Fix Gradient UX",
+                "description": "Before:\r\n<img width=\"441\" height=\"407\" alt=\"image\" src=\"https://github.com/user-attachments/assets/d4abad5b-7994-4551-b19b-c494bd603803\" />\r\n\r\nAfter:\r\n<img width=\"364\" height=\"295\" alt=\"image\" src=\"https://github.com/user-attachments/assets/0b39783a-c76f-4268-bbf5-7652eff6ffac\" />\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/gradient.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/syncedSlider.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "tools"
+                ]
+            },
+            {
+                "pr": "17663",
+                "title": "Add missing Physics properties",
+                "description": "shape, friction, and restitution",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/physics/physicsProperties.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "tools"
                 ]
             }
         ],
@@ -381,6 +485,95 @@
                     "packages/dev/core/src/Particles/particleSystem.ts",
                     "packages/dev/core/src/Particles/thinParticleSystem.ts",
                     "packages/tools/nodeParticleEditor/src/graphSystem/registerToDisplayLedger.ts"
+                ],
+                "tags": [
+                    "enhancement",
+                    "npe"
+                ]
+            }
+        ],
+        "8.45.3": [
+            {
+                "pr": "17640",
+                "title": "Fix localVariableBlock",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    ".build/config.json",
+                    "packages/dev/core/src/Particles/Node/Blocks/particleLocalVariableBlock.ts",
+                    "packages/dev/core/src/Particles/particle.ts"
+                ],
+                "tags": [
+                    "skip changelog",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17642",
+                "title": "Update pinchToZoom to zoom towards center of pinch and be more forgiving of slow gestures",
+                "description": "- Rather than updating radius directly, use existing zoomToPoint logic to zoom towards center of 2 fingers\r\n- Rather than using per-frame deltas to determine gesture (pinch to zoom vs multitouch pan) , capture _initialPinchSquaredDistance when the gesture starts and compare against that for threshold detection (its more forgiving so that user has a bit more time to initiate a zoom or pan gesture)",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/core/src/Cameras/Inputs/geospatialCameraPointersInput.ts",
+                    "packages/dev/core/src/Cameras/geospatialCamera.ts"
+                ],
+                "tags": [
+                    "camera"
+                ]
+            },
+            {
+                "pr": "17641",
+                "title": "Do not attempt fallback when audio parameter `setValueCurveAtTime` fails",
+                "description": "Firefox does not always cancel audio parameter curves when `cancelScheduledValues(0)` is called, which causes `setValueCurveAtTime` to throw an error. This happens rarely and a fallback is in place to set the volume without ramping, but that also fails on Firefox.\r\n\r\nThis change removes the fallback and only logs a warning in the rare case when Firefox throws an error.\r\n\r\nFor future reference, this PG repros the issue fairly consistently:\r\nhttps://playground.babylonjs.com/#P1FP6L",
+                "author": {
+                    "name": "docEdub",
+                    "url": "https://github.com/docEdub"
+                },
+                "files": [
+                    "packages/dev/core/src/AudioV2/webAudio/components/webAudioParameterComponent.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17635",
+                "title": "Billboard support",
+                "description": "- Adds support for Billboard in NPE and migration.\r\n- Fixes an issue when selecting values on a drop down when the values are not zero-based and sequential.\r\n\r\nPG to test: #T3ZCP7#4, #XWG0HV#3, #XPVJMM#1\r\n<img width=\"1468\" height=\"1562\" alt=\"image\" src=\"https://github.com/user-attachments/assets/6b32f677-c004-4894-994b-c905942eab32\" />\r\n",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/systemBlock.ts",
+                    "packages/dev/core/src/Particles/Node/nodeParticleSystemSet.helper.ts",
+                    "packages/dev/core/src/Particles/baseParticleSystem.ts",
+                    "packages/dev/sharedUiComponents/src/nodeGraphSystem/graphNode.ts"
+                ],
+                "tags": [
+                    "enhancement",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17639",
+                "title": "Adds blocks for Pow and Dot operations",
+                "description": "Adds new math operations:\r\n- Pow: power between two numbers\r\n- Dot: the dot product of two Vector3\r\n\r\n<img width=\"1074\" height=\"1151\" alt=\"image\" src=\"https://github.com/user-attachments/assets/8e0dc779-b8ee-47d5-a53f-3c7f7ea7541e\" />\r\n",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/index.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/particleMathBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/particleNumberMathBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/particleVectorMathBlock.ts",
+                    "packages/tools/nodeParticleEditor/src/blockTools.ts",
+                    "packages/tools/nodeParticleEditor/src/components/nodeList/nodeListComponent.tsx"
                 ],
                 "tags": [
                     "enhancement",
