@@ -5,43 +5,44 @@
  * preventing z-fighting artifacts and maximizing depth buffer precision for globe viewing.
  */
 
-import { Camera } from "@babylonjs/core";
-import { IVector3Like } from "../Maths/math.like";
+import type { Camera } from "../Cameras/camera";
+import type { IVector3Like } from "../Maths/math.like";
 
 /**
  * Configuration for WGS84 ellipsoid (Earth)
  */
-export interface WGS84Config {
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export type WGS84Config = {
     semiMajorAxis: number;
     semiMinorAxis: number;
     minElevation: number;
     nearMargin: number;
     farMargin: number;
-}
+};
 
 /**
  * Configuration for geospatial clip plane calculations
  */
-export interface GeospatialConfig {
+export type GeospatialConfig = {
     semiMajorAxis?: number;
     semiMinorAxis?: number;
     minElevation?: number;
     nearMargin?: number;
     farMargin?: number;
-}
+};
 
 /**
  * Result of clip plane calculations
  */
-export interface ClipPlanes {
+export type ClipPlanes = {
     near: number;
     far: number;
-}
+};
 
 /**
  * Debug information for clip plane calculations
  */
-export interface ClipPlaneDebugInfo {
+export type ClipPlaneDebugInfo = {
     distanceToCenter: string;
     latitude: string;
     elevation: string;
@@ -50,7 +51,7 @@ export interface ClipPlaneDebugInfo {
     near: string;
     far: string;
     ratio: string;
-}
+};
 
 const WGS84_CONFIG: WGS84Config = {
     semiMajorAxis: 6378137, // equatorial radius in meters
@@ -72,7 +73,7 @@ const WGS84_CONFIG: WGS84Config = {
  * @param semiMinorAxis - Semi-minor axis (polar radius)
  * @returns Effective radius at the given latitude
  */
-export function calculateEffectiveRadius(latitude: number, semiMajorAxis: number = WGS84_CONFIG.semiMajorAxis, semiMinorAxis: number = WGS84_CONFIG.semiMinorAxis): number {
+export function CalculateEffectiveRadius(latitude: number, semiMajorAxis: number = WGS84_CONFIG.semiMajorAxis, semiMinorAxis: number = WGS84_CONFIG.semiMinorAxis): number {
     const eSquared = 1 - semiMinorAxis ** 2 / semiMajorAxis ** 2;
     const sinPhiSquared = Math.sin(latitude) ** 2;
     return semiMajorAxis / Math.sqrt(1 - eSquared * sinPhiSquared);
@@ -91,13 +92,13 @@ export function calculateEffectiveRadius(latitude: number, semiMajorAxis: number
  * @param semiMinorAxis - Semi-minor axis
  * @returns Distance to horizon in meters
  */
-export function calculateHorizonDistance(
+export function CalculateHorizonDistance(
     latitude: number,
     elevation: number,
     semiMajorAxis: number = WGS84_CONFIG.semiMajorAxis,
     semiMinorAxis: number = WGS84_CONFIG.semiMinorAxis
 ): number {
-    const effectiveRadius = calculateEffectiveRadius(latitude, semiMajorAxis, semiMinorAxis);
+    const effectiveRadius = CalculateEffectiveRadius(latitude, semiMajorAxis, semiMinorAxis);
     return Math.sqrt(2 * effectiveRadius * elevation + elevation ** 2);
 }
 
@@ -110,7 +111,7 @@ export function calculateHorizonDistance(
  * @param semiMinorAxis - Semi-minor axis
  * @returns Latitude in radians
  */
-export function getLatitudeFromPosition(position: IVector3Like, semiMajorAxis: number = WGS84_CONFIG.semiMajorAxis, semiMinorAxis: number = WGS84_CONFIG.semiMinorAxis): number {
+export function GetLatitudeFromPosition(position: IVector3Like, semiMajorAxis: number = WGS84_CONFIG.semiMajorAxis, semiMinorAxis: number = WGS84_CONFIG.semiMinorAxis): number {
     // Normalize position to get surface normal direction using inverse radii squared
     const invRadiusSqX = 1 / semiMajorAxis ** 2;
     const invRadiusSqY = 1 / semiMajorAxis ** 2;
@@ -133,7 +134,7 @@ export function getLatitudeFromPosition(position: IVector3Like, semiMajorAxis: n
  * @param semiMinorAxis - Semi-minor axis
  * @returns Elevation above ellipsoid in meters
  */
-export function getElevationFromPosition(position: IVector3Like, semiMajorAxis: number = WGS84_CONFIG.semiMajorAxis, semiMinorAxis: number = WGS84_CONFIG.semiMinorAxis): number {
+export function GetElevationFromPosition(position: IVector3Like, semiMajorAxis: number = WGS84_CONFIG.semiMajorAxis, semiMinorAxis: number = WGS84_CONFIG.semiMinorAxis): number {
     // Scale position to unit sphere equivalent
     const scaledX = position.x / semiMajorAxis;
     const scaledY = position.y / semiMajorAxis;
@@ -160,7 +161,7 @@ export function getElevationFromPosition(position: IVector3Like, semiMajorAxis: 
  * @param config - Configuration object (uses WGS84 as default)
  * @returns Object with calculated {near, far} values
  */
-export function calculateOptimalClipPlanes(camera: Camera, config: GeospatialConfig = {}): ClipPlanes {
+export function CalculateOptimalClipPlanes(camera: Camera, config: GeospatialConfig = {}): ClipPlanes {
     const {
         semiMajorAxis = WGS84_CONFIG.semiMajorAxis,
         semiMinorAxis = WGS84_CONFIG.semiMinorAxis,
@@ -185,29 +186,13 @@ export function calculateOptimalClipPlanes(camera: Camera, config: GeospatialCon
 
     // Calculate the far plane using horizon distance
     // far = horizonDistance + maxRadius * farMargin
-    const latitude = getLatitudeFromPosition(cameraPosition, semiMajorAxis, semiMinorAxis);
-    const elevation = Math.max(getElevationFromPosition(cameraPosition, semiMajorAxis, semiMinorAxis), minElevation);
-    const horizonDistance = calculateHorizonDistance(latitude, elevation, semiMajorAxis, semiMinorAxis);
+    const latitude = GetLatitudeFromPosition(cameraPosition, semiMajorAxis, semiMinorAxis);
+    const elevation = Math.max(GetElevationFromPosition(cameraPosition, semiMajorAxis, semiMinorAxis), minElevation);
+    const horizonDistance = CalculateHorizonDistance(latitude, elevation, semiMajorAxis, semiMinorAxis);
     const farPlane = horizonDistance + 0.1 + maxRadius * farMargin;
 
     return {
         near: nearPlane,
         far: farPlane,
     };
-}
-
-/**
- * Apply optimal clip planes to a camera
- * Updates the camera's minZ and maxZ (near and far clip planes)
- *
- * @param camera - Babylon camera to update
- * @param config - Configuration object (same as calculateOptimalClipPlanes)
- * @returns Object with applied {near, far} values
- */
-export function applyOptimalClipPlanes(camera: Camera, config: GeospatialConfig = {}): ClipPlanes {
-    const { near, far } = calculateOptimalClipPlanes(camera, config);
-    camera.minZ = near;
-    camera.maxZ = far;
-
-    return { near, far };
 }
