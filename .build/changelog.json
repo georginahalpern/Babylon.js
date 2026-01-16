@@ -1,5 +1,5 @@
 {
-    "fromTag": "8.46.0",
+    "fromTag": "8.46.1",
     "changelog": {
         "8.46.1": [
             {
@@ -29,6 +29,66 @@
                 "tags": [
                     "enhancement",
                     "VR/AR/XR"
+                ]
+            }
+        ],
+        "8.46.2": [
+            {
+                "pr": "17689",
+                "title": "SSR fix",
+                "description": null,
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/lottiePlayer/src/blobWorkerWrapper.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17685",
+                "title": "Inspector v2: Node Material input properties",
+                "description": "This PR adds support for `InputBock`s in the properties of a `NodeMaterial`.\r\n- Updated `List` to pass through the original (before sorting) index of the item being removed or rendered. This makes it much easier to manage updates to the source list (unsorted).\r\n- Plumbed through the index passing in the various gradient list components.\r\n- Added various property lines for a NodeMaterial's InputBlocks as well as GradientBlocks (similar to inspector v1).\r\n\r\n<img width=\"341\" height=\"479\" alt=\"image\" src=\"https://github.com/user-attachments/assets/4099f1e5-d8cf-4820-ad23-f54b03e35c48\" />\r\n\r\n<img width=\"334\" height=\"139\" alt=\"image\" src=\"https://github.com/user-attachments/assets/a0b61d65-c382-4e6a-ae77-4d3b334eb337\" />\r\n",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/materials/nodeMaterialProperties.tsx",
+                    "packages/dev/inspector-v2/src/misc/arrayUtils.ts",
+                    "packages/dev/inspector-v2/src/services/panes/properties/materialPropertiesService.tsx",
+                    "packages/dev/inspector-v2/test/app/index.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/gradientList.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/list.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "17687",
+                "title": "RenderingPipeline properties",
+                "description": "Add missing properties for all of the RenderingPipelines \r\n<img width=\"214\" height=\"733\" alt=\"image\" src=\"https://github.com/user-attachments/assets/22342d42-c902-4e60-a27c-e62093b15083\" /><img width=\"218\" height=\"464\" alt=\"image\" src=\"https://github.com/user-attachments/assets/a2c8dda6-a133-41c9-aa9c-00d7d443d041\" /><img width=\"217\" height=\"707\" alt=\"image\" src=\"https://github.com/user-attachments/assets/9672f42d-3c29-42a7-bc09-d76c0755467f\" />\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/postProcesses/postProcessProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/renderingPipelines/defaultRenderingPipelineProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/renderingPipelines/iblShadowsRenderPipelineProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/renderingPipelines/lensRenderingPipelineProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/renderingPipelines/postProcessRenderPipelineProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/renderingPipelines/ssao2RenderingPipelineProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/renderingPipelines/ssaoRenderingPipelineProperties.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/renderingPipelines/ssrRenderingPipelineProperties.tsx",
+                    "packages/dev/inspector-v2/src/extensions/quickCreate/renderingPipelines.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/renderingPipelinePropertiesService.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "tools"
                 ]
             }
         ],
