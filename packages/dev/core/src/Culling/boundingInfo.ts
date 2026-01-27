@@ -196,6 +196,7 @@ export class BoundingInfo implements ICullable {
      * * BABYLON.AbstractMesh.CULLINGSTRATEGY_BOUNDINGSPHERE_ONLY faster but less accurate @see https://doc.babylonjs.com/typedoc/classes/BABYLON.AbstractMesh#CULLINGSTRATEGY_BOUNDINGSPHERE_ONLY
      * * BABYLON.AbstractMesh.CULLINGSTRATEGY_OPTIMISTIC_INCLUSION can be faster if always visible @see https://doc.babylonjs.com/typedoc/classes/BABYLON.AbstractMesh#CULLINGSTRATEGY_OPTIMISTIC_INCLUSION
      * * BABYLON.AbstractMesh.CULLINGSTRATEGY_OPTIMISTIC_INCLUSION_THEN_BSPHERE_ONLY can be faster if always visible @see https://doc.babylonjs.com/typedoc/classes/BABYLON.AbstractMesh#CULLINGSTRATEGY_OPTIMISTIC_INCLUSION_THEN_BSPHERE_ONLY
+     * * BABYLON.AbstractMesh.CULLINGSTRATEGY_OBB uses oriented bounding box for more accurate culling of rotated objects @see https://doc.babylonjs.com/typedoc/classes/BABYLON.AbstractMesh#CULLINGSTRATEGY_OBB
      * @returns true if the bounding info is in the frustum planes
      */
     public isInFrustum(frustumPlanes: Array<DeepImmutable<Plane>>, strategy: number = Constants.MESHES_CULLINGSTRATEGY_STANDARD): boolean {
@@ -215,6 +216,11 @@ export class BoundingInfo implements ICullable {
             strategy === Constants.MESHES_CULLINGSTRATEGY_BOUNDINGSPHERE_ONLY || strategy === Constants.MESHES_CULLINGSTRATEGY_OPTIMISTIC_INCLUSION_THEN_BSPHERE_ONLY;
         if (bSphereOnlyTest) {
             return true;
+        }
+
+        // OBB test uses oriented bounding box for more accurate culling of rotated objects
+        if (strategy === Constants.MESHES_CULLINGSTRATEGY_OBB) {
+            return this.boundingBox.isInFrustumObb(frustumPlanes);
         }
 
         return this.boundingBox.isInFrustum(frustumPlanes);

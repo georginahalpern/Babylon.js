@@ -293,6 +293,14 @@ export abstract class AbstractMesh extends TransformNode implements IDisposable,
      *  If not, apply the Bounding Sphere Only strategy. No Bounding Box is tested here.
      */
     public static readonly CULLINGSTRATEGY_OPTIMISTIC_INCLUSION_THEN_BSPHERE_ONLY = Constants.MESHES_CULLINGSTRATEGY_OPTIMISTIC_INCLUSION_THEN_BSPHERE_ONLY;
+    /** Culling strategy : OBB (Oriented Bounding Box).
+     *  This strategy uses the oriented bounding box for more accurate frustum culling of rotated objects.
+     *  It's more accurate than AABB-based tests for rotated meshes but slightly slower.
+     *  Test order:
+     *  Is the bounding sphere outside the frustum?
+     *  If not, is the OBB outside the frustum using SAT (Separating Axis Theorem)?
+     */
+    public static readonly CULLINGSTRATEGY_OBB = Constants.MESHES_CULLINGSTRATEGY_OBB;
 
     /**
      * No billboard
@@ -344,6 +352,7 @@ export abstract class AbstractMesh extends TransformNode implements IDisposable,
      * - AbstractMesh.CULLINGSTRATEGY_BOUNDINGSPHERE_ONLY
      * - AbstractMesh.CULLINGSTRATEGY_OPTIMISTIC_INCLUSION
      * - AbstractMesh.CULLINGSTRATEGY_OPTIMISTIC_INCLUSION_THEN_BSPHERE_ONLY
+     * - AbstractMesh.CULLINGSTRATEGY_OBB
      * Please read each static variable documentation to get details about the culling process.
      * */
     public cullingStrategy = AbstractMesh.CULLINGSTRATEGY_BOUNDINGSPHERE_ONLY;

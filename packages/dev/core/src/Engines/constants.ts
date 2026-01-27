@@ -660,6 +660,14 @@ export class Constants {
      *  If not, apply the Bounding Sphere Only strategy. No Bounding Box is tested here.
      */
     public static readonly MESHES_CULLINGSTRATEGY_OPTIMISTIC_INCLUSION_THEN_BSPHERE_ONLY = 3;
+    /** Culling strategy : OBB (Oriented Bounding Box).
+     *  This strategy uses the oriented bounding box for more accurate frustum culling of rotated objects.
+     *  It's more accurate than AABB-based tests for rotated meshes but slightly slower.
+     *  Test order:
+     *  Is the bounding sphere outside the frustum?
+     *  If not, is the OBB outside the frustum using SAT (Separating Axis Theorem)?
+     */
+    public static readonly MESHES_CULLINGSTRATEGY_OBB = 4;
 
     /**
      * No logging while loading

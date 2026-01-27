@@ -200,6 +200,16 @@ export class BoundingBox implements ICullable {
     }
 
     /**
+     * Tests if the bounding box is intersecting the frustum planes using OBB (Oriented Bounding Box)
+     * This is more accurate than the standard AABB test for rotated objects
+     * @param frustumPlanes defines the frustum planes to test
+     * @returns true if there is an intersection
+     */
+    public isInFrustumObb(frustumPlanes: Array<DeepImmutable<Plane>>): boolean {
+        return BoundingBox.IsObbInFrustum(this.centerWorld, this.extendSize, this.directions, frustumPlanes);
+    }
+
+    /**
      * Tests if the bounding box is entirely inside the frustum planes
      * @param frustumPlanes defines the frustum planes to test
      * @returns true if there is an inclusion
@@ -357,6 +367,43 @@ export class BoundingBox implements ICullable {
                 }
             }
             if (canReturnFalse) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Tests if an OBB (Oriented Bounding Box) intersects frustum planes using SAT (Separating Axis Theorem)
+     * This is more accurate than AABB tests for rotated objects
+     * @param center the center of the OBB in world space
+     * @param extendSize half the size of the extent (multiply by 2 for full size)
+     * @param directions the 3 OBB axis directions
+     * @param frustumPlanes defines the frustum planes to test
+     * @returns true if there is an intersection
+     */
+    public static IsObbInFrustum(
+        center: DeepImmutable<Vector3>,
+        extendSize: DeepImmutable<Vector3>,
+        directions: DeepImmutable<Vector3>[],
+        frustumPlanes: Array<DeepImmutable<Plane>>
+    ): boolean {
+        for (let p = 0; p < 6; ++p) {
+            const plane = frustumPlanes[p];
+            const normal = plane.normal;
+
+            // Project center onto plane normal and get distance to plane
+            const centerDist = plane.dotCoordinate(center);
+
+            // Project OBB extents onto the plane normal
+            // The projected radius is the sum of the absolute projections of each OBB axis
+            const r =
+                Math.abs(extendSize.x * Vector3.Dot(directions[0], normal)) +
+                Math.abs(extendSize.y * Vector3.Dot(directions[1], normal)) +
+                Math.abs(extendSize.z * Vector3.Dot(directions[2], normal));
+
+            // If the OBB is completely behind the plane (center - radius is outside)
+            if (centerDist < -r) {
                 return false;
             }
         }
