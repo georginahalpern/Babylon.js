@@ -1,6 +1,842 @@
 {
-    "fromTag": "8.46.2",
+    "fromTag": "8.47.1",
     "changelog": {
+        "8.47.2": [
+            {
+                "pr": "17747",
+                "title": "Fix Inspector v2 regression in Playground",
+                "description": "In the recent change #17739, all the gltf tools are always on services, which means they are now statically imported instead of dynamically imported (through an extension), and they include module scoped code that uses things from the loaders package:\r\n```ts\r\nconst AnimationStartModeOptions: DropdownOption<number>[] = [\r\n    { label: \"None\", value: GLTFLoaderAnimationStartMode.NONE },\r\n    { label: \"First\", value: GLTFLoaderAnimationStartMode.FIRST },\r\n    { label: \"All\", value: GLTFLoaderAnimationStartMode.ALL },\r\n];\r\n```\r\nThis means in the Playground where we use independent core/loaders/etc bundles, and we manually manage the load order (no tooling to help with the dependency graph), the loaders bundle must be explicitly loaded before the inspector v2 bundle, which was not how it was configured. This PR mostly is just fixing the order. It was already correct for Sandbox.\r\n\r\nThis PR also includes a few really small changes that were supposed to be in a different PR but somehow got lost. They are small, so I'm just tacking them on.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/tools/import/gltfLoaderOptionsTool.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/propertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/messageBar.tsx",
+                    "packages/tools/playground/public/index.js",
+                    "packages/tools/sandbox/public/index.js"
+                ],
+                "tags": [
+                    "bug"
+                ]
+            },
+            {
+                "pr": "17746",
+                "title": "Fix file size error threshold",
+                "description": "This was probably supposed to be temporarily set to 2.5. Changing it back to 1.2 so the CI fails as expected when the file size increase is more than 20%.\r\n\r\nNB: was changed to 2.5 in PR https://github.com/BabylonJS/Babylon.js/pull/15600.",
+                "author": {
+                    "name": "docEdub",
+                    "url": "https://github.com/docEdub"
+                },
+                "files": [
+                    ".build/flags.json"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            }
+        ],
+        "8.47.1": [
+            {
+                "pr": "17743",
+                "title": "Fix clipping behavior, add drag limit when pitched towards horizon, add pitch limit scaling when zoomed out",
+                "description": "- Change clipping behavior to remove concept of pitch and just use camera's distance from planet surface to determine minz\r\n- Add drag limit to avoid enormous deltas when trying to drag along nearly parallel plane (like when super pitched towards horizon)\r\n- Add ability to lerp pitchLimit based on how far zoomed we are to avoid disorienting behavior pitching towards horizon when zoomed out of globe (this is unnattural)\r\n- Update cameraOptions to include pickPredicate, remove pickPredicate from camera API (expose from movement class), add missing pickPreciate to pointer pick\r\n- ",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/core/src/Behaviors/Cameras/geospatialClippingBehavior.ts",
+                    "packages/dev/core/src/Cameras/Inputs/geospatialCameraPointersInput.ts",
+                    "packages/dev/core/src/Cameras/Limits/geospatialLimits.ts",
+                    "packages/dev/core/src/Cameras/geospatialCamera.ts",
+                    "packages/dev/core/src/Cameras/geospatialCameraMovement.ts",
+                    "packages/dev/core/test/unit/Cameras/geospatialCamera.test.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "camera"
+                ]
+            },
+            {
+                "pr": "17741",
+                "title": "Make inspector v1 package forward compatible with Babylon 9",
+                "description": "Because we plan to stop publishing Inspector v1 npm packages prior to the 9.0 release, we will publish some final Inspector v1 packages that are forward compatible with 9.0. This will mean that while Inspector v2 is still very new, if anyone needs to use Inspector v1 with their project using Babylon 9, they still can (without npm errors or force installing a package that claims to be incompatible). This is just a simple step to help ease the transition to v2 as much as we can.",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/public/@babylonjs/inspector/package.json"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17744",
+                "title": "Increasing camera radius in NPE preview",
+                "description": null,
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/tools/nodeParticleEditor/src/components/preview/previewManager.ts"
+                ],
+                "tags": [
+                    "enhancement",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17745",
+                "title": "Porting gizmo code from NGE to NPE",
+                "description": "Now the NPE preview also shows the gizmo like NGE does, so it's easier to orient the system:\r\n\r\n<img width=\"287\" height=\"223\" alt=\"image\" src=\"https://github.com/user-attachments/assets/d224d1b6-d441-448f-a75b-488d7f1bbb8f\" />\r\n",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/tools/nodeParticleEditor/src/components/preview/previewManager.ts"
+                ],
+                "tags": [
+                    "enhancement",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17742",
+                "title": "Allow user to dismiss dialog",
+                "description": "Once the PWA is installed, we give an option to the users to stop seeing the welcome dialog if coming with a particular QSP.\r\n\r\n<img width=\"1829\" height=\"912\" alt=\"Dialog1\" src=\"https://github.com/user-attachments/assets/85b0515a-1157-4a1a-9bfe-de94b08e86cd\" />\r\n<img width=\"1865\" height=\"904\" alt=\"Dialog2\" src=\"https://github.com/user-attachments/assets/41ceaa73-d322-419b-8131-9357690a46fa\" />\r\n",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/tools/sandbox/src/components/welcomeDialog.tsx",
+                    "packages/tools/sandbox/src/sandbox.tsx",
+                    "packages/tools/sandbox/src/scss/welcomeDialog.scss",
+                    "packages/tools/sandbox/src/tools/localStorageHelper.ts"
+                ],
+                "tags": [
+                    "enhancement",
+                    "sandbox"
+                ]
+            },
+            {
+                "pr": "17740",
+                "title": "enable bidirectional UI refresh with projected UI elements",
+                "description": null,
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/sharedUiComponents/src/nodeGraphSystem/automaticProperties.ts",
+                    "packages/dev/sharedUiComponents/src/nodeGraphSystem/graphNode.ts",
+                    "packages/dev/sharedUiComponents/src/nodeGraphSystem/stateManager.ts"
+                ],
+                "tags": [
+                    "nme",
+                    "skip changelog",
+                    "nge",
+                    "nrge",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17739",
+                "title": "Inspector v2: Switch tools to be always enabled (not optional extensions)",
+                "description": "As discussed, making everything in the Tools pane (except Reflector) always on for Inspector in any context rather than being optional installed extensions to ease the transition from v1 to v2.\r\n\r\nAlso cleaned up a couple other small things related to extensions:\r\n- Removed the default export for Atmosphere service since we decided that one would be always on rather than an extension a while ago, so the default export is just unused code\r\n- Remove the old create extension placeholder since Jason's replaced it",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/extensibility/defaultInspectorExtensionFeed.ts",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/services/creationToolsService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/scene/atmosphereExplorerService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/tools/captureService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/tools/exportService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/tools/import/importService.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17738",
+                "title": "Export tool tweaks",
+                "description": "Just tweaking text & the position of the export button for consistency.",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/tools/exportTools.tsx",
+                    "packages/dev/inspector-v2/src/extensibility/defaultInspectorExtensionFeed.ts",
+                    "packages/dev/inspector-v2/src/services/panes/tools/exportService.tsx"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "17737",
+                "title": "NME: Fix crash when choosing linear space for the fragment output block in WebGPU",
+                "description": null,
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/Node/Blocks/Fragment/fragmentOutputBlock.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "nme"
+                ]
+            },
+            {
+                "pr": "17711",
+                "title": "Adding sandbox landing URL",
+                "description": "- Show welcome screen depending of navigation QSP\r\n- Update extensions supported for drag and drop\r\n- Update cache and manifest\r\n\r\nWhen the PWA is not installed:\r\n<img width=\"2712\" height=\"1643\" alt=\"Not Installed\" src=\"https://github.com/user-attachments/assets/66d2de28-a863-487c-af22-fe2a2b7e147c\" />\r\n\r\nWhen the PWA is installed:\r\n<img width=\"2565\" height=\"1662\" alt=\"Installed\" src=\"https://github.com/user-attachments/assets/82374213-01b2-4812-985d-9f861719d215\" />\r\n",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/tools/sandbox/public/manifest.webmanifest",
+                    "packages/tools/sandbox/public/sw.js",
+                    "packages/tools/sandbox/src/components/welcomeDialog.tsx",
+                    "packages/tools/sandbox/src/sandbox.tsx",
+                    "packages/tools/sandbox/src/scss/main.scss",
+                    "packages/tools/sandbox/src/scss/welcomeDialog.scss"
+                ],
+                "tags": [
+                    "enhancement",
+                    "sandbox"
+                ]
+            },
+            {
+                "pr": "17713",
+                "title": "Inspector V2: Capture Tools updates",
+                "description": "<img width=\"465\" height=\"642\" alt=\"image\" src=\"https://github.com/user-attachments/assets/3dc0d199-49ef-4ed0-a059-12e6c659ea19\" />\r\n\r\n### Changes\r\n- Add GIF recorder\r\n- Add scene replay \r\n- Some aesthetics... let me know what you think.\r\n  - Separate capture screenshot, capture equirectangular, and record video into their own sections.\r\n  - Always show width/height of screenshot\r\n  - Marry capture screenshot with capture RTT (for a UI, they seem functionally equivalent, right?)\r\n\r\n### Notes\r\n*State in components vs. service*: I've kept the functionality in the components for now, instead of in a service, both because it was simpler and because these components don't really need to persist state outside of the Inspector's lifetime. (Unlike the glTF loader options and glTF validator in the Import Tools...)\r\n\r\n*GIF module*: There aren't many options out there for recording GIFs on the web. `gif.js` seems to be standard, and it's what we had before. I installed it as a devDependency in the Inspector v2, assuming that it will be built into the bundled package. Hope this is OK, but let me know.",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "package-lock.json",
+                    "packages/dev/core/src/Misc/sceneRecorder.ts",
+                    "packages/dev/inspector-v2/package.json",
+                    "packages/dev/inspector-v2/src/components/tools/capture/equirectangularCaptureTool.tsx",
+                    "packages/dev/inspector-v2/src/components/tools/capture/gif.js.optimized.d.ts",
+                    "packages/dev/inspector-v2/src/components/tools/capture/gifCaptureTool.tsx",
+                    "packages/dev/inspector-v2/src/components/tools/capture/sceneReplayTool.tsx",
+                    "packages/dev/inspector-v2/src/components/tools/capture/screenshotTool.tsx",
+                    "packages/dev/inspector-v2/src/components/tools/capture/videoCaptureTool.tsx",
+                    "packages/dev/inspector-v2/src/components/tools/captureTools.tsx",
+                    "packages/dev/inspector-v2/src/extensibility/defaultInspectorExtensionFeed.ts",
+                    "packages/dev/inspector-v2/src/services/panes/tools/captureService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/toolsService.tsx",
+                    "packages/public/@babylonjs/inspector-v2/rollup.config.lib.mjs"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17580",
+                "title": "Inspector v2: GLTF Import tools",
+                "description": "This PR adds the remaining glTF configuration tools (Extensions config, loader plugin config, and validator) to the Inspector v2 Tools pane.|\r\n\r\nDefault view:\r\n<img width=\"347\" height=\"481\" alt=\"image\" src=\"https://github.com/user-attachments/assets/eabbdf23-85ce-422a-8ac6-229ac9ca3a46\" />\r\n\r\nAfter loading new file and editing loader settings:\r\n<img width=\"351\" height=\"897\" alt=\"image\" src=\"https://github.com/user-attachments/assets/96d28b41-f3e7-4960-af2a-59e540f50a48\" />\r\n\r\n**Features:**\r\n- Configure all loader settings (bounding boxes, animations, materials, etc.)\r\n- Enable/disable glTF extensions and configure extension-specific properties\r\n- Real-time validation feedback with detailed report viewer\r\n- Animation import with merge mode configuration",
+                "author": {
+                    "name": "alexchuber",
+                    "url": "https://github.com/alexchuber"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/tools/import/gltfAnimationImportTool.tsx",
+                    "packages/dev/inspector-v2/src/components/tools/import/gltfLoaderOptionsTool.tsx",
+                    "packages/dev/inspector-v2/src/components/tools/import/gltfValidationTool.tsx",
+                    "packages/dev/inspector-v2/src/extensibility/defaultInspectorExtensionFeed.ts",
+                    "packages/dev/inspector-v2/src/services/panes/tools/import/gltfAnimationImportService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/tools/import/gltfLoaderOptionsService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/tools/import/gltfValidationService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/tools/import/importService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/tools/importService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/toolsService.tsx",
+                    "packages/dev/loaders/src/glTF/glTFValidation.ts",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/childWindow.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/hoc/propertyLines/propertyLine.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/messageBar.tsx"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17736",
+                "title": "Inspector v2: Perf viewer bug fixes",
+                "description": "I noticed a handful of bugs in the perf viewer implementation for Inspector v2. This PR addresses them:\r\n- The `Start Recording` button is not re-rendered to say `Stop Recording` because no state changes so the component isn't re-rendered. The quick fix is to just add an `isRecording` state.\r\n- The side pane text is always white, regardless of theme. The fix is to use Fluent components instead of raw `<span>`s.\r\n\r\nI also made a few other changes for general cleanup:\r\n- Used Switch instead of Checkbox as I think this is more consistent with the rest of the Inspector v2 UI (open to other opinions on this though).\r\n- Fixed various spacing and alignment issues.\r\n- Used `mergeClasses` as class name concatenation is documented as not being guaranteed to behave the way you want with Fluent.\r\n\r\n<img width=\"1229\" height=\"774\" alt=\"image\" src=\"https://github.com/user-attachments/assets/dfa9aea3-0bc1-4a19-a356-94a81ad6c068\" />\r\n",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/performanceViewer/performanceSidebar.tsx",
+                    "packages/dev/inspector-v2/src/components/performanceViewer/performanceViewer.tsx",
+                    "packages/dev/inspector-v2/src/components/stats/performanceStats.tsx"
+                ],
+                "tags": [
+                    "bug",
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "17734",
+                "title": "Fix bug where gltf export fails when texture points to local file",
+                "description": "When a texture's URL is changed to a blob URL GetCachedImageAsync tries to load from this blob URL using Tools.LoadFileAsync(internalTexture.url)\r\n\r\nIn inspectorv2 we revoke the blob url after creation to avoid memory leak, so LoadFileAsync throws a ERR_FILE_NOT_FOUND causing the export to fail . \r\n\r\nIf instead we catch any errors in GetCachedImageAsync and return null, the code falls back to the GPU texture read method GetTextureDataAsync and successfully exports ",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/serializers/src/glTF/2.0/glTFMaterialExporter.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "17688",
+                "title": "OpenPBR Translucent Slab",
+                "description": "WIP translucency for OpenPBR.\r\nThis includes support for all `transmission` parameters, including scattering and dispersion properties.",
+                "author": {
+                    "name": "MiiBond",
+                    "url": "https://github.com/MiiBond"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/PBR/openpbrMaterial.ts",
+                    "packages/dev/core/src/Materials/materialHelper.functions.ts",
+                    "packages/dev/core/src/Rendering/IBLShadows/iblShadowsPluginMaterial.ts",
+                    "packages/dev/core/src/Shaders/ShadersInclude/hdrFilteringFunctions.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/helperFunctions.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/openpbrAmbientOcclusionData.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/openpbrAmbientOcclusionFunctions.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/openpbrBackgroundTransmission.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/openpbrBaseLayerData.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/openpbrBlockAmbientOcclusion.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/openpbrDirectLighting.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/openpbrEnvironmentLighting.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/openpbrFragmentDeclaration.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/openpbrFragmentSamplersDeclaration.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/openpbrIblFunctions.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/openpbrThinFilmLayerData.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/openpbrTransmissionLayerData.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/openpbrUboDeclaration.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/openpbrVertexDeclaration.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/pbrDirectLightingFunctions.fx",
+                    "packages/dev/core/src/Shaders/ShadersInclude/pbrHelperFunctions.fx",
+                    "packages/dev/core/src/Shaders/openpbr.fragment.fx",
+                    "packages/dev/core/src/Shaders/openpbr.vertex.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/hdrFilteringFunctions.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/helperFunctions.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/importanceSampling.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/openpbrAmbientOcclusionData.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/openpbrAmbientOcclusionFunctions.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/openpbrBackgroundTransmission.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/openpbrBaseLayerData.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/openpbrBlockAmbientOcclusion.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/openpbrDirectLighting.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/openpbrEnvironmentLighting.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/openpbrFragmentSamplersDeclaration.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/openpbrFuzzLayerData.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/openpbrIblFunctions.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/openpbrThinFilmLayerData.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/openpbrTransmissionLayerData.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/openpbrUboDeclaration.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/pbrDirectLightingFunctions.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/pbrHelperFunctions.fx",
+                    "packages/dev/core/src/ShadersWGSL/openpbr.fragment.fx",
+                    "packages/dev/core/src/ShadersWGSL/openpbr.vertex.fx",
+                    "packages/dev/inspector-v2/src/components/properties/materials/openpbrMaterialProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/materialPropertiesService.tsx",
+                    "packages/dev/inspector/src/components/globalState.ts",
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/KHR_materials_coat.ts",
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/KHR_materials_diffuse_roughness.ts",
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/KHR_materials_diffuse_transmission.ts",
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/KHR_materials_dispersion.ts",
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/KHR_materials_fuzz.ts",
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/KHR_materials_transmission.ts",
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/KHR_materials_unlit.ts",
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/KHR_materials_volume.ts",
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/KHR_materials_volume_scatter.ts",
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/MSFT_sRGBFactors.ts",
+                    "packages/dev/loaders/src/glTF/2.0/Extensions/index.ts",
+                    "packages/dev/loaders/src/glTF/2.0/materialLoadingAdapter.ts",
+                    "packages/dev/loaders/src/glTF/2.0/openpbrMaterialLoadingAdapter.ts",
+                    "packages/dev/loaders/src/glTF/2.0/pbrMaterialLoadingAdapter.ts",
+                    "packages/dev/serializers/src/glTF/2.0/Extensions/KHR_materials_openpbr.ts",
+                    "packages/dev/serializers/src/glTF/2.0/Extensions/KHR_materials_transmission.ts",
+                    "packages/dev/serializers/src/glTF/2.0/Extensions/KHR_materials_volume.ts",
+                    "packages/dev/serializers/src/glTF/2.0/Extensions/KHR_materials_volume_scatter.ts",
+                    "packages/dev/serializers/src/glTF/2.0/Extensions/index.ts",
+                    "packages/public/glTF2Interface/babylon.glTF2Interface.d.ts",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Analytic-Lights-Anisotropy-Texture.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Analytic-Lights-Anisotropy.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Analytic-Lights-Coat-Darkening-vs-Coat-IOR.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Analytic-Lights-Coat-Darkening.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Analytic-Lights-Specular-IOR-vs-Coat-IOR.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Analytic-Lights-Specular-IOR-vs-Coat-Weight.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Anisotropy---Realtime-Filtered-IBL.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Coat-Anisotropy---Analytic-Lights.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Coat-Anisotropy---Realtime-Filtered-IBL.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Fuzz-Weight-vs-Fuzz-Roughness---IBL.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Fuzz-Weight-vs-Fuzz-Roughness---Realtime-IBL.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Thin-Film-Thickness-VS-IOR---Analytic-Lights.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Thin-Film-Weight-VS-IOR---Analytic-Lights.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Transmission-Anisotropy-Roughness-vs-IOR---Analytic-Lights.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Transmission-Anisotropy-Roughness-vs-IOR---IBL.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Transmission-Anisotropy-Roughness-vs-IOR---Realtime-IBL.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Transmission-Anisotropy-vs-Roughness---Analytic-Lights.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Transmission-Anisotropy-vs-Roughness---IBL.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Transmission-Color-glTF---Analytic-Lights.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Transmission-Color-glTF---IBL.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Transmission-Dispersion-VS-IOR---Analytic-Lights.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Transmission-Dispersion-VS-IOR---IBL.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Transmission-Dispersion-glTF---IBL.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Transmission-Forward-Scatter-and-Absorption---IBL.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Transmission-Roughness-glTF---Analytic-Lights.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Transmission-Roughness-glTF---IBL.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Transmission-Roughness-vs-IOR---Analytic-Lights.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Transmission-Scatter-Anisotropy-Reflect---Analytic-Lights.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Transmission-Scatter-Anisotropy-Reflect---IBL.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Transmission-Scatter-Anisotropy-Refract---Analytic-Lights.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Transmission-Scatter-Anisotropy-Refract---IBL.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/OpenPBR-Transmission-Scatter-Roughness---Analytic-Lights.png",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17735",
+                "title": "More WGSL conversion for atmosphere add-on",
+                "description": "* Convert transmittance shader to WGSL\r\n   -> Fixed issue with WGSL include paths in the shader build tool\r\n* Updated some visual test playgrounds for atmosphere with debug console logs\r\n* Increased render count on atmosphere visual tests",
+                "author": {
+                    "name": "kircher1",
+                    "url": "https://github.com/kircher1"
+                },
+                "files": [
+                    "packages/dev/addons/src/atmosphere/ShadersWGSL/ShadersInclude/atmosphereFunctions.fx",
+                    "packages/dev/addons/src/atmosphere/ShadersWGSL/fullscreenTriangle.vertex.fx",
+                    "packages/dev/addons/src/atmosphere/ShadersWGSL/transmittance.fragment.fx",
+                    "packages/dev/addons/src/atmosphere/atmosphere.ts",
+                    "packages/dev/addons/src/atmosphere/transmittanceLut.ts",
+                    "packages/dev/buildTools/src/buildShaders.ts",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "17733",
+                "title": "Fix issue with srgb in sandbox",
+                "description": "Fix issue when viewing [TextureLinearInterpolationTest](https://github.com/KhronosGroup/glTF-Sample-Models/tree/main/2.0/TextureLinearInterpolationTest) in the sandbox.\r\n\r\n[Direct link](https://sandbox.babylonjs.com/?asset=https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/refs/heads/main/2.0/TextureLinearInterpolationTest/glTF/TextureLinearInterpolationTest.gltf)",
+                "author": {
+                    "name": "bghgary",
+                    "url": "https://github.com/bghgary"
+                },
+                "files": [
+                    "packages/dev/core/src/Engines/thinEngine.ts",
+                    "packages/tools/sandbox/src/components/renderingZone.tsx"
+                ],
+                "tags": [
+                    "bug"
+                ]
+            },
+            {
+                "pr": "17730",
+                "title": "Performance Viewer",
+                "description": "<img width=\"1037\" height=\"555\" alt=\"image\" src=\"https://github.com/user-attachments/assets/5c6a222f-d32f-4eb6-ba8d-3a8dfcf252b0\" />\r\n",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/performanceViewer/canvasGraph.tsx",
+                    "packages/dev/inspector-v2/src/components/performanceViewer/canvasGraphService.ts",
+                    "packages/dev/inspector-v2/src/components/performanceViewer/graphSupportingTypes.ts",
+                    "packages/dev/inspector-v2/src/components/performanceViewer/performanceSidebar.tsx",
+                    "packages/dev/inspector-v2/src/components/performanceViewer/performanceViewerPopup.tsx",
+                    "packages/dev/inspector-v2/src/components/stats/performanceStats.tsx",
+                    "packages/dev/inspector/src/components/actionTabs/tabs/performanceViewer/performanceViewerComponent.tsx",
+                    "packages/dev/inspector/src/components/actionTabs/tabs/performanceViewer/performanceViewerPopupComponent.tsx",
+                    "packages/dev/inspector/src/components/graph/canvasGraphComponent.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "17691",
+                "title": "Remove try new inspector button from Sandbox and Playground",
+                "description": "This PR removes the \"Try the New Inspector\" buttons from Sandbox and Playground. After this change, both tools will use Inspector v2 by default when the version is newer than 8.40.1 (the first version where we had an Inspector v2 umd bundle), and Inspector v1 for 8.40.0 or older. You can also include an `inspectorv1` query param to force Inspector v1 even for newer versions. The idea is to give our users some time with Inspector v2 as the default and make sure there are no bugs that would otherwise be blockers. We can remove the query param later.\r\n\r\nI also changed some code that was waiting one JS frame when disposing Inspector v2. I don't believe this is needed after the changes in #17603.\r\n\r\nThis PR is ready to review, but its in draft so I can test snapshot builds now, and regenerate the visual test screenshots. We will merge it after the remaining Inspector v2 main parity work is done (around Jan 23).",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/core/src/Debug/debugLayer.ts",
+                    "packages/dev/inspector-v2/src/inspector.tsx",
+                    "packages/dev/inspector-v2/src/legacy/inspector.tsx",
+                    "packages/tools/playground/public/index.js",
+                    "packages/tools/playground/src/components/commandBarComponent.tsx",
+                    "packages/tools/playground/src/components/hamburgerMenu.tsx",
+                    "packages/tools/playground/src/components/rendererComponent.tsx",
+                    "packages/tools/playground/src/globalState.ts",
+                    "packages/tools/playground/src/scss/commandBar.scss",
+                    "packages/tools/playground/src/scss/header.scss",
+                    "packages/tools/sandbox/public/index.js",
+                    "packages/tools/sandbox/src/components/footer.tsx",
+                    "packages/tools/sandbox/src/globalState.ts",
+                    "packages/tools/sandbox/src/scss/animationBar.scss",
+                    "packages/tools/sandbox/src/scss/footer.scss",
+                    "packages/tools/sandbox/src/scss/main.scss",
+                    "packages/tools/sandbox/test/interaction.sandbox.test.ts",
+                    "packages/tools/tests/test/visualization/ReferenceImages/dropping-an-image-to-the-sandbox-1.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/inspector-is-opened-when-clicking-on-the-button-1.png",
+                    "packages/tools/tests/test/visualization/ReferenceImages/loading-a-model-using-query-parameters-1.png"
+                ],
+                "tags": [
+                    "inspector",
+                    "Playground",
+                    "sandbox"
+                ]
+            },
+            {
+                "pr": "17731",
+                "title": "Add GeospatialClippingBehavior and fix scrollwheel zoom limit",
+                "description": "- Can attach clippingbehavior to automatically adjust min and max Z to take into account planetradius and cameras location from surface\r\n- Fix bug where touchzoom let you zoom out further than scroll\r\n- Minor limit changes to improve default movement behavior",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/core/src/Behaviors/Cameras/geospatialClippingBehavior.ts",
+                    "packages/dev/core/src/Behaviors/Cameras/index.ts",
+                    "packages/dev/core/src/Cameras/Inputs/geospatialCameraPointersInput.ts",
+                    "packages/dev/core/src/Cameras/Limits/geospatialLimits.ts",
+                    "packages/dev/core/src/Cameras/geospatialCamera.ts",
+                    "packages/dev/core/src/Cameras/geospatialCameraMovement.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "new feature",
+                    "camera"
+                ]
+            },
+            {
+                "pr": "17729",
+                "title": "Adding network wait for interaction sandbox tests to assure models load",
+                "description": "On tests that load content for the sandbox, add a wait for networkidle to make sure we take the screenshot when all content has finished loading and rendering.",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/tools/sandbox/test/interaction.sandbox.test.ts"
+                ],
+                "tags": [
+                    "bug"
+                ]
+            },
+            {
+                "pr": "17638",
+                "title": "Add more control on GS view update threshold",
+                "description": "- `viewUpdateThreshold` value for sorting trigger\r\n- new `_modelViewProjectionMatrix` matrix\r\n- `useRightHandedSystem` not used thanks to projection matrix",
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "packages/dev/core/src/Meshes/GaussianSplatting/gaussianSplattingMesh.ts"
+                ],
+                "tags": [
+                    "Gaussian Splatting"
+                ]
+            },
+            {
+                "pr": "17727",
+                "title": "Add sprites to the AssetContainer",
+                "description": null,
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/core/src/IAssetContainer.ts",
+                    "packages/dev/core/src/Loading/Plugins/babylonFileLoader.ts",
+                    "packages/dev/core/src/Sprites/spriteManager.ts",
+                    "packages/dev/core/src/assetContainer.ts"
+                ],
+                "tags": [
+                    "bug"
+                ]
+            },
+            {
+                "pr": "17728",
+                "title": "Reflector Tool",
+                "description": "<img width=\"226\" height=\"72\" alt=\"image\" src=\"https://github.com/user-attachments/assets/39a87c86-8434-4fd0-9633-32016d3bc74d\" />\r\n\r\nAlso move quick create tools to the top of the extension feed ",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/tools/reflectorTools.tsx",
+                    "packages/dev/inspector-v2/src/extensibility/defaultInspectorExtensionFeed.ts",
+                    "packages/dev/inspector-v2/src/services/panes/tools/reflectorService.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/toolsService.tsx"
+                ],
+                "tags": [
+                    "inspector"
+                ]
+            },
+            {
+                "pr": "17718",
+                "title": "Recompute yawPitchFromLookAt after center change, inverse of computeLookAtFromYawPitch. Add unit tests",
+                "description": "- Pull ComputeLookatFromYawPitch into module level helper function, add unit tests\r\n- Introduce ComputeYawPitchFromLookAt which is called after recalculating center to avoid noticeable jiggle, add unit tests to ensure it is inverse of the above\r\n- Avoid flip when pitch is straight down ",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/core/src/Cameras/Limits/geospatialLimits.ts",
+                    "packages/dev/core/src/Cameras/geospatialCamera.ts",
+                    "packages/dev/core/test/unit/Cameras/geospatialCamera.test.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "camera"
+                ]
+            },
+            {
+                "pr": "17719",
+                "title": "Tinier ThinEngine",
+                "description": null,
+                "author": {
+                    "name": "sebavan",
+                    "url": "https://github.com/sebavan"
+                },
+                "files": [
+                    "packages/dev/core/src/Materials/effectRenderer.ts"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "17720",
+                "title": "Remove lerna and bump dep",
+                "description": null,
+                "author": {
+                    "name": "sebavan",
+                    "url": "https://github.com/sebavan"
+                },
+                "files": [
+                    "package-lock.json",
+                    "package.json",
+                    "scripts/updateVersion.js"
+                ],
+                "tags": [
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "17723",
+                "title": "Materials: Fix of clustered lights usage in material library materials",
+                "description": "See https://forum.babylonjs.com/t/clusteredlighting-breaks-library-materials/62214",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/materials/src/cell/cell.fragment.fx",
+                    "packages/dev/materials/src/cell/cell.vertex.fx",
+                    "packages/dev/materials/src/fur/fur.fragment.fx",
+                    "packages/dev/materials/src/fur/fur.vertex.fx",
+                    "packages/dev/materials/src/gradient/gradient.fragment.fx",
+                    "packages/dev/materials/src/gradient/gradient.vertex.fx",
+                    "packages/dev/materials/src/lava/lava.fragment.fx",
+                    "packages/dev/materials/src/lava/lava.vertex.fx",
+                    "packages/dev/materials/src/mix/mix.fragment.fx",
+                    "packages/dev/materials/src/mix/mix.vertex.fx",
+                    "packages/dev/materials/src/normal/normal.fragment.fx",
+                    "packages/dev/materials/src/normal/normal.vertex.fx",
+                    "packages/dev/materials/src/shadowOnly/shadowOnly.fragment.fx",
+                    "packages/dev/materials/src/shadowOnly/shadowOnly.vertex.fx",
+                    "packages/dev/materials/src/simple/simple.fragment.fx",
+                    "packages/dev/materials/src/simple/simple.vertex.fx",
+                    "packages/dev/materials/src/terrain/terrain.fragment.fx",
+                    "packages/dev/materials/src/terrain/terrain.vertex.fx",
+                    "packages/dev/materials/src/triPlanar/triplanar.fragment.fx",
+                    "packages/dev/materials/src/triPlanar/triplanar.vertex.fx",
+                    "packages/dev/materials/src/water/water.fragment.fx",
+                    "packages/dev/materials/src/water/water.vertex.fx"
+                ],
+                "tags": [
+                    "bug",
+                    "materials"
+                ]
+            },
+            {
+                "pr": "17725",
+                "title": "FrameGraph: Fix use of SPS with frame graphs",
+                "description": "See https://forum.babylonjs.com/t/sps-with-billboard-vs-frame-graph/62197",
+                "author": {
+                    "name": "Popov72",
+                    "url": "https://github.com/Popov72"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/solidParticleSystem.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "frame graph"
+                ]
+            },
+            {
+                "pr": "17722",
+                "title": "Fix ClusteredLightContainer proxy mesh belonging to wrong scene",
+                "description": "Hey there, I found a small bug in `ClusteredLightContainer`.\r\n\r\nBasically, the `_proxyMesh` is created with `CreatePlane` without specifying the `scene` parameter. This will automatically pick the latest created scene.\r\n\r\nThe issue is that the `_proxyMesh` is supposed to be removed from the scene right away with `this._scene.removeMesh`. But `this._scene` might not be the same scene as the one used to create the plane:\r\n\r\nIf I create a 1st scene, then a 2nd scene, then create a `ClusteredLightContainer` for the 1st scene, the `_proxyMesh`  will be created in the 2nd scene instead of the 1st, and will not be removed! \r\n\r\nThis can lead to visual bugs that I was not able to repro on the PG. However I captured it using SpectorJS:\r\n\r\n[capture 16_50_57.json](https://github.com/user-attachments/files/24838302/capture.16_50_57.json)\r\n\r\nHere, you can see the `_proxyMesh` for a first scene drawing itself as a red horizontal strip in my second scene, which should never happen: \r\n\r\n<img width=\"1919\" height=\"932\" alt=\"image\" src=\"https://github.com/user-attachments/assets/23df8acd-1065-476d-970f-9ed671484cb6\" />\r\n\r\nI also tweaked this PG to log the meshes in the 2nd scene to confirm the `_proxyMesh` is indeed present:\r\n\r\nhttps://playground.babylonjs.com/#P3E9YP#309\r\n\r\nAnd with this PR, it works as expected: https://playground.babylonjs.com/?snapshot=refs/pull/17722/merge#P3E9YP#309\r\n\r\nIn the end the fix is quite simple: set the `scene` argument in `CreatePlane`. It fixed the red strip issue on my end anyway",
+                "author": {
+                    "name": "BarthPaleologue",
+                    "url": "https://github.com/BarthPaleologue"
+                },
+                "files": [
+                    "packages/dev/core/src/Lights/Clustered/clusteredLightContainer.ts"
+                ],
+                "tags": [
+                    "bug",
+                    "materials"
+                ]
+            },
+            {
+                "pr": "17714",
+                "title": "Interpolation npe",
+                "description": "Add missing interpolation blocks (smoothstep, nlerp, step)",
+                "author": {
+                    "name": "deltakosh",
+                    "url": "https://github.com/deltakosh"
+                },
+                "files": [
+                    "packages/dev/core/src/Particles/Node/Blocks/index.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/particleNLerpBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/particleSmoothStepBlock.ts",
+                    "packages/dev/core/src/Particles/Node/Blocks/particleStepBlock.ts",
+                    "packages/tools/nodeParticleEditor/src/blockTools.ts",
+                    "packages/tools/nodeParticleEditor/src/components/nodeList/nodeListComponent.tsx"
+                ],
+                "tags": [
+                    "skip changelog",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17715",
+                "title": "Minor fixes",
+                "description": "- add tooltip to entity selector buttons\r\n- revert change to switch for invertedmode and use conversion functions",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/frameGraph/frameGraphProperties.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/entitySelector.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/switch.tsx"
+                ],
+                "tags": [
+                    "inspector",
+                    "skip changelog"
+                ]
+            },
+            {
+                "pr": "17710",
+                "title": "Show attractors for NPE systems",
+                "description": "This PR generalizes the Attractors controls to also work with NPE.\r\n\r\n- Creates adaptor types that hide if the attractors came from a node or CPU (non-node) system.\r\n- Updates some UI components to show in readonly mode when used by node systems, as attractors must be edited in Inspector for node systems.\r\n- Tries to show adaptor data from npe if coming from input blocks. If it is more complex calculation it will show dynamic.\r\n- Fixes a dispose issue when NPE has an invalid system.\r\n\r\n<img width=\"712\" height=\"1263\" alt=\"image\" src=\"https://github.com/user-attachments/assets/b18f1494-3392-4e9d-b9e5-c8c72c13126f\" />\r\n",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/dev/inspector-v2/src/components/properties/particles/attractor.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/particles/attractorAdapter.ts",
+                    "packages/dev/inspector-v2/src/components/properties/particles/attractorList.tsx",
+                    "packages/dev/inspector-v2/src/components/properties/particles/attractorProperties.tsx",
+                    "packages/dev/inspector-v2/src/services/panes/properties/particleSystemPropertiesService.tsx",
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/list.tsx",
+                    "packages/tools/nodeParticleEditor/src/components/preview/previewManager.ts"
+                ],
+                "tags": [
+                    "enhancement",
+                    "inspector",
+                    "npe"
+                ]
+            },
+            {
+                "pr": "17712",
+                "title": "Starting directory picker in same folder",
+                "description": null,
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/tools/sandbox/src/sandbox.tsx"
+                ],
+                "tags": [
+                    "enhancement",
+                    "sandbox"
+                ]
+            },
+            {
+                "pr": "17702",
+                "title": "Add PWA support for Sandbox",
+                "description": "This PR allows the Sandbox to be installed as a PWA.\r\n\r\nChanges:\r\n- PWA manifest with file handling registration for the same file types supported by the sandbox.\r\n- PWA will attempt to cache all dependencies in SW for offline support.\r\n- The title bar will work more similar to a native app, showing the current file open.\r\n\r\nIcons are temporal, I will move the PR out of draft when I have the final ones.",
+                "author": {
+                    "name": "VicenteCartas",
+                    "url": "https://github.com/VicenteCartas"
+                },
+                "files": [
+                    "packages/tools/sandbox/public/icons/icon-16.png",
+                    "packages/tools/sandbox/public/icons/icon-192.png",
+                    "packages/tools/sandbox/public/icons/icon-24.png",
+                    "packages/tools/sandbox/public/icons/icon-256.png",
+                    "packages/tools/sandbox/public/icons/icon-32.png",
+                    "packages/tools/sandbox/public/icons/icon-48.png",
+                    "packages/tools/sandbox/public/icons/icon-512.png",
+                    "packages/tools/sandbox/public/icons/icon-96.png",
+                    "packages/tools/sandbox/public/index.html",
+                    "packages/tools/sandbox/public/index.js",
+                    "packages/tools/sandbox/public/manifest.webmanifest",
+                    "packages/tools/sandbox/public/sw.js",
+                    "packages/tools/sandbox/src/components/renderingZone.tsx",
+                    "packages/tools/sandbox/src/globalState.ts",
+                    "packages/tools/sandbox/src/sandbox.tsx",
+                    "packages/tools/sandbox/src/scss/main.scss"
+                ],
+                "tags": [
+                    "sandbox"
+                ]
+            },
+            {
+                "pr": "17709",
+                "title": "Fail gracefully when material has no name",
+                "description": "Support cases where user creates a noname material (they shouldn't, but they can in playgrounds like this one https://playground.babylonjs.com/?webgpu=&inspectorv2=true#A89RTQ#7)",
+                "author": {
+                    "name": "georginahalpern",
+                    "url": "https://github.com/georginahalpern"
+                },
+                "files": [
+                    "packages/dev/sharedUiComponents/src/fluent/primitives/entitySelector.tsx"
+                ],
+                "tags": []
+            }
+        ],
         "8.47.0": [
             {
                 "pr": "17707",
