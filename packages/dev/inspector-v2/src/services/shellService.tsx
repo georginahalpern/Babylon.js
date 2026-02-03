@@ -21,7 +21,6 @@ import {
     Subtitle2Stronger,
     tokens,
     ToolbarRadioButton,
-    Tooltip,
 } from "@fluentui/react-components";
 import {
     LayoutColumnTwoFocusLeftFilled,
@@ -43,6 +42,8 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { Observable } from "core/Misc/observable";
 import { ChildWindow } from "shared-ui-components/fluent/hoc/childWindow";
 import { Collapse } from "shared-ui-components/fluent/primitives/collapse";
+import { Tooltip } from "shared-ui-components/fluent/primitives/tooltip";
+import { ErrorBoundary } from "../components/errorBoundary";
 import { TeachingMoment } from "../components/teachingMoment";
 import { Theme } from "../components/theme";
 import { useOrderedObservableCollection } from "../hooks/observableHooks";
@@ -310,15 +311,16 @@ const useStyles = makeStyles({
     bar: {
         display: "flex",
         flex: "1",
-        height: "32px",
         overflow: "hidden",
         padding: `${tokens.spacingVerticalXXS} ${tokens.spacingHorizontalXXS}`,
-        border: `1px solid ${tokens.colorNeutralStroke2}`,
-        borderBottomWidth: 0,
-        backgroundColor: tokens.colorNeutralBackground1,
+        borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
+        backgroundColor: tokens.colorNeutralBackground2,
     },
     barTop: {
         borderTopWidth: 0,
+    },
+    barBottom: {
+        borderTop: `1px solid ${tokens.colorNeutralStroke2}`,
     },
     barLeft: {
         marginRight: "auto",
@@ -338,7 +340,7 @@ const useStyles = makeStyles({
         display: "flex",
     },
     paneTabListDiv: {
-        backgroundColor: tokens.colorNeutralBackground2,
+        backgroundColor: tokens.colorNeutralBackground1,
         flex: "0 0 auto",
         display: "flex",
     },
@@ -349,7 +351,11 @@ const useStyles = makeStyles({
         flexDirection: "row",
     },
     paneCollapseButton: {
-        margin: `0 0 0 ${tokens.spacingHorizontalXS}`,
+        padding: `0 0 0 ${tokens.spacingHorizontalXS}`,
+        borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
+    },
+    paneCollapseButtonWithBorder: {
+        borderLeft: `1px solid ${tokens.colorNeutralStroke2}`,
     },
     collapseMenuPopover: {
         minWidth: 0,
@@ -389,6 +395,8 @@ const useStyles = makeStyles({
         flexDirection: "row",
         alignItems: "center",
         height: "36px",
+        backgroundColor: tokens.colorNeutralBackground1,
+        color: tokens.colorNeutralForeground1,
     },
     paneHeaderText: {
         flex: 1,
@@ -407,23 +415,33 @@ const useStyles = makeStyles({
     },
     tabToolbar: {
         padding: 0,
+        borderLeft: `1px solid ${tokens.colorNeutralStroke2}`,
+        borderRight: `1px solid ${tokens.colorNeutralStroke2}`,
     },
     tab: {
         display: "flex",
         height: "100%",
-        width: "36px",
+        boxSizing: "border-box",
         justifyContent: "center",
-        borderTopLeftRadius: tokens.borderRadiusMedium,
-        borderTopRightRadius: tokens.borderRadiusMedium,
+        border: `1px solid ${tokens.colorNeutralStroke2}`,
+        borderTop: "none",
+    },
+    firstTab: {
+        borderLeftColor: "transparent",
+    },
+    lastTab: {
+        borderRightColor: "transparent",
+    },
+    selectedTab: {
+        borderBottom: "none",
     },
     unselectedTab: {
-        backgroundColor: "transparent",
+        borderLeftColor: "transparent",
+        borderRightColor: "transparent",
     },
     tabRadioButton: {
         backgroundColor: "transparent",
-    },
-    selectedTabIcon: {
-        color: tokens.colorNeutralForeground1,
+        borderRadius: 0,
     },
     resizer: {
         width: "8px",
@@ -524,14 +542,12 @@ const PaneHeader: FunctionComponent<{ id: string; title: string; dockOptions: Ma
     const classes = useStyles();
 
     return (
-        <Theme invert>
-            <div className={classes.paneHeaderDiv}>
-                <Subtitle2Stronger className={classes.paneHeaderText}>{title}</Subtitle2Stronger>
-                <DockMenu sidePaneId={id} dockOptions={dockOptions}>
-                    <Button className={classes.paneHeaderButton} appearance="transparent" icon={<MoreHorizontalRegular />} />
-                </DockMenu>
-            </div>
-        </Theme>
+        <div className={classes.paneHeaderDiv}>
+            <Subtitle2Stronger className={classes.paneHeaderText}>{title}</Subtitle2Stronger>
+            <DockMenu sidePaneId={id} dockOptions={dockOptions}>
+                <Button className={classes.paneHeaderButton} appearance="transparent" icon={<MoreHorizontalRegular />} />
+            </DockMenu>
+        </div>
     );
 };
 
@@ -576,7 +592,7 @@ const Toolbar: FunctionComponent<{ location: VerticalLocation; components: Reado
     return (
         <>
             {components.length > 0 && (
-                <div className={`${classes.bar} ${location === "top" ? classes.barTop : null}`}>
+                <div className={`${classes.bar} ${location === "top" ? classes.barTop : classes.barBottom}`}>
                     <div className={classes.barLeft}>
                         {leftComponents.map((entry) => (
                             <ToolbarItem
@@ -611,7 +627,7 @@ const Toolbar: FunctionComponent<{ location: VerticalLocation; components: Reado
 
 // This is a wrapper for a tab in a side pane that simply adds a teaching moment, which is useful for dynamically added items, possibly from extensions.
 const SidePaneTab: FunctionComponent<
-    { location: HorizontalLocation; id: string; isSelected: boolean; dockOptions: Map<DockLocation, (sidePaneKey: string) => void> } & Pick<
+    { location: HorizontalLocation; id: string; isSelected: boolean; isFirst: boolean; isLast: boolean; dockOptions: Map<DockLocation, (sidePaneKey: string) => void> } & Pick<
         Readonly<SidePaneDefinition>,
         "title" | "icon" | "suppressTeachingMoment"
     >
@@ -620,6 +636,8 @@ const SidePaneTab: FunctionComponent<
         location,
         id,
         isSelected,
+        isFirst,
+        isLast,
         dockOptions,
         // eslint-disable-next-line @typescript-eslint/naming-convention
         icon: Icon,
@@ -630,7 +648,12 @@ const SidePaneTab: FunctionComponent<
     const useTeachingMoment = useMemo(() => MakePopoverTeachingMoment(`Pane/${location}/${title ?? id}`), [title, id]);
     const teachingMoment = useTeachingMoment(suppressTeachingMoment);
 
-    const tabClass = mergeClasses(classes.tab, isSelected ? undefined : classes.unselectedTab);
+    const tabClass = mergeClasses(
+        classes.tab,
+        isSelected ? classes.selectedTab : classes.unselectedTab,
+        isFirst ? classes.firstTab : undefined,
+        isLast ? classes.lastTab : undefined
+    );
 
     return (
         <>
@@ -640,22 +663,22 @@ const SidePaneTab: FunctionComponent<
                 title={title ?? "Extension"}
                 description={`The "${title ?? id}" extension can be accessed here.`}
             />
-            <Theme className={tabClass} invert={isSelected}>
+            <div className={tabClass}>
                 <DockMenu openOnContext sidePaneId={id} dockOptions={dockOptions}>
-                    <ToolbarRadioButton
-                        ref={teachingMoment.targetRef}
-                        title={title ?? id}
-                        appearance="transparent"
-                        className={classes.tabRadioButton}
-                        name="selectedTab"
-                        value={id}
-                        icon={{
-                            className: isSelected ? classes.selectedTabIcon : undefined,
-                            children: <Icon />,
-                        }}
-                    />
+                    <Tooltip content={title ?? id}>
+                        <ToolbarRadioButton
+                            ref={teachingMoment.targetRef}
+                            appearance="transparent"
+                            className={classes.tabRadioButton}
+                            name="selectedTab"
+                            value={id}
+                            icon={{
+                                children: <Icon />,
+                            }}
+                        />
+                    </Tooltip>
                 </DockMenu>
-            </Theme>
+            </div>
         </>
     );
 };
@@ -794,9 +817,12 @@ function usePane(
             <Menu positioning="below-end">
                 <MenuTrigger disableButtonEnhancement={true}>
                     {(triggerProps) => (
-                        <Tooltip content={collapsed ? "Show Side Pane" : "Hide Side Pane"} relationship="label">
+                        <Tooltip content={collapsed ? "Show Side Pane" : "Hide Side Pane"}>
                             <SplitButton
-                                className={classes.paneCollapseButton}
+                                className={mergeClasses(
+                                    classes.paneCollapseButton,
+                                    location === "right" && toolbarMode === "compact" ? classes.paneCollapseButtonWithBorder : undefined
+                                )}
                                 menuButton={triggerProps}
                                 primaryActionButton={{ onClick: onExpandCollapseClick }}
                                 size="small"
@@ -841,7 +867,7 @@ function usePane(
                                             setCollapsed(false);
                                         }}
                                     >
-                                        {paneComponents.map((entry) => {
+                                        {paneComponents.map((entry, index) => {
                                             const isSelected = selectedTab?.key === entry.key;
                                             return (
                                                 <SidePaneTab
@@ -852,6 +878,8 @@ function usePane(
                                                     icon={entry.icon}
                                                     suppressTeachingMoment={entry.suppressTeachingMoment}
                                                     isSelected={isSelected && !collapsed}
+                                                    isFirst={index === 0}
+                                                    isLast={index === paneComponents.length - 1}
                                                     dockOptions={dockOptions}
                                                 />
                                             );
@@ -862,16 +890,9 @@ function usePane(
 
                             {/* When the toolbar mode is "full", we add an extra button that allows the side panes to be collapsed. */}
                             {toolbarMode === "full" && (
-                                <>
-                                    {paneComponents.length > 1 && (
-                                        <>
-                                            <Divider vertical inset style={{ minHeight: 0 }} />{" "}
-                                        </>
-                                    )}
-                                    <Collapse visible={!isChildWindowOpen} orientation="horizontal">
-                                        {expandCollapseButton}
-                                    </Collapse>
-                                </>
+                                <Collapse visible={!isChildWindowOpen} orientation="horizontal">
+                                    {expandCollapseButton}
+                                </Collapse>
                             )}
                         </div>
                     )}
@@ -968,7 +989,9 @@ function usePane(
                                 {/* Render all panes to retain their state even when they are not selected, but only display the selected pane. */}
                                 {topPanes.map((pane) => (
                                     <div key={pane.key} className={mergeClasses(classes.paneContent, pane.key !== topSelectedTab.key ? classes.unselectedPane : undefined)}>
-                                        <pane.content />
+                                        <ErrorBoundary name={pane.title}>
+                                            <pane.content />
+                                        </ErrorBoundary>
                                     </div>
                                 ))}
                             </>
@@ -999,7 +1022,9 @@ function usePane(
                                 {/* Render all panes to retain their state even when they are not selected, but only display the selected pane. */}
                                 {bottomPanes.map((pane) => (
                                     <div key={pane.key} className={mergeClasses(classes.paneContent, pane.key !== bottomSelectedTab.key ? classes.unselectedPane : undefined)}>
-                                        <pane.content />
+                                        <ErrorBoundary name={pane.title}>
+                                            <pane.content />
+                                        </ErrorBoundary>
                                     </div>
                                 ))}
                             </>
@@ -1341,20 +1366,22 @@ export function MakeShellServiceDefinition({
                             {/* Render the main/central content. */}
                             <div className={classes.centralContent}>
                                 {centralContents.map((entry) => (
-                                    <entry.component key={entry.key} />
+                                    <ErrorBoundary key={entry.key} name={entry.key}>
+                                        <entry.component />
+                                    </ErrorBoundary>
                                 ))}
                                 {toolbarMode === "compact" && (
                                     <>
                                         <FluentFade visible={leftPaneCollapsed} delay={50} duration={100} unmountOnExit>
                                             <div className={mergeClasses(classes.expandButtonContainer, classes.expandButtonContainerLeft)}>
-                                                <Tooltip content="Show Side Pane" relationship="label">
+                                                <Tooltip content="Show Side Pane">
                                                     <Button className={classes.expandButton} icon={<PanelLeftExpandRegular />} onClick={() => setLeftPaneCollapsed(false)} />
                                                 </Tooltip>
                                             </div>
                                         </FluentFade>
                                         <FluentFade visible={rightPaneCollapsed} delay={50} duration={100} unmountOnExit>
                                             <div className={mergeClasses(classes.expandButtonContainer, classes.expandButtonContainerRight)}>
-                                                <Tooltip content="Show Side Pane" relationship="label">
+                                                <Tooltip content="Show Side Pane">
                                                     <Button className={classes.expandButton} icon={<PanelRightExpandRegular />} onClick={() => setRightPaneCollapsed(false)} />
                                                 </Tooltip>
                                             </div>

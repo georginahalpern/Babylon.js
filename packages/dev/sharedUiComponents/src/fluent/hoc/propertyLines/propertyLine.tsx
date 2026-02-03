@@ -1,14 +1,14 @@
-import { Body1, Checkbox, makeStyles, tokens, mergeClasses, Tooltip } from "@fluentui/react-components";
+import { Body1, Checkbox, makeStyles, tokens, mergeClasses } from "@fluentui/react-components";
 import {
     ChevronCircleDown20Regular,
     ChevronCircleDown16Regular,
     ChevronCircleRight16Regular,
     ChevronCircleRight20Regular,
+    CopyRegular,
     Copy16Regular,
-    Copy20Regular,
 } from "@fluentui/react-icons";
-import type { FunctionComponent, HTMLProps, PropsWithChildren } from "react";
-import { useContext, useState, forwardRef, cloneElement, isValidElement, useRef } from "react";
+import type { FunctionComponent, HTMLProps, PropsWithChildren, MouseEvent } from "react";
+import { useContext, useState, forwardRef, cloneElement, isValidElement, useRef, useCallback } from "react";
 import { Collapse } from "../../primitives/collapse";
 import { copyCommandToClipboard } from "../../../copyCommandToClipboard";
 import { ToolContext } from "../fluentToolWrapper";
@@ -16,8 +16,10 @@ import type { PrimitiveProps } from "../../primitives/primitive";
 import { Link } from "../../primitives/link";
 import { ToggleButton } from "../../primitives/toggleButton";
 import { Button } from "../../primitives/button";
-import { CustomTokens } from "../../primitives/utils";
+import { CustomTokens, TokenMap } from "../../primitives/utils";
 import { InfoLabel } from "../../primitives/infoLabel";
+import { Tooltip } from "../../primitives/tooltip";
+import { useToast } from "../../primitives/toast";
 
 const usePropertyLineStyles = makeStyles({
     baseLine: {
@@ -55,10 +57,17 @@ const usePropertyLineStyles = makeStyles({
     },
     expandedContentDiv: {
         overflow: "hidden",
+        paddingLeft: tokens.spacingHorizontalM,
     },
     checkbox: {
         display: "flex",
         alignItems: "center",
+        marginRight: tokens.spacingHorizontalXS,
+    },
+    checkboxIndicator: {
+        margin: TokenMap.px2,
+        width: TokenMap.px12,
+        height: TokenMap.px12,
     },
 });
 
@@ -141,6 +150,23 @@ export const PropertyLine = forwardRef<HTMLDivElement, PropsWithChildren<Propert
     const [expanded, setExpanded] = useState("expandByDefault" in props ? props.expandByDefault : false);
     const cachedVal = useRef(nullable ? props.value : null);
 
+    const { showToast } = useToast();
+
+    const handleCopy = useCallback(() => {
+        if (onCopy) {
+            copyCommandToClipboard(onCopy());
+            showToast("Copied property to clipboard");
+        }
+    }, [onCopy, showToast]);
+
+    const handleContextMenu = useCallback(
+        (e: MouseEvent) => {
+            e.preventDefault();
+            handleCopy();
+        },
+        [handleCopy]
+    );
+
     const description = props.docLink ? <Link url={props.docLink} value={props.description ?? "Docs"} /> : props.description ? <Body1>{props.description}</Body1> : undefined;
 
     // Process children to handle nullable state -- creating component in disabled state with default value in lieu of null value
@@ -157,7 +183,7 @@ export const PropertyLine = forwardRef<HTMLDivElement, PropsWithChildren<Propert
     return (
         <LineContainer ref={ref}>
             <div className={classes.baseLine}>
-                <InfoLabel className={classes.infoLabel} htmlFor="property" info={description} label={label} flexLabel />
+                <InfoLabel className={classes.infoLabel} htmlFor="property" info={description} label={label} flexLabel onContextMenu={onCopy ? handleContextMenu : undefined} />
                 <div className={classes.rightContent} id="property">
                     {expandedContent && (
                         <ToggleButton
@@ -172,9 +198,10 @@ export const PropertyLine = forwardRef<HTMLDivElement, PropsWithChildren<Propert
 
                     {nullable && !ignoreNullable && (
                         // If this is a nullableProperty and ignoreNullable was not sent, display a checkbox used to toggle null ('checked' means 'non null')
-                        <Tooltip relationship="label" content={props.value == null ? "Enable property" : "Disable property (set to null)"}>
+                        <Tooltip content={props.value == null ? "Enable property" : "Disable property (set to null)"}>
                             <Checkbox
                                 className={classes.checkbox}
+                                indicator={{ className: classes.checkboxIndicator }}
                                 checked={!(props.value == null)}
                                 onChange={(_, data) => {
                                     if (data.checked) {
@@ -191,13 +218,9 @@ export const PropertyLine = forwardRef<HTMLDivElement, PropsWithChildren<Propert
                     )}
                     <div className={classes.childWrapper}>{processedChildren}</div>
                     {onCopy && !disableCopy && (
-                        <Button
-                            className={classes.copy}
-                            title="Copy to clipboard"
-                            appearance="transparent"
-                            icon={size === "small" ? Copy16Regular : Copy20Regular}
-                            onClick={() => copyCommandToClipboard(onCopy())}
-                        />
+                        <Tooltip content="Copy to Clipboard">
+                            <Button className={classes.copy} appearance="transparent" icon={size === "small" ? Copy16Regular : CopyRegular} onClick={handleCopy} />
+                        </Tooltip>
                     )}
                 </div>
             </div>
@@ -220,6 +243,12 @@ const useLineStyles = makeStyles({
         justifyContent: "center",
         paddingTop: tokens.spacingVerticalXXS,
         paddingBottom: tokens.spacingVerticalXXS,
+        borderTop: `1px solid transparent`,
+        borderBottom: `1px solid transparent`,
+        ":hover": {
+            borderTopColor: tokens.colorNeutralStroke2,
+            borderBottomColor: tokens.colorNeutralStroke2,
+        },
     },
     containerSmall: {
         minHeight: CustomTokens.lineHeightSmall,

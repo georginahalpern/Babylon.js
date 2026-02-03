@@ -1,7 +1,7 @@
 import { SpinButton as FluentSpinButton, mergeClasses, useId } from "@fluentui/react-components";
 import type { SpinButtonOnChangeData, SpinButtonChangeEvent } from "@fluentui/react-components";
-import type { FunctionComponent, KeyboardEvent } from "react";
-import { useEffect, useState, useRef, useContext } from "react";
+import type { KeyboardEvent } from "react";
+import { forwardRef, useEffect, useState, useRef, useContext } from "react";
 import type { PrimitiveProps } from "./primitive";
 import { InfoLabel } from "./infoLabel";
 import { CalculatePrecision, HandleKeyDown, HandleOnBlur, useInputStyles } from "./utils";
@@ -16,9 +16,11 @@ export type SpinButtonProps = PrimitiveProps<number> & {
     unit?: string;
     forceInt?: boolean;
     validator?: (value: number) => boolean;
+    /** Optional className for the input element */
+    inputClassName?: string;
 };
 
-export const SpinButton: FunctionComponent<SpinButtonProps> = (props) => {
+export const SpinButton = forwardRef<HTMLInputElement, SpinButtonProps>((props, ref) => {
     SpinButton.displayName = "SpinButton";
     const classes = useInputStyles();
     const { size } = useContext(ToolContext);
@@ -75,24 +77,37 @@ export const SpinButton: FunctionComponent<SpinButtonProps> = (props) => {
     const id = useId("spin-button");
     const mergedClassName = mergeClasses(classes.input, !validateValue(value) ? classes.invalid : "", props.className);
 
-    return (
-        <div className={classes.container}>
-            {props.infoLabel && <InfoLabel {...props.infoLabel} htmlFor={id} />}
-            <FluentSpinButton
-                {...props}
-                input={{ className: classes.inputSlot }}
-                step={step}
-                id={id}
-                size={size}
-                precision={precision}
-                displayValue={`${value.toFixed(precision)}${props.unit ? " " + props.unit : ""}`}
-                value={value}
-                onChange={handleChange}
-                onKeyUp={handleKeyUp}
-                onKeyDown={HandleKeyDown}
-                onBlur={HandleOnBlur}
-                className={mergedClassName}
-            />
-        </div>
+    // Build input slot from inputClassName
+    const inputSlot = {
+        className: mergeClasses(classes.inputSlot, props.inputClassName),
+    };
+
+    const spinButton = (
+        <FluentSpinButton
+            ref={ref}
+            {...props}
+            appearance="outline"
+            input={inputSlot}
+            step={step}
+            id={id}
+            size={size}
+            precision={precision}
+            displayValue={`${value.toFixed(precision)}${props.unit ? " " + props.unit : ""}`}
+            value={value}
+            onChange={handleChange}
+            onKeyUp={handleKeyUp}
+            onKeyDown={HandleKeyDown}
+            onBlur={HandleOnBlur}
+            className={mergedClassName}
+        />
     );
-};
+
+    return props.infoLabel ? (
+        <div className={classes.container}>
+            <InfoLabel {...props.infoLabel} htmlFor={id} />
+            {spinButton}
+        </div>
+    ) : (
+        spinButton
+    );
+});
