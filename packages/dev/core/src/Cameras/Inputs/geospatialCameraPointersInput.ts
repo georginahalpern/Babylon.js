@@ -5,15 +5,10 @@ import type { Nullable } from "../../types";
 import { OrbitCameraPointersInput } from "./orbitCameraPointersInput";
 
 /**
- * @experimental
  * Geospatial camera inputs can simulate dragging the globe around or tilting the camera around some point on the globe
  * This class will update the GeospatialCameraMovement class's movementDeltaCurrentFrame, and the camera is responsible for using these updates to calculate viewMatrix appropriately
  *
- * As of right now, the camera correction logic (to keep the camera geospatially oriented around the globe) is happening within the camera class when calculating viewmatrix
- * As this is experimental, it is possible we move that correction step to live within the input class (to enable non-corrected translations in the future), say if we want to allow the camera to move outside of the globe's orbit
- *
  * Left mouse button: drag globe
- * Middle mouse button: tilt globe
  * Right mouse button: tilt globe
  *
  */

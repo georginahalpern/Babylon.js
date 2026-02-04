@@ -3,7 +3,6 @@ import { CameraInputTypes } from "../../Cameras/cameraInputsManager";
 import { BaseCameraMouseWheelInput } from "./BaseCameraMouseWheelInput";
 
 /**
- * @experimental
  * Manage the mouse wheel inputs to control a geospatial camera. As this feature is experimental the API will evolve
  */
 export class GeospatialCameraMouseWheelInput extends BaseCameraMouseWheelInput {
