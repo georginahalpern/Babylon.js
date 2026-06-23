@@ -1,6 +1,103 @@
 {
-    "fromTag": "9.12.0",
+    "fromTag": "9.12.1",
     "changelog": {
+        "9.13.0": [
+            {
+                "pr": "18590",
+                "title": "Rework SceneLoader and add unit tests",
+                "description": "## Summary\r\n\r\nThis PR reworks `SceneLoader` so that all internal orchestration is **Promise / `async`/`await`-first**. Callback chaining, explicit `Promise.then`/`Promise.catch`, and the old mixed control flow have been removed from the internals. The public callback-style APIs (the deprecated `SceneLoader.ImportMesh`, `Load`, `Append`, `LoadAssetContainer`, `ImportAnimations` statics and their `*Async` variants) are now thin wrappers around a small set of core `async` functions.\r\n\r\nAlong the way, the refactor fixes a class of long-standing bugs where a load operation could **never settle** (the returned Promise never resolved or rejected, and success/error callbacks were never invoked) or where **pending plugin data leaked**. A comprehensive unit test suite was added to lock in the corrected behavior.\r\n\r\n## Motivation\r\n\r\n`sceneLoader.ts` had accumulated a mix of three different async styles: raw callbacks, hand-written `Promise` executors with `.then`/`.catch`, and `async`/`await`. This made the control flow hard to follow and, more importantly, hid several edge cases where errors thrown synchronously vs. asynchronously were handled inconsistently — sometimes leaving a load hanging forever.\r\n\r\n## Changes\r\n\r\n### Core refactor (`packages/dev/core/src/Loading/sceneLoader.ts`)\r\n\r\n- **Single async core per operation.** Each public operation now funnels through one core `async` function:\r\n  - `importMeshCoreAsync`\r\n  - `loadSceneCoreAsync`\r\n  - `appendSceneCoreAsync`\r\n  - `loadAssetContainerCoreAsync`\r\n  - `importAnimationsCoreAsync`\r\n  These contain the real logic; every public/legacy entry point (modern `*Async` functions and the deprecated `SceneLoader` statics, including the callback overloads) simply `await`s the appropriate core function and adapts the result/errors to its signature.\r\n\r\n- **`loadDataAsync` returns the loaded payload.** Plugin instantiation, `directLoad`, and file loading are bridged into a single Promise that resolves with `{ plugin, data }` and rejects on any failure, instead of driving everything through `onSuccess`/`onError` callbacks. `try/finally` guarantees pending data cleanup.\r\n\r\n- **Unified plugin handling via an async adapter.** Added a `SceneLoaderPlugin` union type, an `isSyncPlugin` type guard, and a `toAsyncPlugin` adapter that wraps a synchronous `ISceneLoaderPlugin` as an `ISceneLoaderPluginAsync`. Call sites no longer branch on `(plugin as ISceneLoaderPlugin).importMesh` / `.load` with casts and non-null assertions; they work against a single async-shaped interface.\r\n\r\n- **Centralized error handling.** Added `createLoadError`, `toLoadError`, and `getErrorMessage` helpers so synchronous throws and asynchronous rejections are funneled into a consistent `RuntimeError` with `ErrorCodes.SceneLoaderError`, without double-wrapping already-tagged scene-loader errors.\r\n\r\n- **Robust progress callbacks.** Added `wrapProgress`, which isolates user `onProgress` callbacks so that a throw inside `onProgress` is logged (`Logger.Warn`) and does **not** abort the load.\r\n\r\n- **Preserved eager `OnPluginActivatedObservable` timing.** Plugin factories are only `await`ed when `createPlugin` actually returns a `Promise` (`const p = createPlugin(...); plugin = p instanceof Promise ? await p : p;`). This avoids deferring synchronous plugin activation to a microtask, keeping `OnPluginActivatedObservable` firing synchronously for backward compatibility.\r\n\r\n### Bug fixes (behavioral)\r\n\r\nThe refactor closes several \"never settles\" / leak paths that previously could hang a load or silently swallow errors:\r\n\r\n- **Silent `false` return:** a synchronous plugin's `importMesh`/`load` returning falsy *without* calling `onError` now rejects (and clears pending data) instead of hanging forever.\r\n- **Invalid file info:** `GetFileInfo` returning `null` now rejects the operation instead of leaving the Promise unsettled.\r\n- **Null scene/engine paths:** these now reject instead of silently never settling.\r\n- **Plugin disposed mid-load:** now rejects with a clear \"plugin was disposed\" error rather than hanging.\r\n- **Unknown `animationGroupLoadingMode`:** now rejects instead of never settling.\r\n- **Synchronous `directLoad` throw:** now cleans up pending data and rejects, matching the async `directLoad` rejection path.\r\n- **Swallowed `LoadSceneAsync` rejection** (e.g. disabled/unavailable plugin) is now surfaced.\r\n- **Offline provider bypass (PR #18584 class):** in-memory sources (`File` / raw data / `data:`) bypass the offline provider; URL-backed loads still go through it.\r\n- **Consistent error logging:** callback statics now log via `Logger.Error` when no `onError` handler is supplied, including paths that were previously swallowed silently.\r\n\r\n### Tests\r\n\r\n- **New unit suite:** `packages/dev/core/test/unit/Loading/sceneLoader.test.ts` (58 tests). It uses a fully controllable dummy loader plugin to exercise:\r\n  - sync vs. async plugins, plugin factories, `directLoad`, `loadFile`, binary/`ArrayBufferView` input, options, and observables;\r\n  - synchronous throws **and** asynchronous rejections from plugin entry points;\r\n  - every \"never settles\" / leak path listed above (added first as failing regression tests, then made green by the refactor);\r\n  - PR #18584 scenarios (offline provider bypass for in-memory vs. URL sources);\r\n  - the deprecated `SceneLoader` static callback APIs (success and error callbacks).\r\n\r\n- **Integration test:** `packages/dev/loaders/test/integration/babylon.sceneLoader.test.ts` — the \"Load BoomBox with dispose\" test now `.catch(() => {})`s the `AppendAsync` promise, since disposing the loader mid-load now (correctly) rejects the load promise; this prevents an unhandled rejection. Full SceneLoader integration file passes (requires the Babylon CDN dev server).\r\n\r\n## Backward compatibility\r\n\r\n- Public API signatures are unchanged. Deprecated callback statics keep behaving as wrappers over the new async cores.\r\n- `OnPluginActivatedObservable` still fires synchronously for synchronous plugin factories.\r\n- The only intentional behavioral differences are the bug fixes above: operations that used to hang now reject, and a few previously-silent error paths now log or reject. These are corrections to clearly buggy behavior.\r\n\r\n## Validation\r\n\r\n- Unit: `sceneLoader.test.ts` — 58/58 passing.\r\n- Integration: `babylon.sceneLoader.test.ts` — passing with the dev server running.\r\n",
+                "author": {
+                    "name": "ryantrem",
+                    "url": "https://github.com/ryantrem"
+                },
+                "files": [
+                    "packages/dev/core/src/Loading/sceneLoader.ts",
+                    "packages/dev/core/test/unit/Loading/sceneLoader.test.ts",
+                    "packages/dev/loaders/test/integration/babylon.sceneLoader.test.ts"
+                ],
+                "tags": [
+                    "bug"
+                ]
+            },
+            {
+                "pr": "18535",
+                "title": "Auto-populate is2DArray/depth in wrapNativeTexture from native layer count",
+                "description": "`wrapNativeTexture` now auto-populates `is2DArray` and `depth` on the wrapped `InternalTexture` via a new `engine.getTextureLayerCount(...)` binding, so hosts no longer have to thread the layer count through their own bridge to wrap a `Texture2DArray` correctly. `updateWrappedNativeTexture` gains a matching layer-count validation.\r\n\r\nThe binding is optional on `INativeEngine`; both call sites guard with a truthy check, so older Babylon Native builds without the binding (BabylonJS/BabylonNative#1733) keep their current behavior — this PR is a no-op until that lands.\r\n\r\n[Created by Copilot on behalf of @bghgary]\r\n",
+                "author": {
+                    "name": "bghgary",
+                    "url": "https://github.com/bghgary"
+                },
+                "files": [
+                    "packages/dev/core/src/Engines/Native/nativeInterfaces.ts",
+                    "packages/dev/core/src/Engines/thinNativeEngine.pure.ts"
+                ],
+                "tags": [
+                    "bug"
+                ]
+            },
+            {
+                "pr": "18572",
+                "title": "Add GPU picker depth point and normal support",
+                "description": "## Summary\n- Add optional depth-based pickedPoint and normal reconstruction to GPUPicker.\n- Use a MultiRenderTarget depth attachment when depth picking is enabled, with shader macro guards so the default color-only path is unchanged when disabled.\n- Extend pickAsync, multiPickAsync, and boxPickAsync to return depth-derived point/normal data where available.\n- Add adaptive multiPickAsync readback options for rectangle vs individual point readbacks.\n\n## Context\nThis PR follows up on the GPU picking point/normal discussion and example:\nhttps://forum.babylonjs.com/t/gpu-picking-point-and-normal-example/40965/34\n\n## Coordinate scaling note\n- GPUPicker now maps input/canvas CSS pixel coordinates to render-target pixels using the input element client rect when available, falling back to hardware scaling for non-DOM engines. This preserves the existing default-canvas behavior while improving picking on CSS-scaled canvases.\n\n## Validation\n- npx tsc -p packages/dev/core/tsconfig.build.json --noEmit --pretty false\n- npm run compile:assets -w @dev/core\n- npx vitest run packages/dev/core/test/unit/Collisions/babylon.gpuPicker.test.ts --project=unit\n- npm run test:visualization -- --project=webgl2 --grep \"GPUPicker Depth Point and Normal\" --update-snapshots",
+                "author": {
+                    "name": "Celeste-twinkle",
+                    "url": "https://github.com/Celeste-twinkle"
+                },
+                "files": [
+                    "packages/dev/core/src/Collisions/gpuPicker.ts",
+                    "packages/dev/core/src/Materials/GaussianSplatting/gaussianSplattingGpuPickingMaterialPlugin.pure.ts",
+                    "packages/dev/core/src/Materials/GaussianSplatting/gaussianSplattingMaterial.pure.ts",
+                    "packages/dev/core/src/Shaders/gaussianSplatting.fragment.fx",
+                    "packages/dev/core/src/Shaders/picking.fragment.fx",
+                    "packages/dev/core/src/ShadersWGSL/gaussianSplatting.fragment.fx",
+                    "packages/dev/core/src/ShadersWGSL/picking.fragment.fx",
+                    "packages/dev/core/test/unit/Collisions/babylon.gpuPicker.test.ts",
+                    "packages/tools/tests/test/visualization/ReferenceImages/gpuPickerDepthPointNormal.png",
+                    "packages/tools/tests/test/visualization/config.json"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "18558",
+                "title": "Honor depthCullingState.depthTest on the native engine",
+                "description": "# [Native] Honor `depthCullingState.depthTest` on the native engine\r\n\r\n## Problem\r\n\r\n`EffectRenderer` (used by `EffectWrapper`-based fullscreen passes) disables depth\r\ntesting by mutating the shared depth-culling state directly:\r\n\r\n```ts\r\n// Materials/effectRenderer.pure.ts -> applyEffectWrapper()\r\nthis.engine.depthCullingState.depthTest = depthTest; // false for a fullscreen pass\r\n```\r\n\r\nOn the WebGL/WebGPU engines this is flushed to the GPU by `applyStates()`, which is\r\ncalled from `drawElementsType`/`drawArraysType` and reads `depthCullingState`.\r\n\r\nThe native engine does **not** go through that `applyStates()` path — its draw methods\r\nencode a draw command directly, and depth state is only ever changed through the\r\nexplicit `setDepthBuffer()` / `setDepthFunction()` commands. As a result, a depth-test\r\ntoggle done through `engine.depthCullingState.depthTest` never reaches the native\r\ncommand stream.\r\n\r\nThe visible effect: a fullscreen `EffectWrapper` quad keeps the depth-test state of the\r\npreviously rendered geometry (e.g. `LEQUAL`). Drawn at clip-space `z = 0.5` against a\r\nrender target whose depth buffer is not at the far value, every fragment fails the depth\r\ntest and is discarded, so the pass produces an all-black target even though the pixel\r\nshader output is correct.\r\n\r\n`ThinDepthPeelingRenderer` toggles `depthCullingState.depthTest` directly as well and is\r\naffected by the same gap.\r\n\r\n## Fix\r\n\r\nMake the native engine honor `depthCullingState.depthTest` the same way the other\r\nengines do:\r\n\r\n- `setDepthBuffer()` keeps `_depthCullingState.depthTest` in sync (matching the base\r\n  `AbstractEngine.setDepthBuffer`, which is literally `this._depthCullingState.depthTest = enable`).\r\n- Before each native draw, `_flushDepthTestState()` reconciles the encoded depth-test\r\n  enable with `depthCullingState.depthTest` and emits the command only when it changed.\r\n\r\nThis keeps the existing explicit `setDepthBuffer()` / `setDepthFunction()` paths working\r\nunchanged (they already set the state object / are the source of truth) while also\r\nhonoring direct `depthCullingState.depthTest` mutations.\r\n\r\nNo public API change.\r\n\r\n## Testing\r\n\r\nValidated on Babylon Native (Win32 / D3D11) with the Playground validation suite:\r\n\r\n- The previously-broken `EffectRenderer` onion-skin/blur fullscreen-pass scene renders\r\n  correctly instead of all black.\r\n- Full standard validation sweep: no regressions (every previously-passing test still\r\n  passes, including depth- and transparency-sensitive scenes).\r\n\r\n## Notes\r\n\r\n`EffectRenderer` also toggles `stencilState.stencilTest` directly. That has the same\r\nlatent gap on native but defaults to `false` and has no reproducing scene today, so it is\r\nintentionally left out of this change to keep it minimal; it can be addressed with the\r\nsame pattern if a repro appears.\n\n---\n\nPartial fix for https://github.com/BabylonJS/BabylonNative/issues/1106 (Handle Engine States in Babylon Native).",
+                "author": {
+                    "name": "bkaradzic-microsoft",
+                    "url": "https://github.com/bkaradzic-microsoft"
+                },
+                "files": [
+                    "packages/dev/core/src/Engines/thinNativeEngine.pure.ts"
+                ],
+                "tags": []
+            },
+            {
+                "pr": "18585",
+                "title": "GS streaming/lod part2",
+                "description": "focus on perf",
+                "author": {
+                    "name": "CedricGuillemet",
+                    "url": "https://github.com/CedricGuillemet"
+                },
+                "files": [
+                    "packages/dev/core/src/Engines/nullEngine.pure.ts",
+                    "packages/dev/core/src/Materials/GaussianSplatting/gaussianSplattingMaterial.pure.ts",
+                    "packages/dev/core/src/Materials/Node/Blocks/GaussianSplatting/gaussianSplattingBlock.pure.ts",
+                    "packages/dev/core/src/Meshes/GaussianSplatting/gaussianSplattingMeshBase.pure.ts",
+                    "packages/dev/core/src/Meshes/GaussianSplatting/gaussianSplattingSortWorker.ts",
+                    "packages/dev/core/src/Shaders/ShadersInclude/gaussianSplatting.fx",
+                    "packages/dev/core/src/Shaders/gaussianSplatting.vertex.fx",
+                    "packages/dev/core/src/Shaders/gaussianSplattingDepth.vertex.fx",
+                    "packages/dev/core/src/ShadersWGSL/ShadersInclude/gaussianSplatting.fx",
+                    "packages/dev/core/src/ShadersWGSL/gaussianSplatting.vertex.fx",
+                    "packages/dev/core/src/ShadersWGSL/gaussianSplattingDepth.vertex.fx",
+                    "packages/dev/inspector-v2/src/components/properties/nodes/gaussianSplattingProperties.tsx",
+                    "packages/dev/loaders/src/SPLAT/gaussianSplattingStream.ts",
+                    "packages/dev/loaders/src/SPLAT/gaussianSplattingWorkBuffer.ts",
+                    "packages/dev/loaders/src/SPLAT/sog.ts"
+                ],
+                "tags": []
+            }
+        ],
         "9.12.1": [
             {
                 "pr": "18576",
